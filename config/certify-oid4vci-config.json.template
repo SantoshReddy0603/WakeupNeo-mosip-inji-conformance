@@ -1,0 +1,36 @@
+{
+  "plan_name": "oid4vci-1_0-issuer-test-plan",
+  "variant": {
+    "credential_format": "${VCI_CREDENTIAL_FORMAT}",
+    "client_auth_type": "${VCI_CLIENT_AUTH_TYPE}",
+    "sender_constrain": "${VCI_SENDER_CONSTRAIN}",
+    "vci_authorization_code_flow_variant": "wallet_initiated",
+    "vci_credential_encryption": "plain",
+    "vci_grant_type": "authorization_code",
+    "fapi_profile": "vci",
+    "authorization_request_type": "simple",
+    "fapi_request_method": "unsigned",
+    "fapi_response_mode": "plain_response",
+    "grant_management": "disabled",
+    "openid": "plain_oauth"
+  },
+  "configuration": {
+    "vci": {
+      "credential_issuer_url": "${CERTIFY_BASE_URL}",
+      "authorization_server": "${VCI_AUTHORIZATION_SERVER}",
+      "credential_configuration_id": "${VCI_CREDENTIAL_CONFIGURATION_ID}"
+    },
+    "client": {
+      "client_id": "${VCI_CLIENT_ID}",
+      "jwks": "${WALLET_JWKS}",
+      "scope": "${VCI_SCOPE}",
+      "dpop_signing_alg": "ES256"
+    },
+    "client2": {
+      "client_id": "${VCI_CLIENT2_ID}",
+      "jwks": "${WALLET2_JWKS}",
+      "scope": "${VCI_SCOPE}",
+      "dpop_signing_alg": "ES256"
+    }
+  }
+}

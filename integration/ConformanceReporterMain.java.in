@@ -1,0 +1,108 @@
+package io.inji.testrig.apirig.@MODULE@.testscripts;
+
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.IResultMap;
+import org.testng.ISuite;
+import org.testng.xml.XmlSuite;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.testng.TestNG;
+import io.mosip.testrig.apirig.report.EmailableReport;
+import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+
+/** Standalone conformance suite using the EXISTING commons reporter/S3 lifecycle. */
+public class ConformanceReporterMain {
+    /** The existing error-only reporter clears passed results. Restore the SAME
+     * actual result objects so later native TestNG reporters retain every outcome. */
+    public static class PreservingReporter extends EmailableReport {
+        @Override
+        public void generateReport(List<XmlSuite> xml, List<ISuite> suites, String directory) {
+            Map<IResultMap, List<ITestResult>> originals = new HashMap<>();
+            for (ISuite suite : suites) suite.getResults().values().forEach(result -> {
+                ITestContext context = result.getTestContext();
+                for (IResultMap results : List.of(context.getPassedTests(), context.getFailedTests(), context.getSkippedTests()))
+                    originals.put(results, new ArrayList<>(results.getAllResults()));
+            });
+            try { super.generateReport(xml, suites, directory); }
+            finally {
+                originals.forEach((results, saved) -> {
+                    results.getAllResults().clear();
+                    saved.forEach(results::addResult);
+                });
+            }
+        }
+    }
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) throw new IllegalArgumentException("Supply suite XML and report directory");
+        Path output = Path.of(args[1]).toAbsolutePath();
+        Files.createDirectories(output);
+        Map<String, Object> configuration = new HashMap<>();
+        configuration.put("slack-webhook-url", ""); // No messaging authorization in a local test run.
+        configuration.put("reportIgnoredTestCases", "no");
+        configuration.put("reportKnownIssueTestCases", "no");
+        configuration.put("mountPathForReport", output.toString());
+        configuration.put("reportExpirationInDays", "30");
+        String s3 = System.getenv("S3_ENDPOINT");
+        configuration.put("push-reports-to-s3", s3 == null || s3.isBlank() ? "no" : "yes");
+        if (s3 != null && !s3.isBlank()) {
+            configuration.put("s3-host", s3);
+            configuration.put("s3-region", System.getenv("AWS_REGION"));
+            configuration.put("s3-user-key", System.getenv("AWS_ACCESS_KEY_ID"));
+            configuration.put("s3-user-secret", System.getenv("AWS_SECRET_ACCESS_KEY"));
+            configuration.put("s3-account", System.getenv("S3_BUCKET"));
+        }
+        ConfigManager.init(configuration);
+        String endpoint = System.getProperty("env.endpoint");
+        if (endpoint == null) throw new IllegalArgumentException("Set the real env.endpoint");
+        BaseTestCase.environment = URI.create(endpoint).getHost();
+        BaseTestCase.currentModule = "@MODULE@";
+        BaseTestCase.testLevel = "conformance";
+        String storageModule = System.getProperty("conformance.storageModule",
+            "@MODULE@/openid-conformance/" + System.getProperty("conformance.runId", "local")
+                + "/" + java.util.UUID.randomUUID());
+        System.setProperty("modules", storageModule);
+        System.setProperty("emailable.report2.name", "@MODULE@-report.html");
+        System.setProperty("testng.outpur.dir", Path.of(System.getProperty("user.dir")).toAbsolutePath().relativize(output).toString());
+        TestNG testng = new TestNG();
+        testng.setTestSuites(List.of(args[0]));
+        testng.setOutputDirectory(output.toString());
+        testng.addListener(new PreservingReporter());
+        long started = System.currentTimeMillis() - 1000;
+        testng.run();
+        // The existing reporter logs upload errors rather than throwing. Verify
+        // its real output so those errors cannot produce a successful CI run.
+        if (s3 != null && !s3.isBlank()) {
+            AmazonS3 storage = AmazonS3ClientBuilder.standard().withPathStyleAccessEnabled(true)
+                .withEndpointConfiguration(new EndpointConfiguration(s3, System.getenv("AWS_REGION")))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
+                    System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY")))).build();
+            try (java.util.stream.Stream<Path> files = Files.list(output)) {
+                List<Path> reports = files.filter(file -> file.getFileName().toString().startsWith("@MODULE@-"))
+                    .filter(file -> file.getFileName().toString().contains("-report_T-"))
+                    .filter(file -> file.toFile().lastModified() >= started).collect(java.util.stream.Collectors.toList());
+                if (reports.isEmpty()) throw new IllegalStateException("Existing reporter produced no current HTML reports");
+                for (Path file : reports) {
+                    try (java.io.InputStream received = storage.getObject(System.getenv("S3_BUCKET"),
+                            storageModule + "/" + file.getFileName()).getObjectContent()) {
+                        if (!Arrays.equals(received.readAllBytes(), Files.readAllBytes(file)))
+                            throw new IllegalStateException("Existing reporter upload differs: " + file.getFileName());
+                    }
+                }
+            } finally { storage.shutdown(); }
+        }
+        System.exit(testng.hasFailure() ? 1 : 0); // The conformance gate judges optional skips.
+    }
+}

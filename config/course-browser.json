@@ -1,0 +1,8 @@
+{
+  "allowed_hosts": ["host.docker.internal", "localhost"],
+  "steps": [
+    {"action": "fill", "selector": "#username", "value_env": "ISSUER_LOGIN_USERNAME"},
+    {"action": "fill", "selector": "#password", "value_env": "ISSUER_LOGIN_PASSWORD"},
+    {"action": "click", "selector": "#kc-login"}
+  ]
+}

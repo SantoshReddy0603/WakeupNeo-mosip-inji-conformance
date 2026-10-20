@@ -1,0 +1,13 @@
+name: inji-conformance-storage
+services:
+  minio:
+    build: {context: ./minio}
+    image: inji-harness/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:?Run runner/setup.py}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:?Run runner/setup.py}
+    ports: ['127.0.0.1:9000:9000', '127.0.0.1:9001:9001']
+    volumes: [storage-data:/data]
+volumes:
+  storage-data:

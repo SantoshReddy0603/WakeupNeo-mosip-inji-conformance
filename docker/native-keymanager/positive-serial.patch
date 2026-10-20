@@ -1,0 +1,96 @@
+diff --git a/kernel/kernel-keymanager-service/src/main/java/io/mosip/kernel/keymanager/hsm/util/CertificateUtility.java b/kernel/kernel-keymanager-service/src/main/java/io/mosip/kernel/keymanager/hsm/util/CertificateUtility.java
+index 93c6ae9..e03f343 100644
+--- a/kernel/kernel-keymanager-service/src/main/java/io/mosip/kernel/keymanager/hsm/util/CertificateUtility.java
++++ b/kernel/kernel-keymanager-service/src/main/java/io/mosip/kernel/keymanager/hsm/util/CertificateUtility.java
+@@ -52,6 +52,11 @@ public class CertificateUtility {
+ 	private CertificateUtility() {
+ 	}
+ 
++	// Positive, nonzero, at most 20 DER octets as required by RFC 5280.
++	static BigInteger generateSerialNumber() {
++		return new BigInteger(159, new SecureRandom()).setBit(158);
++	}
++
+ 	/**
+ 	 * Generate and sign X509 Certificate
+ 	 * 
+@@ -114,7 +119,7 @@ public class CertificateUtility {
+ 						String signAlgorithm, String providerName, LocalDateTime notBefore, LocalDateTime notAfter, KeyUsage keyUsage,
+ 						BasicConstraints basicConstraints) {
+ 		try {
+-			BigInteger certSerialNum = new BigInteger(Long.toString(new SecureRandom().nextLong()));
++			BigInteger certSerialNum = generateSerialNumber();
+ 
+ 			ContentSigner certContentSigner = new JcaContentSignerBuilder(signAlgorithm).setProvider(providerName).build(signPrivateKey);
+ 			X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(certIssuer, certSerialNum, getDateFromLocalDateTime(notBefore),
+@@ -135,7 +140,7 @@ public class CertificateUtility {
+ 														   String signAlgorithm, String providerName, LocalDateTime notBefore, LocalDateTime notAfter, KeyUsage keyUsage,
+ 														   BasicConstraints basicConstraints, GeneralName[] altNames) {
+ 		try {
+-			BigInteger certSerialNum = new BigInteger(Long.toString(new SecureRandom().nextLong()));
++			BigInteger certSerialNum = generateSerialNumber();
+ 
+ 			ContentSigner certContentSigner = new JcaContentSignerBuilder(signAlgorithm).setProvider(providerName).build(signPrivateKey);
+ 			X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(certIssuer, certSerialNum, getDateFromLocalDateTime(notBefore),
+diff --git a/kernel/kernel-keymanager-service/src/test/java/io/mosip/kernel/keymanager/hsm/util/CertificateSerialNumberTest.java b/kernel/kernel-keymanager-service/src/test/java/io/mosip/kernel/keymanager/hsm/util/CertificateSerialNumberTest.java
+new file mode 100644
+index 0000000..b552fa7
+--- /dev/null
++++ b/kernel/kernel-keymanager-service/src/test/java/io/mosip/kernel/keymanager/hsm/util/CertificateSerialNumberTest.java
+@@ -0,0 +1,56 @@
++package io.mosip.kernel.keymanager.hsm.util;
++
++import io.mosip.kernel.core.keymanager.model.CertificateParameters;
++import io.mosip.kernel.keymanagerservice.dto.ExtendedCertificateParameters;
++import org.bouncycastle.jce.provider.BouncyCastleProvider;
++import org.junit.Test;
++import java.math.BigInteger;
++import java.security.KeyPairGenerator;
++import java.security.Security;
++import java.time.LocalDateTime;
++import java.util.HashSet;
++import java.util.List;
++import static org.junit.Assert.*;
++
++public class CertificateSerialNumberTest {
++    @Test public void serialsArePositiveNonzeroBoundedAndDistinct() {
++        var generated = new HashSet<BigInteger>();
++        for (int i = 0; i < 10000; i++) {
++            var serial = CertificateUtility.generateSerialNumber();
++            assertTrue(serial.signum() > 0);
++            assertTrue(serial.toByteArray().length <= 20);
++            assertTrue(generated.add(serial));
++        }
++    }
++    @Test public void ordinaryCertificatesHavePositiveSerialsAndValidSignatures() throws Exception {
++        Security.addProvider(new BouncyCastleProvider());
++        var generator = KeyPairGenerator.getInstance("RSA");
++        generator.initialize(2048);
++        var pair = generator.generateKeyPair();
++        for (int i = 0; i < 8; i++) {
++            var certificate = CertificateUtility.generateX509Certificate(pair.getPrivate(), pair.getPublic(),
++                    "development", "development", "development", "IN", LocalDateTime.now().minusMinutes(1),
++                    LocalDateTime.now().plusDays(1), "SHA256withRSA", "BC");
++            assertTrue(certificate.getSerialNumber().signum() > 0);
++            assertTrue(certificate.getSerialNumber().toByteArray().length <= 20);
++            certificate.verify(pair.getPublic());
++        }
++    }
++    @Test public void extendedCertificatesUseTheSameSafeGenerator() throws Exception {
++        Security.addProvider(new BouncyCastleProvider());
++        var generator = KeyPairGenerator.getInstance("RSA");
++        generator.initialize(2048);
++        var pair = generator.generateKeyPair();
++        var parameters = new ExtendedCertificateParameters();
++        parameters.setCommonName("development");
++        parameters.setCountry("IN");
++        parameters.setNotBefore(LocalDateTime.now().minusMinutes(1));
++        parameters.setNotAfter(LocalDateTime.now().plusDays(1));
++        parameters.setSubjectAlternativeNames(List.of());
++        var certificate = CertificateUtility.generateX509Certificate(pair.getPrivate(), pair.getPublic(),
++                parameters, null, "SHA256withRSA", "BC");
++        assertTrue(certificate.getSerialNumber().signum() > 0);
++        assertTrue(certificate.getSerialNumber().toByteArray().length <= 20);
++        certificate.verify(pair.getPublic());
++    }
++}

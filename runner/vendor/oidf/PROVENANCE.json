@@ -1,0 +1,7 @@
+{
+  "upstream": "https://gitlab.com/openid/conformance-suite",
+  "revision": "11999aad62ec292f36101410d9d5b761d44903ff",
+  "path": "scripts/conformance.py",
+  "sha256": "660214cc6ca9b3c09297f61908a575db7b1552e8f44eecd5740d1c27fa2cfca8",
+  "modified": false
+}

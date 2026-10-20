@@ -1,0 +1,2181 @@
+{
+  "stage": 18,
+  "assignment_pdf": {
+    "source": "C:\\Users\\venka\\Downloads\\01_Automated_Conformance_Testing_for_Inji_Certify_and_Inji_Verify.pdf",
+    "sha256": "5b162d0622f0cc6f809ee2ba3c63d6605dfb1870c70b27e4e1e0a8c6a89550ac"
+  },
+  "harness_tests_passed": 124,
+  "native_tests_passed": {
+    "certify": 49,
+    "keymanager": 3
+  },
+  "requirements": [
+    {
+      "id": "M1",
+      "category": "mandatory",
+      "requirement": "Docker Compose: Inji Certify + Inji Verify + Conformance Suite",
+      "implemented_in_source": true,
+      "source_files": [
+        "docker/docker-compose.yml",
+        "docker/certify-final.compose.yml",
+        "docker/certify-native.compose.yml",
+        "docker/verify-final.compose.yml",
+        "docker/storage.compose.yml"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Real owned Compose services started, trusted-CA HTTP readiness and issuer smoke passed; repeated up and graceful stop/restart passed.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "No fresh empty-database/empty-volume deployment; original volumes and development keys preserved"
+    },
+    {
+      "id": "M2",
+      "category": "mandatory",
+      "requirement": "Programmatic create/configure/run/poll/retrieve using official automation",
+      "implemented_in_source": true,
+      "source_files": [
+        "runner/runner.py",
+        "runner/oidf_client.py",
+        "runner/vendor/oidf/conformance.py"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "M3",
+      "category": "mandatory",
+      "requirement": "OpenIDConformanceTest in both existing api-testrigs with PASS/FAIL/SKIP and reporting",
+      "implemented_in_source": true,
+      "source_files": [
+        "integration/OpenIDConformanceTest.java.in",
+        "integration/ConformanceReporterMain.java.in",
+        "integration/install.py",
+        "runner/report_lifecycle.py"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "M4",
+      "category": "mandatory",
+      "requirement": "Combined run and consolidated cross-module conformance report",
+      "implemented_in_source": true,
+      "source_files": [
+        "run-conformance.sh",
+        "runner/runner.py",
+        "runner/report_lifecycle.py",
+        "testrig/testng-combined.xml"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": true,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "M5",
+      "category": "mandatory",
+      "requirement": "One-command --component certify / --component verify / --combined",
+      "implemented_in_source": true,
+      "source_files": [
+        "run-conformance.sh",
+        "run-conformance.ps1",
+        "run-full-stack-conformance.sh"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "G1",
+      "category": "good-to-have",
+      "requirement": "GitHub Actions CI/CD",
+      "implemented_in_source": true,
+      "source_files": [
+        ".github/workflows/full-stack-conformance.yml",
+        ".github/actionlint.yaml"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Workflow lint, harness, native builds, both real module compiles, real fresh execution, strict gates and artifact handling checked locally.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": true,
+      "remaining_or_unverified": "Remote GitHub Actions and registered self-hosted runner remain deferred; no remote CI success is claimed."
+    },
+    {
+      "id": "G2",
+      "category": "good-to-have",
+      "requirement": "Selective component/plan execution",
+      "implemented_in_source": true,
+      "source_files": [
+        "runner/runner.py",
+        "run-conformance.sh",
+        "run-conformance.ps1"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "G3",
+      "category": "good-to-have",
+      "requirement": "Expected-Failures",
+      "implemented_in_source": true,
+      "source_files": [
+        "config/expected-failures.json",
+        "runner/runner.py",
+        "tests/test_optional_features.py"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Full controlled HTTP fixture suite passed including explicit expected failures, status regressions, comparison and partial failures; no official failure was waived.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "No new official run was deliberately damaged or waived to exercise failure rules."
+    },
+    {
+      "id": "G4",
+      "category": "good-to-have",
+      "requirement": "Result Diff Between Runs",
+      "implemented_in_source": true,
+      "source_files": [
+        "runner/diff_engine.py",
+        "runner/retained_run.py",
+        "run-conformance.sh",
+        "run-conformance.ps1"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/actual-result-comparison.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Read-only diff of actual historical versus fresh and actual serial versus parallel results: all 25 statuses unchanged in both comparisons; every combined gate remains FAILED. Controlled tests also exercise regressions.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "No actual official result was deliberately corrupted to manufacture a regression."
+    },
+    {
+      "id": "G5",
+      "category": "good-to-have",
+      "requirement": "Documentation",
+      "implemented_in_source": true,
+      "source_files": [
+        "README.md",
+        "SETUP.md",
+        "ARCHITECTURE.md",
+        "TROUBLESHOOTING.md",
+        "REVIEW_PROCESS.md",
+        "integration/README.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Documents explain actual service topology, official-library flow, component handoffs, strict mapping/storage, setup, failure diagnosis and self-certification dependencies.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": ""
+    },
+    {
+      "id": "B1",
+      "category": "bonus",
+      "requirement": "Parallel Execution",
+      "implemented_in_source": true,
+      "source_files": [
+        "runner/runner.py",
+        "tests/test_optional_features.py"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official combined execution with --parallel 2 and independent aliases, serial per-plan modules; TestNG/Extent/S3 preserved actual failed gate. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official verifier manual-review outcomes remain REVIEW."
+    },
+    {
+      "id": "D1",
+      "category": "named-deliverable",
+      "requirement": "Docker Compose configuration including server, mongodb, httpd",
+      "implemented_in_source": true,
+      "source_files": [
+        "docker/docker-compose.yml",
+        "docker/certify-final.compose.yml",
+        "docker/verify-final.compose.yml"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Real owned Compose services started, trusted-CA HTTP readiness and issuer smoke passed; repeated up and graceful stop/restart passed.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "No fresh empty-database/empty-volume deployment; original volumes and development keys preserved"
+    },
+    {
+      "id": "D2",
+      "category": "named-deliverable",
+      "requirement": "Issuer/verifier JSON templates with correct 1.0 variants",
+      "implemented_in_source": true,
+      "source_files": [
+        "config/certify-oid4vci-config.json.template",
+        "config/verify-oid4vp-config.json.template",
+        "config/verify-request.final.json"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "D3",
+      "category": "named-deliverable",
+      "requirement": "run-full-stack-conformance.sh",
+      "implemented_in_source": true,
+      "source_files": [
+        "run-full-stack-conformance.sh"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": "Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution."
+    },
+    {
+      "id": "D4",
+      "category": "named-deliverable",
+      "requirement": ".github/workflows/full-stack-conformance.yml",
+      "implemented_in_source": true,
+      "source_files": [
+        ".github/workflows/full-stack-conformance.yml"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Workflow lint, harness, native builds, both real module compiles, real fresh execution, strict gates and artifact handling checked locally.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": true,
+      "remaining_or_unverified": "Remote GitHub Actions and registered self-hosted runner remain deferred; no remote CI success is claimed."
+    },
+    {
+      "id": "D5a",
+      "category": "named-documentation-deliverable",
+      "requirement": "Architecture",
+      "implemented_in_source": true,
+      "source_files": [
+        "ARCHITECTURE.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Content checked against actual implementation, errors encountered and applicable official guidance.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": ""
+    },
+    {
+      "id": "D5b",
+      "category": "named-documentation-deliverable",
+      "requirement": "How API automation works",
+      "implemented_in_source": true,
+      "source_files": [
+        "ARCHITECTURE.md",
+        "README.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Content checked against actual implementation, errors encountered and applicable official guidance.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": ""
+    },
+    {
+      "id": "D5c",
+      "category": "named-documentation-deliverable",
+      "requirement": "Per-component handoff handling",
+      "implemented_in_source": true,
+      "source_files": [
+        "ARCHITECTURE.md",
+        "SETUP.md",
+        "integration/README.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Content checked against actual implementation, errors encountered and applicable official guidance.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": ""
+    },
+    {
+      "id": "D5d",
+      "category": "named-documentation-deliverable",
+      "requirement": "How to submit for self-certification",
+      "implemented_in_source": true,
+      "source_files": [
+        "REVIEW_PROCESS.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Content checked against actual implementation, errors encountered and applicable official guidance.",
+      "end_to_end_status": "partial",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": true,
+      "remaining_or_unverified": "The procedure is documented; certification requires an eligible profile, actual results, authorized identity/declaration/payment and explicit authorization."
+    },
+    {
+      "id": "D5e",
+      "category": "named-documentation-deliverable",
+      "requirement": "Troubleshooting",
+      "implemented_in_source": true,
+      "source_files": [
+        "TROUBLESHOOTING.md",
+        "SETUP.md"
+      ],
+      "tested_locally": true,
+      "local_evidence": [
+        "outputs/stage-16-final-validation/evidence/core/harness.xml",
+        "outputs/stage-16-final-validation/evidence/core/commands.json",
+        "outputs/stage-16-final-validation/evidence/live/commands.json",
+        "outputs/stage-16-final-validation/evidence/closeout/commands.json",
+        "outputs/stage-17-review-resolution/evidence/checks/commands.json"
+      ],
+      "end_to_end_evidence": "Content checked against actual implementation, errors encountered and applicable official guidance.",
+      "end_to_end_status": "verified",
+      "partially_implemented": false,
+      "not_implemented": false,
+      "external_dependency": false,
+      "remaining_or_unverified": ""
+    }
+  ],
+  "original_official_run": "141a3630f7874e98ae4964653f953899",
+  "official_results": {
+    "certify": {
+      "PASS": 12,
+      "SKIP": 3,
+      "gate": "PASSED"
+    },
+    "verify": {
+      "PASS": 4,
+      "REVIEW": 6,
+      "gate": "FAILED"
+    },
+    "combined": {
+      "PASS": 16,
+      "REVIEW": 6,
+      "SKIP": 3,
+      "gate": "FAILED"
+    }
+  },
+  "verification_limits": [
+    "No fresh empty-database/empty-volume deployment; original volumes and development keys preserved",
+    "Maven builds used clean temporary source/targets and the existing dependency cache; empty dependency-cache resolution not repeated",
+    "No full Windows Java/Maven reporter runtime; actual runtime validation used WSL Linux, PowerShell syntax passed",
+    "No unrelated full functional master-suite execution",
+    "No remote GitHub Actions execution; repository publication deferred",
+    "Official verifier REVIEW still requires applicable authoritative review; no certification claimed",
+    "Request URI POST/wallet_nonce coverage is not established: this url_query run bypassed the named module's POST fetch override; native request URI support is tied to a different DID scheme. Applicable upstream assessment or further explicitly authorized compatible native work is required."
+  ],
+  "genuine_local_implementation_blocker_requiring_credentials": null,
+  "preservation": {
+    "original_files_unchanged": true,
+    "original_native_html_objects_hashes_verified": 6,
+    "original_minio_artifacts_verified": 72,
+    "suite_collection_counts_unchanged": true,
+    "new_official_plans_created": false,
+    "official_run_id": "141a3630f7874e98ae4964653f953899",
+    "original_combined_gate": "FAILED"
+  },
+  "validation_date": "2026-10-20",
+  "stage15_validation": {
+    "native_certify_tests": 49,
+    "native_keymanager_tests": 3,
+    "reporting_modes": {
+      "certify": {
+        "exit": 0,
+        "pass": 13,
+        "fail": 0,
+        "skip": 3,
+        "artifacts_verified": 59
+      },
+      "verify": {
+        "exit": 1,
+        "pass": 4,
+        "fail": 7,
+        "skip": 0,
+        "artifacts_verified": 69
+      },
+      "combined": {
+        "exit": 1,
+        "pass": 16,
+        "fail": 7,
+        "skip": 3,
+        "artifacts_verified": 117
+      },
+      "full-stack": {
+        "exit": 1,
+        "pass": 16,
+        "fail": 7,
+        "skip": 3,
+        "artifacts_verified": 117
+      }
+    },
+    "reporting_note": "Gate assertions add TestNG cases. Six REVIEW map to FAIL and one failed release-gate assertion accounts for seven failures. These are retained official results retrieved again, not new official executions.",
+    "preservation": {
+      "original_files_unchanged": true,
+      "suite_inventory_unchanged": true,
+      "new_official_plans_created": false,
+      "official_run_id": "141a3630f7874e98ae4964653f953899",
+      "official_combined_gate": "FAILED"
+    },
+    "workflow_lint": "Final corrected actionlint exit 0; remote CI deferred",
+    "timeout_cleanup": "Python native-session descendants and both Java reporters exercised with controlled timeout fixtures",
+    "review": "Six original REVIEW remain pending authoritative applicable review; no status mutation or approval performed."
+  },
+  "stage16_validation": {
+    "harness": {
+      "tests": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reliability_repeats": 10,
+    "reliability_checks": 220,
+    "nested_session_cases": 30,
+    "official": {
+      "certify": {
+        "run_id": "a8bbdbfd15f249088f3b263866031250",
+        "consolidated": {
+          "total": 15,
+          "passed": 12,
+          "failed": 0,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 15,
+          "status": "PASSED",
+          "gate_met": true,
+          "components": [
+            "certify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+          },
+          "timestamp": "2026-10-20T02:47:53.896138+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "plans": {
+          "certify": {
+            "summary": {
+              "component": "certify",
+              "plan_name": "oid4vci-1_0-issuer-test-plan",
+              "plan_id": "zqADg3p7rwmJh",
+              "status": "PASSED",
+              "total": 15,
+              "passed": 12,
+              "failed": 0,
+              "warnings": 0,
+              "skipped": 3,
+              "expected_failures": 0,
+              "is_gated_pass": true
+            },
+            "results": {
+              "oid4vci-1_0-issuer-metadata-test": "PASSED",
+              "oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+              "oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+              "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+              "oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "Nb9vNDLhKP0paMf",
+                "module": "oid4vci-1_0-issuer-metadata-test",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "hIAfH2Gwk7jNlWa",
+                "module": "oid4vci-1_0-issuer-metadata-test-signed",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "Ix8eToe5mJaCe70",
+                "module": "oid4vci-1_0-issuer-happy-flow",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "7H8ukoei00DdfDs",
+                "module": "oid4vci-1_0-issuer-happy-flow-additional-requests",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "7AH9jjoARjuxZIi",
+                "module": "oid4vci-1_0-issuer-happy-flow-multiple-clients",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "MA6NOapEricjwiE",
+                "module": "oid4vci-1_0-issuer-happy-flow-skip-notification",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "f7VzdF7m2pgrC7K",
+                "module": "oid4vci-1_0-issuer-batch-issuance",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "vph2GOUZjOT6LNG",
+                "module": "oid4vci-1_0-issuer-fail-invalid-nonce",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "T5Q9k2ki81lCiBM",
+                "module": "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "pc604aPawhH6M2B",
+                "module": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "wVsw5ryfDNEAUsg",
+                "module": "oid4vci-1_0-issuer-fail-missing-proof",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "UQiSBclZixRdTIc",
+                "module": "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "bXtCPlIfADtfen6",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-configuration",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "xAHIl2ZvPKe4QU7",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-identifier",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "bXRzYr3wYguhI6T",
+                "module": "oid4vci-1_0-issuer-fail-on-access-token-in-query",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              }
+            ]
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "16",
+          "passed": "13",
+          "failed": "0",
+          "skipped": "3"
+        },
+        "s3_verified": 55,
+        "kind": "new_official_execution"
+      },
+      "verify": {
+        "run_id": "72cffb418ee3454a87ec106422dd559b",
+        "consolidated": {
+          "total": 10,
+          "passed": 4,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 0,
+          "total_tests": 10,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "verify"
+          ],
+          "results": {
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T02:51:33.704353+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "plans": {
+          "verify": {
+            "summary": {
+              "component": "verify",
+              "plan_name": "oid4vp-1final-verifier-test-plan",
+              "plan_id": "1qOWPxtnI1Bs1",
+              "status": "FAILED",
+              "total": 10,
+              "passed": 4,
+              "failed": 6,
+              "warnings": 0,
+              "skipped": 0,
+              "expected_failures": 0,
+              "is_gated_pass": false
+            },
+            "results": {
+              "oid4vp-1final-verifier-happy-flow": "REVIEW",
+              "oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+              "oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+              "oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "6UJ0pBE70cMEIRl",
+                "module": "oid4vp-1final-verifier-happy-flow",
+                "status": "REVIEW",
+                "request_id": "req_3766c378-aa06-4b86-96b1-24f9dc939671",
+                "transaction_id": "txn_04036205-ff77-4624-8cb8-76ef80c812b5"
+              },
+              {
+                "id": "9Ls91B21mgH0d7C",
+                "module": "oid4vp-1final-verifier-minimal-cnf-jwk",
+                "status": "REVIEW",
+                "request_id": "req_6907c90f-afab-48de-8b58-3f567c7f1453",
+                "transaction_id": "txn_473a464d-ac18-41c2-b0e9-c720d6aab403"
+              },
+              {
+                "id": "EkcQ0jiLys045vL",
+                "module": "oid4vp-1final-verifier-request-uri-method-post",
+                "status": "REVIEW",
+                "request_id": "req_5cd8aed7-6ee5-44ce-9ceb-10a594d26fbb",
+                "transaction_id": "txn_d9c3e056-59ac-4919-ac50-4a38055077db"
+              },
+              {
+                "id": "qY7rPhcLjAXboEk",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-signature",
+                "status": "REVIEW",
+                "request_id": "req_728abe6f-6d14-499a-a7eb-2dd121b6cdd9",
+                "transaction_id": "txn_c6ec5d80-270d-470a-b0ed-8638c4391f44"
+              },
+              {
+                "id": "AYmCUWHD6hdPAsh",
+                "module": "oid4vp-1final-verifier-invalid-credential-signature",
+                "status": "REVIEW",
+                "request_id": "req_c6418ff8-cdba-4722-98d1-9fc60cbe5c55",
+                "transaction_id": "txn_3baf2da7-2862-4565-bb97-ecadd3fc7724"
+              },
+              {
+                "id": "Lqg24dff1Vnapmi",
+                "module": "oid4vp-1final-verifier-invalid-sd-hash",
+                "status": "REVIEW",
+                "request_id": "req_3f6f02a7-c46f-46e6-a6d4-0e706f7b97c9",
+                "transaction_id": "txn_e1b968aa-45ef-4269-a903-0122739309ac"
+              },
+              {
+                "id": "SKO3irwgrWdJcVz",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-nonce",
+                "status": "PASSED",
+                "request_id": "req_d205ef7a-1c84-491f-9bd7-42d35292b793",
+                "transaction_id": "txn_820a2a69-893f-431f-b524-149531799226"
+              },
+              {
+                "id": "avfFbMWV30p3iJD",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-aud",
+                "status": "PASSED",
+                "request_id": "req_8d664238-0da7-48fd-a16e-ef860aaca2f7",
+                "transaction_id": "txn_d5c07249-3038-4e66-8a8a-ba2d23f6fbbf"
+              },
+              {
+                "id": "D4y5bJ0LTMSxg8G",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-past",
+                "status": "PASSED",
+                "request_id": "req_06736b9e-a9bf-4343-93c5-b22749f3c742",
+                "transaction_id": "txn_77897a64-7b13-4b45-a76b-2a9d2d121471"
+              },
+              {
+                "id": "fJ5Fy4X4s5hxBKb",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-future",
+                "status": "PASSED",
+                "request_id": "req_bc3b8365-846d-4870-bfbb-393dea2645f4",
+                "transaction_id": "txn_0abfe6b9-f1f9-4d33-901b-409df17aabde"
+              }
+            ]
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "11",
+          "passed": "4",
+          "failed": "7",
+          "skipped": "0"
+        },
+        "s3_verified": 65,
+        "kind": "new_official_execution"
+      },
+      "combined": {
+        "run_id": "355c63e4eb084827bec9f5b6582d02f7",
+        "consolidated": {
+          "total": 25,
+          "passed": 16,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 25,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "certify",
+            "verify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED",
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T02:56:25.578143+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "plans": {
+          "certify": {
+            "summary": {
+              "component": "certify",
+              "plan_name": "oid4vci-1_0-issuer-test-plan",
+              "plan_id": "yZdDyDQqsiMDi",
+              "status": "PASSED",
+              "total": 15,
+              "passed": 12,
+              "failed": 0,
+              "warnings": 0,
+              "skipped": 3,
+              "expected_failures": 0,
+              "is_gated_pass": true
+            },
+            "results": {
+              "oid4vci-1_0-issuer-metadata-test": "PASSED",
+              "oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+              "oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+              "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+              "oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "PFUncGN843OIGPd",
+                "module": "oid4vci-1_0-issuer-metadata-test",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "jDA7440yHWN44A2",
+                "module": "oid4vci-1_0-issuer-metadata-test-signed",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "CaZtEmKOkZszpuX",
+                "module": "oid4vci-1_0-issuer-happy-flow",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "shCQGc2FhVMWqIZ",
+                "module": "oid4vci-1_0-issuer-happy-flow-additional-requests",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "Flp4yJphDpYRBbd",
+                "module": "oid4vci-1_0-issuer-happy-flow-multiple-clients",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "ww7pqbHB1oFAWRg",
+                "module": "oid4vci-1_0-issuer-happy-flow-skip-notification",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "cgUjlOOWyBOM773",
+                "module": "oid4vci-1_0-issuer-batch-issuance",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "RYqnKvf1pSXgVOO",
+                "module": "oid4vci-1_0-issuer-fail-invalid-nonce",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "vd91CmTJGv4XM9m",
+                "module": "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "ECVirp7hnEKZq81",
+                "module": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "nZvZDn82kpkJhEM",
+                "module": "oid4vci-1_0-issuer-fail-missing-proof",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "tng3sj2oqR0k43h",
+                "module": "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "xOGDGp67DRHqzqk",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-configuration",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "2Zh5qDln5qvdABG",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-identifier",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "GXQLZDMMiStEFvN",
+                "module": "oid4vci-1_0-issuer-fail-on-access-token-in-query",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              }
+            ]
+          },
+          "verify": {
+            "summary": {
+              "component": "verify",
+              "plan_name": "oid4vp-1final-verifier-test-plan",
+              "plan_id": "kpkR6f10xH7em",
+              "status": "FAILED",
+              "total": 10,
+              "passed": 4,
+              "failed": 6,
+              "warnings": 0,
+              "skipped": 0,
+              "expected_failures": 0,
+              "is_gated_pass": false
+            },
+            "results": {
+              "oid4vp-1final-verifier-happy-flow": "REVIEW",
+              "oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+              "oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+              "oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "ELX33wK1ymwPct1",
+                "module": "oid4vp-1final-verifier-happy-flow",
+                "status": "REVIEW",
+                "request_id": "req_9076f32c-d822-485c-b1da-9b5d6b32b0a6",
+                "transaction_id": "txn_4618a4c6-cfb4-436b-a624-f02e27d65554"
+              },
+              {
+                "id": "sjZvF3L5NvrEGU7",
+                "module": "oid4vp-1final-verifier-minimal-cnf-jwk",
+                "status": "REVIEW",
+                "request_id": "req_69a1e170-b0f3-4e06-a152-e6b508cddb64",
+                "transaction_id": "txn_ae163cef-e886-4dcd-b77b-04698fff2678"
+              },
+              {
+                "id": "6p6cjzKhWaQSRAb",
+                "module": "oid4vp-1final-verifier-request-uri-method-post",
+                "status": "REVIEW",
+                "request_id": "req_b8ae9c71-5320-4b2e-96c1-4ca3db66e63c",
+                "transaction_id": "txn_5f2f84dc-1aa0-4390-a2bb-1d08eef5c2a2"
+              },
+              {
+                "id": "327fH4kYQloeAyL",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-signature",
+                "status": "REVIEW",
+                "request_id": "req_817b8e62-7a3b-452c-88a8-a878074f5420",
+                "transaction_id": "txn_5afbe77d-def8-4355-a932-f0050f26785e"
+              },
+              {
+                "id": "vS9vZK85oImmNAt",
+                "module": "oid4vp-1final-verifier-invalid-credential-signature",
+                "status": "REVIEW",
+                "request_id": "req_ee264bff-25b9-468a-9a56-2eb81f10e731",
+                "transaction_id": "txn_46cebf69-d063-4ef5-86c3-c1e3e688223d"
+              },
+              {
+                "id": "gUEY2Mvz0nzcDq5",
+                "module": "oid4vp-1final-verifier-invalid-sd-hash",
+                "status": "REVIEW",
+                "request_id": "req_a6f43303-e820-4dee-8e66-4dab1d45255a",
+                "transaction_id": "txn_b49200bf-c6e2-467f-9646-b19b84fe1503"
+              },
+              {
+                "id": "RG1WmbY4poHxazf",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-nonce",
+                "status": "PASSED",
+                "request_id": "req_63275088-26ff-404c-a210-dd24f731f3b3",
+                "transaction_id": "txn_be22db92-b174-416b-b12d-02d31f2bdc68"
+              },
+              {
+                "id": "ePGKrEL7tHJNdiK",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-aud",
+                "status": "PASSED",
+                "request_id": "req_6b5e8ec6-b1ab-4c20-977e-bd53be4f7db2",
+                "transaction_id": "txn_ce6faf3c-eb34-40f1-9763-8589657486b0"
+              },
+              {
+                "id": "ncxIJEHScaIEW7j",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-past",
+                "status": "PASSED",
+                "request_id": "req_2470b713-d7b4-44fe-aaac-f5368610e4ad",
+                "transaction_id": "txn_f82664cb-050e-4ad2-85c5-a874abb9a63c"
+              },
+              {
+                "id": "P81sYyAu7BjSYje",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-future",
+                "status": "PASSED",
+                "request_id": "req_864fa5c2-97dd-47eb-8b00-561e4400215d",
+                "transaction_id": "txn_386a17f5-26e8-4e3a-8a8e-2512b704dc9f"
+              }
+            ]
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "26",
+          "passed": "16",
+          "failed": "7",
+          "skipped": "3"
+        },
+        "s3_verified": 115,
+        "kind": "new_official_execution"
+      },
+      "parallel": {
+        "run_id": "c7ef0d79c0824152b5e49dd94ea72bc0",
+        "consolidated": {
+          "total": 25,
+          "passed": 16,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 25,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "certify",
+            "verify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED",
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T03:04:26.124157+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "plans": {
+          "certify": {
+            "summary": {
+              "component": "certify",
+              "plan_name": "oid4vci-1_0-issuer-test-plan",
+              "plan_id": "YI36YDhdmId61",
+              "status": "PASSED",
+              "total": 15,
+              "passed": 12,
+              "failed": 0,
+              "warnings": 0,
+              "skipped": 3,
+              "expected_failures": 0,
+              "is_gated_pass": true
+            },
+            "results": {
+              "oid4vci-1_0-issuer-metadata-test": "PASSED",
+              "oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+              "oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+              "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+              "oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "mpcSSuK0zSpu92b",
+                "module": "oid4vci-1_0-issuer-metadata-test",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "QHeletSM2K9Ko4r",
+                "module": "oid4vci-1_0-issuer-metadata-test-signed",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "TLP13QH77D053GN",
+                "module": "oid4vci-1_0-issuer-happy-flow",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "OVQVJK97tX16HRW",
+                "module": "oid4vci-1_0-issuer-happy-flow-additional-requests",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "Ks7eYqVPgEXZgT0",
+                "module": "oid4vci-1_0-issuer-happy-flow-multiple-clients",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "dqWBW2OGALuZHEP",
+                "module": "oid4vci-1_0-issuer-happy-flow-skip-notification",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "3Nwvhh6IVjlfmnB",
+                "module": "oid4vci-1_0-issuer-batch-issuance",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "8N9TDoGtMN7jc0W",
+                "module": "oid4vci-1_0-issuer-fail-invalid-nonce",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "MC64iFXtSblK1IN",
+                "module": "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "vg2vjDz0JZCtcPY",
+                "module": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "HHndgTSXC0oZG8c",
+                "module": "oid4vci-1_0-issuer-fail-missing-proof",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "0Y3LyXWbs7ElDxZ",
+                "module": "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "7KDbEJe0KPS0WiY",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-configuration",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "J7zKH4S3ZtCvSWg",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-identifier",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "qJm9N1nXTdG0BtX",
+                "module": "oid4vci-1_0-issuer-fail-on-access-token-in-query",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              }
+            ]
+          },
+          "verify": {
+            "summary": {
+              "component": "verify",
+              "plan_name": "oid4vp-1final-verifier-test-plan",
+              "plan_id": "3mwJBcqn8LiIh",
+              "status": "FAILED",
+              "total": 10,
+              "passed": 4,
+              "failed": 6,
+              "warnings": 0,
+              "skipped": 0,
+              "expected_failures": 0,
+              "is_gated_pass": false
+            },
+            "results": {
+              "oid4vp-1final-verifier-happy-flow": "REVIEW",
+              "oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+              "oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+              "oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "tmxeJ03YFxCWKT6",
+                "module": "oid4vp-1final-verifier-happy-flow",
+                "status": "REVIEW",
+                "request_id": "req_c7045b28-57b4-4a3d-8cce-bd6023069f3a",
+                "transaction_id": "txn_6fe0727e-f683-4ddb-8427-0cb67aab82bc"
+              },
+              {
+                "id": "YU8gmajWkm9KPtu",
+                "module": "oid4vp-1final-verifier-minimal-cnf-jwk",
+                "status": "REVIEW",
+                "request_id": "req_a4186314-3a60-4fc7-a545-f72e4fe16b43",
+                "transaction_id": "txn_933c4e20-027d-40ed-bc93-1db77acccd18"
+              },
+              {
+                "id": "XzaYS0aWpp8vYtI",
+                "module": "oid4vp-1final-verifier-request-uri-method-post",
+                "status": "REVIEW",
+                "request_id": "req_77ea37c7-c3d5-4213-9c3f-32f200a1c72d",
+                "transaction_id": "txn_e69670ee-9d44-42ac-ae6f-a3870d9655b6"
+              },
+              {
+                "id": "dj5OOoGi0WevsVH",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-signature",
+                "status": "REVIEW",
+                "request_id": "req_bfdcb27b-a473-4494-8afb-8d7dfb9f3c69",
+                "transaction_id": "txn_01cf16df-9ae7-4dfd-a211-e04e9db61ec2"
+              },
+              {
+                "id": "ohRWWXYwAqIuZ3U",
+                "module": "oid4vp-1final-verifier-invalid-credential-signature",
+                "status": "REVIEW",
+                "request_id": "req_48bb25a6-083d-49b1-8857-820c8d952945",
+                "transaction_id": "txn_9f083a71-215e-412f-8226-6484e4e2f955"
+              },
+              {
+                "id": "5lGymOQ4zMfTV5F",
+                "module": "oid4vp-1final-verifier-invalid-sd-hash",
+                "status": "REVIEW",
+                "request_id": "req_5a47c0f0-73a6-4822-92da-def1bd5049f9",
+                "transaction_id": "txn_a969ca0f-dc83-4c36-9751-18325f6105fe"
+              },
+              {
+                "id": "LSm4RgUI2cSu5Nc",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-nonce",
+                "status": "PASSED",
+                "request_id": "req_e3189fc7-8bb2-4ec9-a339-72c2900553a1",
+                "transaction_id": "txn_59dbe1f4-5d5b-4670-b942-3beffe67d793"
+              },
+              {
+                "id": "XYBqHwLsfEpUxcr",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-aud",
+                "status": "PASSED",
+                "request_id": "req_8fa32640-0f28-4dc5-a193-7ead47149f4c",
+                "transaction_id": "txn_92baf947-c87b-4ebe-af49-2bd37e6a4ea4"
+              },
+              {
+                "id": "tFF0HEom7fhxgHW",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-past",
+                "status": "PASSED",
+                "request_id": "req_d3bf3dba-1e25-4904-a923-b18f5d7055f1",
+                "transaction_id": "txn_21832c29-71d2-4a72-8374-6a5ba4924cce"
+              },
+              {
+                "id": "tUr8zJAeDb37Vzk",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-future",
+                "status": "PASSED",
+                "request_id": "req_753f478f-8874-48b9-813b-678a8990b852",
+                "transaction_id": "txn_64e55a17-c724-4798-9c22-b763c9ea6b6d"
+              }
+            ]
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "26",
+          "passed": "16",
+          "failed": "7",
+          "skipped": "3"
+        },
+        "s3_verified": 115,
+        "kind": "new_official_execution"
+      },
+      "full-stack": {
+        "run_id": "355c63e4eb084827bec9f5b6582d02f7",
+        "consolidated": {
+          "total": 25,
+          "passed": 16,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 25,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "certify",
+            "verify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED",
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T02:56:25.578143+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "plans": {
+          "certify": {
+            "summary": {
+              "component": "certify",
+              "plan_name": "oid4vci-1_0-issuer-test-plan",
+              "plan_id": "yZdDyDQqsiMDi",
+              "status": "PASSED",
+              "total": 15,
+              "passed": 12,
+              "failed": 0,
+              "warnings": 0,
+              "skipped": 3,
+              "expected_failures": 0,
+              "is_gated_pass": true
+            },
+            "results": {
+              "oid4vci-1_0-issuer-metadata-test": "PASSED",
+              "oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+              "oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+              "oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+              "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+              "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+              "oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+              "oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "PFUncGN843OIGPd",
+                "module": "oid4vci-1_0-issuer-metadata-test",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "jDA7440yHWN44A2",
+                "module": "oid4vci-1_0-issuer-metadata-test-signed",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "CaZtEmKOkZszpuX",
+                "module": "oid4vci-1_0-issuer-happy-flow",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "shCQGc2FhVMWqIZ",
+                "module": "oid4vci-1_0-issuer-happy-flow-additional-requests",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "Flp4yJphDpYRBbd",
+                "module": "oid4vci-1_0-issuer-happy-flow-multiple-clients",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "ww7pqbHB1oFAWRg",
+                "module": "oid4vci-1_0-issuer-happy-flow-skip-notification",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "cgUjlOOWyBOM773",
+                "module": "oid4vci-1_0-issuer-batch-issuance",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "RYqnKvf1pSXgVOO",
+                "module": "oid4vci-1_0-issuer-fail-invalid-nonce",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "vd91CmTJGv4XM9m",
+                "module": "oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "ECVirp7hnEKZq81",
+                "module": "oid4vci-1_0-issuer-fail-invalid-key-attestation-signature",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "nZvZDn82kpkJhEM",
+                "module": "oid4vci-1_0-issuer-fail-missing-proof",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "tng3sj2oqR0k43h",
+                "module": "oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm",
+                "status": "SKIPPED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "xOGDGp67DRHqzqk",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-configuration",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "2Zh5qDln5qvdABG",
+                "module": "oid4vci-1_0-issuer-fail-unknown-credential-identifier",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              },
+              {
+                "id": "GXQLZDMMiStEFvN",
+                "module": "oid4vci-1_0-issuer-fail-on-access-token-in-query",
+                "status": "PASSED",
+                "request_id": null,
+                "transaction_id": null
+              }
+            ]
+          },
+          "verify": {
+            "summary": {
+              "component": "verify",
+              "plan_name": "oid4vp-1final-verifier-test-plan",
+              "plan_id": "kpkR6f10xH7em",
+              "status": "FAILED",
+              "total": 10,
+              "passed": 4,
+              "failed": 6,
+              "warnings": 0,
+              "skipped": 0,
+              "expected_failures": 0,
+              "is_gated_pass": false
+            },
+            "results": {
+              "oid4vp-1final-verifier-happy-flow": "REVIEW",
+              "oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+              "oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+              "oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+              "oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+              "oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+              "oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+            },
+            "instances": [
+              {
+                "id": "ELX33wK1ymwPct1",
+                "module": "oid4vp-1final-verifier-happy-flow",
+                "status": "REVIEW",
+                "request_id": "req_9076f32c-d822-485c-b1da-9b5d6b32b0a6",
+                "transaction_id": "txn_4618a4c6-cfb4-436b-a624-f02e27d65554"
+              },
+              {
+                "id": "sjZvF3L5NvrEGU7",
+                "module": "oid4vp-1final-verifier-minimal-cnf-jwk",
+                "status": "REVIEW",
+                "request_id": "req_69a1e170-b0f3-4e06-a152-e6b508cddb64",
+                "transaction_id": "txn_ae163cef-e886-4dcd-b77b-04698fff2678"
+              },
+              {
+                "id": "6p6cjzKhWaQSRAb",
+                "module": "oid4vp-1final-verifier-request-uri-method-post",
+                "status": "REVIEW",
+                "request_id": "req_b8ae9c71-5320-4b2e-96c1-4ca3db66e63c",
+                "transaction_id": "txn_5f2f84dc-1aa0-4390-a2bb-1d08eef5c2a2"
+              },
+              {
+                "id": "327fH4kYQloeAyL",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-signature",
+                "status": "REVIEW",
+                "request_id": "req_817b8e62-7a3b-452c-88a8-a878074f5420",
+                "transaction_id": "txn_5afbe77d-def8-4355-a932-f0050f26785e"
+              },
+              {
+                "id": "vS9vZK85oImmNAt",
+                "module": "oid4vp-1final-verifier-invalid-credential-signature",
+                "status": "REVIEW",
+                "request_id": "req_ee264bff-25b9-468a-9a56-2eb81f10e731",
+                "transaction_id": "txn_46cebf69-d063-4ef5-86c3-c1e3e688223d"
+              },
+              {
+                "id": "gUEY2Mvz0nzcDq5",
+                "module": "oid4vp-1final-verifier-invalid-sd-hash",
+                "status": "REVIEW",
+                "request_id": "req_a6f43303-e820-4dee-8e66-4dab1d45255a",
+                "transaction_id": "txn_b49200bf-c6e2-467f-9646-b19b84fe1503"
+              },
+              {
+                "id": "RG1WmbY4poHxazf",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-nonce",
+                "status": "PASSED",
+                "request_id": "req_63275088-26ff-404c-a210-dd24f731f3b3",
+                "transaction_id": "txn_be22db92-b174-416b-b12d-02d31f2bdc68"
+              },
+              {
+                "id": "ePGKrEL7tHJNdiK",
+                "module": "oid4vp-1final-verifier-invalid-kb-jwt-aud",
+                "status": "PASSED",
+                "request_id": "req_6b5e8ec6-b1ab-4c20-977e-bd53be4f7db2",
+                "transaction_id": "txn_ce6faf3c-eb34-40f1-9763-8589657486b0"
+              },
+              {
+                "id": "ncxIJEHScaIEW7j",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-past",
+                "status": "PASSED",
+                "request_id": "req_2470b713-d7b4-44fe-aaac-f5368610e4ad",
+                "transaction_id": "txn_f82664cb-050e-4ad2-85c5-a874abb9a63c"
+              },
+              {
+                "id": "P81sYyAu7BjSYje",
+                "module": "oid4vp-1final-verifier-kb-jwt-iat-in-future",
+                "status": "PASSED",
+                "request_id": "req_864fa5c2-97dd-47eb-8b00-561e4400215d",
+                "transaction_id": "txn_386a17f5-26e8-4e3a-8a8e-2512b704dc9f"
+              }
+            ]
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "26",
+          "passed": "16",
+          "failed": "7",
+          "skipped": "3"
+        },
+        "s3_verified": 116,
+        "kind": "retained_retrieval_of_fresh_combined"
+      }
+    },
+    "new_official_plans": 6,
+    "remote_github_actions_executed": false,
+    "historical_reference_run": "141a3630f7874e98ae4964653f953899",
+    "historical_reference_preserved": true
+  },
+  "stage17_validation": {
+    "official": {
+      "fresh": {
+        "kind": "fresh_official_parallel_execution",
+        "run_id": "c4633b091cdd4b8eb4facd3c36986c94",
+        "plans": {
+          "certify": {
+            "component": "certify",
+            "plan_name": "oid4vci-1_0-issuer-test-plan",
+            "plan_id": "qJ6tKNfFZCfzm",
+            "status": "PASSED",
+            "total": 15,
+            "passed": 12,
+            "failed": 0,
+            "warnings": 0,
+            "skipped": 3,
+            "expected_failures": 0,
+            "is_gated_pass": true
+          },
+          "verify": {
+            "component": "verify",
+            "plan_name": "oid4vp-1final-verifier-test-plan",
+            "plan_id": "tSq9qkf5JI4G6",
+            "status": "FAILED",
+            "total": 10,
+            "passed": 4,
+            "failed": 6,
+            "warnings": 0,
+            "skipped": 0,
+            "expected_failures": 0,
+            "is_gated_pass": false
+          }
+        },
+        "consolidated": {
+          "total": 25,
+          "passed": 16,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 25,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "certify",
+            "verify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED",
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T06:49:19.522271+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "26",
+          "passed": "16",
+          "failed": "7",
+          "skipped": "3"
+        },
+        "storage_verified": 115
+      },
+      "retained-certify": {
+        "kind": "retained_retrieval_no_new_plan",
+        "run_id": "c4633b091cdd4b8eb4facd3c36986c94",
+        "plans": {
+          "certify": {
+            "component": "certify",
+            "plan_name": "oid4vci-1_0-issuer-test-plan",
+            "plan_id": "qJ6tKNfFZCfzm",
+            "status": "PASSED",
+            "total": 15,
+            "passed": 12,
+            "failed": 0,
+            "warnings": 0,
+            "skipped": 3,
+            "expected_failures": 0,
+            "is_gated_pass": true
+          }
+        },
+        "consolidated": {
+          "total": 15,
+          "passed": 12,
+          "failed": 0,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 15,
+          "status": "PASSED",
+          "gate_met": true,
+          "components": [
+            "certify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED"
+          },
+          "timestamp": "2026-10-20T06:49:19.522271+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "16",
+          "passed": "13",
+          "failed": "0",
+          "skipped": "3"
+        },
+        "storage_verified": 81
+      },
+      "retained-verify": {
+        "kind": "retained_retrieval_no_new_plan",
+        "run_id": "c4633b091cdd4b8eb4facd3c36986c94",
+        "plans": {
+          "verify": {
+            "component": "verify",
+            "plan_name": "oid4vp-1final-verifier-test-plan",
+            "plan_id": "tSq9qkf5JI4G6",
+            "status": "FAILED",
+            "total": 10,
+            "passed": 4,
+            "failed": 6,
+            "warnings": 0,
+            "skipped": 0,
+            "expected_failures": 0,
+            "is_gated_pass": false
+          }
+        },
+        "consolidated": {
+          "total": 10,
+          "passed": 4,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 0,
+          "total_tests": 10,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "verify"
+          ],
+          "results": {
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T06:49:19.522271+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "11",
+          "passed": "4",
+          "failed": "7",
+          "skipped": "0"
+        },
+        "storage_verified": 89
+      },
+      "retained-combined": {
+        "kind": "retained_retrieval_no_new_plan",
+        "run_id": "c4633b091cdd4b8eb4facd3c36986c94",
+        "plans": {
+          "certify": {
+            "component": "certify",
+            "plan_name": "oid4vci-1_0-issuer-test-plan",
+            "plan_id": "qJ6tKNfFZCfzm",
+            "status": "PASSED",
+            "total": 15,
+            "passed": 12,
+            "failed": 0,
+            "warnings": 0,
+            "skipped": 3,
+            "expected_failures": 0,
+            "is_gated_pass": true
+          },
+          "verify": {
+            "component": "verify",
+            "plan_name": "oid4vp-1final-verifier-test-plan",
+            "plan_id": "tSq9qkf5JI4G6",
+            "status": "FAILED",
+            "total": 10,
+            "passed": 4,
+            "failed": 6,
+            "warnings": 0,
+            "skipped": 0,
+            "expected_failures": 0,
+            "is_gated_pass": false
+          }
+        },
+        "consolidated": {
+          "total": 25,
+          "passed": 16,
+          "failed": 6,
+          "expected_failures": 0,
+          "warnings": 0,
+          "skipped": 3,
+          "total_tests": 25,
+          "status": "FAILED",
+          "gate_met": false,
+          "components": [
+            "certify",
+            "verify"
+          ],
+          "results": {
+            "certify::oid4vci-1_0-issuer-metadata-test": "PASSED",
+            "certify::oid4vci-1_0-issuer-metadata-test-signed": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-additional-requests": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-multiple-clients": "PASSED",
+            "certify::oid4vci-1_0-issuer-happy-flow-skip-notification": "PASSED",
+            "certify::oid4vci-1_0-issuer-batch-issuance": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-nonce": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-missing-proof": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm": "SKIPPED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier": "PASSED",
+            "certify::oid4vci-1_0-issuer-fail-on-access-token-in-query": "PASSED",
+            "verify::oid4vp-1final-verifier-happy-flow": "REVIEW",
+            "verify::oid4vp-1final-verifier-minimal-cnf-jwk": "REVIEW",
+            "verify::oid4vp-1final-verifier-request-uri-method-post": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-credential-signature": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-sd-hash": "REVIEW",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce": "PASSED",
+            "verify::oid4vp-1final-verifier-invalid-kb-jwt-aud": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-past": "PASSED",
+            "verify::oid4vp-1final-verifier-kb-jwt-iat-in-future": "PASSED"
+          },
+          "timestamp": "2026-10-20T06:49:19.522271+00:00",
+          "benchmark": {
+            "policy": "all-required-results-pass-with-evidence-v1",
+            "expected_failures_sha256": "a2e27346724f6af36a5f55d0e39daa1e8f50296594def147df3f59c529a4e7bb"
+          }
+        },
+        "testng": {
+          "ignored": "0",
+          "total": "26",
+          "passed": "16",
+          "failed": "7",
+          "skipped": "3"
+        },
+        "storage_verified": 116
+      }
+    },
+    "harness": {
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "new_official_plans": 2,
+    "historical_reference_preserved": true,
+    "new_code_regressions": 11,
+    "six_case_audit_passed": true,
+    "manual_review_dispositions": 0,
+    "remote_ci_executed": false,
+    "request_uri_post_exercised": false
+  },
+  "stage18_validation": {
+    "python": {
+      "tests": 124,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_certify": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_keymanager": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_mapping_statuses_per_component": 11,
+    "standalone_bridge_contract_scenarios": 7,
+    "post_probe_http_status": 405,
+    "request_uri_post_supported": false,
+    "remote_github_actions_verified": false,
+    "repository_publication_pending_approval": true,
+    "official_results_preserved": true
+  }
+}

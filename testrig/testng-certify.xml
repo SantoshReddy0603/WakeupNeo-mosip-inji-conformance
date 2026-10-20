@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Inji certify OpenID conformance">
+    <listeners><listener class-name="io.mosip.testrig.ArtifactUploadListener"/></listeners>
+    <parameter name="component" value="certify"/>
+    <test name="OpenID conformance"><classes><class name="io.inji.testrig.apirig.injicertify.OpenIDConformanceTest"/></classes></test>
+</suite>

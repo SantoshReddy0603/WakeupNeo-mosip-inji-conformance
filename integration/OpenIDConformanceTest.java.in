@@ -1,0 +1,113 @@
+package io.inji.testrig.apirig.@MODULE@.testscripts;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.testng.Assert;
+import org.testng.ITest;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.SkipException;
+import org.testng.annotations.*;
+import java.io.File;
+import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/** Uses the module's existing TestNG reporter and S3 lifecycle; creates no second reporter. */
+public class OpenIDConformanceTest implements ITest {
+    private static final String COMPONENT = "@COMPONENT@";
+    private JsonNode report;
+    private int runnerExit;
+    private String testName = "OpenID " + COMPONENT;
+    public String getTestName() { return testName; }
+
+    @BeforeClass(alwaysRun = true)
+    public void prepareConformance() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        boolean consume = Boolean.getBoolean("conformance.consumeReport");
+        File summary;
+        if (consume) {
+            String supplied = System.getProperty("conformance.summary", "");
+            Assert.assertFalse(supplied.isBlank(), "Explicit summary required when consuming results");
+            summary = new File(supplied).getCanonicalFile();
+        } else {
+            String root = System.getProperty("conformance.runnerRoot", "");
+            Assert.assertFalse(root.isBlank(), "Set conformance.runnerRoot to the harness directory");
+            File directory = new File(root).getCanonicalFile();
+            File output = new File("target/conformance-" + COMPONENT).getCanonicalFile();
+            output.mkdirs();
+            summary = new File(output, "conformance-summary.json");
+            // Same env.endpoint as the existing rig; append the service path only for an origin.
+            String endpoint = System.getProperty("env.endpoint", "");
+            Assert.assertFalse(endpoint.isBlank(), "The existing rig's env.endpoint is required");
+            URI uri = URI.create(endpoint);
+            Assert.assertTrue(uri.isAbsolute() && uri.getHost() != null, "env.endpoint must be an absolute URL");
+            endpoint = endpoint.replaceAll("/$", "");
+            if (COMPONENT.equals("verify") && (uri.getPath() == null || uri.getPath().isEmpty() || uri.getPath().equals("/")))
+                endpoint += "/v1/verify";
+            List<String> command = new ArrayList<>();
+            command.add(System.getProperty("conformance.python", "python3"));
+            command.add(new File(directory, "runner/runner.py").getPath());
+            command.add("--component"); command.add(COMPONENT);
+            command.add("--" + COMPONENT + "-url"); command.add(endpoint);
+            command.add("--oidf-url"); command.add(System.getProperty("conformance.oidfUrl", "https://localhost:8443"));
+            command.add("--reports-dir"); command.add(output.getPath());
+            if (Boolean.getBoolean("conformance.insecure")) command.add("--insecure");
+            Process process = new ProcessBuilder(command).directory(directory).redirectErrorStream(true)
+                .redirectOutput(new File(output, "runner.log")).start();
+            if (!process.waitFor(Long.getLong("conformance.processTimeoutSeconds", 5400L), TimeUnit.SECONDS)) {
+                java.util.List<ProcessHandle> children = process.descendants().collect(java.util.stream.Collectors.toList());
+                children.forEach(ProcessHandle::destroyForcibly);
+                process.destroyForcibly();
+                process.waitFor(5, TimeUnit.SECONDS);
+                Assert.fail("Conformance runner timeout");
+            }
+            runnerExit = process.exitValue();
+        }
+        Assert.assertTrue(summary.isFile(), "Conformance summary missing");
+        report = mapper.readTree(summary);
+        Assert.assertEquals(report.path("schema_version").asInt(), 2, "Unsupported summary schema");
+        Assert.assertFalse(report.path("run_id").asText().isBlank(), "Run identity missing");
+        if (consume) {
+            String expected = System.getProperty("conformance.runId", "");
+            Assert.assertFalse(expected.isBlank(), "Consuming a report requires conformance.runId");
+            Assert.assertEquals(report.path("run_id").asText(), expected, "Report identity mismatch");
+        }
+        long age = Instant.now().getEpochSecond() - Instant.parse(report.path("consolidated").path("timestamp").asText()).getEpochSecond();
+        Assert.assertTrue(age >= -60 && age <= Long.getLong("conformance.maxReportAgeSeconds", 7200L), "Stale report");
+        Assert.assertTrue(report.path("runs").has(COMPONENT), "Component missing from summary");
+        Reporter.log("Actual OpenID results: " + summary.toURI(), true);
+    }
+
+    @DataProvider(name = "openidModules")
+    public Object[][] modules() {
+        List<Object[]> rows = new ArrayList<>();
+        report.path("runs").path(COMPONENT).path("results").fields().forEachRemaining(
+            e -> rows.add(new Object[] { e.getKey(), e.getValue().asText() }));
+        if (rows.isEmpty()) rows.add(new Object[] {"No OpenID results", "ERROR"});
+        return rows.toArray(new Object[0][]);
+    }
+
+    @Test(dataProvider = "openidModules")
+    public void conformanceModule(String name, String status) {
+        testName = name;
+        Reporter.log("OIDF status: " + status, true);
+        if (status.equals("SKIPPED") || status.equals("EXPECTED_FAILURE")) throw new SkipException(status);
+        Assert.assertTrue(status.equals("PASSED") || status.equals("WARNING"), status + ": " + name);
+    }
+
+    @Test(priority = 1000)
+    public void conformanceReleaseGate() {
+        testName = "OpenID release gate: " + COMPONENT;
+        Assert.assertEquals(runnerExit, 0, "Runner failed");
+        JsonNode summary = report.path("runs").path(COMPONENT).path("summary");
+        Assert.assertTrue(summary.path("passed").asInt() > 0, "No passing conformance modules");
+        Assert.assertTrue(summary.path("is_gated_pass").asBoolean(false), "Component gate rejected");
+        Assert.assertTrue(report.path("consolidated").path("gate_met").asBoolean(false), "Regression gate rejected");
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void attachTestName(ITestResult result) { result.setAttribute("TestCaseName", testName); }
+}
