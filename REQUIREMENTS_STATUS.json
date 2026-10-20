@@ -2175,7 +2175,10 @@
     "post_probe_http_status": 405,
     "request_uri_post_supported": false,
     "remote_github_actions_verified": false,
-    "repository_publication_pending_approval": true,
-    "official_results_preserved": true
+    "repository_publication_pending_approval": false,
+    "official_results_preserved": true,
+    "repository_published": true,
+    "pull_request_url": "https://github.com/SantoshReddy0603/mosip-inji-conformance/pull/1",
+    "remote_ci_status_source": "Actual PR Actions checks; see Stage 18 delivery report for completed run evidence"
   }
 }

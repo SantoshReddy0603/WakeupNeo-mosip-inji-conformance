@@ -6,8 +6,10 @@ from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ['pass', 'review', 'gate-failed', 'missing-component', 'stale', 'identity-mismatch', 'status-mapping']
@@ -38,11 +40,26 @@ def run():
         run_id = 'wrong-run' if case == 'identity-mismatch' else report['run_id']
         command = ['mvn', '-B', 'test', '-DsuiteXmlFile=testng-combined.xml', '-Dconformance.consumeReport=true',
                    '-Dconformance.summary=' + str(summary), '-Dconformance.runId=' + run_id]
+        reports = ROOT / 'testrig/target/surefire-reports'
+        # Never retain a preceding scenario's XML if Maven fails before TestNG runs.
+        for previous in reports.glob('*.xml'):
+            previous.unlink()
         with (path / 'maven.log').open('w') as log:
             result = subprocess.run(command, cwd=ROOT / 'testrig', env=env, stdout=log, stderr=subprocess.STDOUT)
+        result_xml = reports / 'testng-results.xml'
+        if not result_xml.is_file():
+            print(f'{case}: TestNG XML missing; inspect {path / "maven.log"}')
+            return 1
+        parsed = ET.parse(result_xml).getroot()
+        for report_file in reports.glob('*.xml'):
+            shutil.copyfile(report_file, path / report_file.name)
         should_pass = case in {'pass', 'status-mapping'}
         print(f'{case}: exit={result.returncode}, expected={"success" if should_pass else "failure"}')
         if (result.returncode == 0) != should_pass:
+            return 1
+        failures = parsed.findall('.//test-method[@status="FAIL"]')
+        if bool(failures) == should_pass:
+            print(f'{case}: TestNG XML does not support the expected outcome')
             return 1
     return 0
 

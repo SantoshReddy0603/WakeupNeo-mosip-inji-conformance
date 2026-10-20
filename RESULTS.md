@@ -1,4 +1,4 @@
-> Stage 18: 124 Python tests, 49 native Certify tests, 3 native key-manager tests, both native 11-status mapping validators and seven standalone TestNG contract scenarios passed locally. Hosted/live workflows are separated and pinned. Native Request URI POST returned 405 (Allow: GET); it remains unsupported. GitHub publication/remote workflow verification is pending. See CI_CD_SETUP.md and REQUEST_URI_POST_STATUS.md. Earlier dated runs below remain historical; combined official gate stays FAILED.
+> Stage 18: 124 Python tests, 49 native Certify tests, 3 native key-manager tests, both native 11-status mapping validators and seven standalone TestNG contract scenarios passed locally. Hosted/live workflows are separated and pinned. Native Request URI POST returned 405 (Allow: GET); it remains unsupported. Published to ci/stage-18 in draft PR #1; hosted CI verification is recorded in the PR Actions checks and the local Stage 18 delivery report. See CI_CD_SETUP.md and REQUEST_URI_POST_STATUS.md. Earlier dated runs below remain historical; combined official gate stays FAILED.
 
 # Results — Stage 17
 
