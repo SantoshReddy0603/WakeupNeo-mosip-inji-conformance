@@ -92,6 +92,8 @@ jobs:
       with:
         distribution: temurin
         java-version: '21'
+    - name: Install checksum-verified Maven 3.8.7 baseline
+      run: python3 runner/install_maven.py --directory "$RUNNER_TEMP/inji-tools"
     - name: Validate real deployment inputs
       shell: bash
       env:

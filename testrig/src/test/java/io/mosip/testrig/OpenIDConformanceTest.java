@@ -12,6 +12,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,7 +89,7 @@ public class OpenIDConformanceTest {
             Assert.assertFalse(expected.isEmpty(), "Consuming a report requires -Dconformance.runId");
             Assert.assertEquals(report.path("run_id").asText(), expected, "Stale/different report identity");
         }
-        Instant timestamp = Instant.parse(report.path("consolidated").path("timestamp").asText());
+        Instant timestamp = OffsetDateTime.parse(report.path("consolidated").path("timestamp").asText()).toInstant();
         long age = Instant.now().getEpochSecond() - timestamp.getEpochSecond();
         Assert.assertTrue(age >= -60 && age <= Long.getLong("conformance.maxReportAgeSeconds", 7200L), "Report is stale or future dated");
         if ("combined".equals(component)) {

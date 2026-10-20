@@ -1,16 +1,16 @@
 # GitHub CI/CD setup
 
-Source is prepared locally. No GitHub repository or workflow run has been created for this project. Do not confuse successful local validation with GitHub Actions verification.
+Published to the private SantoshReddy0603/mosip-inji-conformance repository on ci/stage-18 in draft PR #1. Actual pull-request Actions runs are being validated; local validation alone does not establish hosted CI success.
 
 ## Publication boundary
 
 Use the separately prepared source-only archive/checkout, not runtime reports, the reviewer bundle, original suite exports or generated local credentials. Source preparation scans actual environment secrets and private key files. Test fixtures remain explicitly controlled data. Do not publish docker/.env, docker/local, generated certificates, classpaths, caches, target directories, private keys or raw live exports.
 
-The connected GitHub account was verified. No suitable accessible conformance repository was found; the similarly named MOSIP_Quantum5 repository contains a child-health application and must not be overwritten. The connector exposes file/branch/commit publication and Actions read APIs, but no repository creation or workflow-dispatch operation. Repository creation and code publication require user approval. No GitHub password or token is needed in chat.
+The user supplied and authorized the target repository and enabled connector access. Only ci/stage-18 and draft PR #1 carry the implementation; main has a minimal README and has not been merged. The connector exposes publication and Actions read APIs, but no workflow-dispatch operation. No GitHub password or token is needed in chat.
 
 ## Ordinary CI
 
-`.github/workflows/ci.yml` runs on pushes to main and pull requests targeting main, plus manual dispatch. Its jobs are harness-tests, native-certify-tests, native-keymanager-tests, and the Certify/Verify api-rig-integration matrix. They use hosted Ubuntu 24.04, Python 3.12, Java 11 for the standalone bridge and Java 21 for native modules, immutable action/source commits and pip/Maven caches. Required checks do not use continue-on-error. Checkout credentials are not persisted.
+`.github/workflows/ci.yml` runs on pushes to main and pull requests targeting main, plus manual dispatch. Its jobs are harness-tests, native-certify-tests, native-keymanager-tests, and the Certify/Verify api-rig-integration matrix. They use hosted Ubuntu 24.04, Python 3.12, Java 11 for the standalone bridge and Java 21 for native modules, immutable action/source commits, checksum-verified Maven 3.8.7 (the tested upstream build baseline), and pip/Maven caches. Required checks do not use continue-on-error. Checkout credentials are not persisted.
 
 The harness job installs requirements-ci.txt, compiles Python, runs Ruff undefined-name checks, validates workflow security and Bash syntax, generates isolated local configuration, validates Compose, runs the complete pytest suite and executes seven real standalone TestNG bridge contract scenarios. The native jobs package and test the shipped fixes. Each API-rig job compiles the real integration and executes all 11 result mappings through native TestNG. Controlled expected-failure fixture exits are asserted by their validators, not presented as official conformance passes. JUnit/TestNG/Extent validation artifacts upload even after failures, with missing artifacts treated as errors.
 
@@ -29,6 +29,6 @@ The live workflow must fail while the six official REVIEW outcomes remain unreso
 
 ## Shortest next steps
 
-After reviewing the prepared source, choose an existing suitable repository or create a new **private** repository, for example mosip-inji-conformance, with main initialized using a README. Grant the GitHub app access if needed. Share its URL and explicitly approve publication to a development branch and creation of a draft PR. The connector can then publish the source and inspect actual PR Actions runs, logs and artifacts. Repository creation is unavailable through this connector, so it needs the GitHub web UI. No merge is authorized by that approval.
+Inspect draft PR #1 and its actual Actions results. The first hosted run exposed upstream POM incompatibilities with Maven 3.10.0 and Java 11 parsing of offset timestamps. CI pins the tested Maven baseline; both report integrations parse ISO offset timestamps before applying their unchanged age checks. Failed runs remain visible. No merge is authorized.
 
 Once ordinary CI passes, review/merge separately, configure the protected environment and register the dedicated runner through Settings > Actions > Runners > New self-hosted runner. Registration tokens belong only in the runner's local configuration command, never in chat or source. Dispatch Authorized live conformance release gate using Actions > Run workflow on the default branch. The connector can inspect its real run through GET /repos/OWNER/REPO/actions/runs and job/log/artifact tools; its commit helper alone only lists PR-triggered runs. Do not report remote success before those actual results exist.

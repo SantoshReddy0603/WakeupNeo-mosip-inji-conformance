@@ -11,6 +11,7 @@ import org.testng.annotations.*;
 import java.io.File;
 import java.net.URI;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -75,7 +76,7 @@ public class OpenIDConformanceTest implements ITest {
             Assert.assertFalse(expected.isBlank(), "Consuming a report requires conformance.runId");
             Assert.assertEquals(report.path("run_id").asText(), expected, "Report identity mismatch");
         }
-        long age = Instant.now().getEpochSecond() - Instant.parse(report.path("consolidated").path("timestamp").asText()).getEpochSecond();
+        long age = Instant.now().getEpochSecond() - OffsetDateTime.parse(report.path("consolidated").path("timestamp").asText()).toInstant().getEpochSecond();
         Assert.assertTrue(age >= -60 && age <= Long.getLong("conformance.maxReportAgeSeconds", 7200L), "Stale report");
         Assert.assertTrue(report.path("runs").has(COMPONENT), "Component missing from summary");
         Reporter.log("Actual OpenID results: " + summary.toURI(), true);
