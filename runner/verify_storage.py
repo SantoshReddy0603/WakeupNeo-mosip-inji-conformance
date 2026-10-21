@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import boto3
 from botocore.config import Config
 
@@ -19,7 +20,20 @@ if args.env_file:
             os.environ.setdefault(key, value)
 summary = json.loads((args.report_directory / 'conformance-summary.json').read_text())
 prefix = 'openid-conformance/' + summary['run_id'] + '/'
+manifest_path = args.report_directory / 'artifact-storage-validation.json'
+manifest = json.loads(manifest_path.read_text()) if manifest_path.is_file() else None
+if manifest is not None:
+    # Retained validation deliberately uploads into a new namespace. Read the
+    # actual lifecycle manifest instead of guessing the original run's prefix.
+    if manifest.get('run_id') != summary['run_id'] or not manifest.get('configured'):
+        raise ValueError('Upload manifest identity/configuration mismatch')
+    prefix = manifest.get('prefix', '')
+    expected = r'openid-conformance(?:-validation)?/' + re.escape(summary['run_id']) + r'/(?:[0-9a-f]{32}/)?'
+    if not re.fullmatch(expected, prefix):
+        raise ValueError('Upload manifest has an unexpected artifact namespace')
 bucket = os.getenv('S3_BUCKET') or 'automationtests'
+if manifest is not None and manifest.get('bucket') != bucket:
+    raise ValueError('Upload manifest bucket differs from configured bucket')
 client = boto3.client('s3', endpoint_url=os.environ['S3_ENDPOINT'],
     aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'], aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
     region_name=os.getenv('AWS_REGION') or 'us-east-1', config=Config(s3={'addressing_style': 'path'}))
@@ -41,10 +55,16 @@ for artifact in sorted(args.report_directory.rglob('*')):
             or (len(relative.parts) > 1 and relative.parts[0] in test_ids)):
         continue
     key = prefix + relative.as_posix()
+    if manifest is not None:
+        matches = [entry for entry in manifest.get('verified', []) if entry.get('file') == relative.as_posix()]
+        if len(matches) != 1 or matches[0].get('key') != key:
+            raise ValueError('Artifact absent or inconsistent in upload manifest: ' + relative.as_posix())
     received = client.get_object(Bucket=bucket, Key=key)['Body'].read()
     local = artifact.read_bytes()
     if received != local:
         raise RuntimeError('Uploaded bytes differ: ' + artifact.name)
+    if manifest is not None and hashlib.sha256(received).hexdigest() != matches[0].get('sha256'):
+        raise RuntimeError('Uploaded digest differs from manifest: ' + artifact.name)
     results.append({'file': relative.as_posix(), 'key': key, 'sha256': hashlib.sha256(received).hexdigest(), 'bytes': len(received)})
 if not results:
     raise RuntimeError('No actual artifacts verified')

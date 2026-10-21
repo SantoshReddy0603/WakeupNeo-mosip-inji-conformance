@@ -55,7 +55,7 @@ def validate(component, repo, classpath, output):
         props = ['-Dconformance.consumeReport=true', '-Dconformance.summary=' + str(summary),
                  '-Dconformance.runId=' + data['run_id'], '-Denv.endpoint=https://fixture.invalid']
         if component == 'combined':
-            args = ['mvn', '-o', '-B', '-f', str(ROOT / 'testrig/pom.xml'), 'test',
+            args = ['mvn', *(['-o'] if os.getenv('MAVEN_OFFLINE') == 'true' else []), '-B', '-f', str(ROOT / 'testrig/pom.xml'), 'test',
                     '-DsuiteXmlFile=' + str(ROOT / 'testrig/testng-combined.xml'), *props]
             cwd = ROOT
             xml = ROOT / 'testrig/target/surefire-reports/testng-results.xml'
