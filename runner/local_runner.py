@@ -96,12 +96,17 @@ def preflight(directory, require_registration=True):
         env = dict(os.environ, NODE_OPTIONS=NODE_OPTIONS)
         command([str(node), '-e', "require('https').get('https://results-receiver.actions.githubusercontent.com/',r=>{r.resume();process.exit(0)}).on('error',()=>process.exit(1))"],
                 env=env, timeout=40)
-        for url in ['https://github.com', 'https://api.github.com', 'https://gitlab.com',
+        # The GitLab landing page may reject automated browsers even when the
+        # repository's actual Git transport works. Check the required service.
+        remote = command(['git', 'ls-remote', 'https://gitlab.com/openid/conformance-suite.git', 'HEAD'], timeout=40)
+        if not remote or len(remote.split()[0]) != 40:
+            raise ValueError('Official suite Git source unavailable')
+        for url in ['https://github.com', 'https://api.github.com',
                     'https://repo.maven.apache.org/maven2/', 'https://pypi.org/simple/']:
             with urllib.request.urlopen(url, timeout=20) as response:
                 if response.status >= 400:
                     raise ValueError('Dependency endpoint unavailable')
-        return 'TLS verified; scoped Node IPv4 configuration verified'
+        return 'TLS, official suite Git transport and scoped Node IPv4 configuration verified'
     def registered():
         value = registration(directory)
         if value is None and require_registration:

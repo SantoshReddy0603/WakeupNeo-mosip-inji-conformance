@@ -95,3 +95,33 @@ def test_registration_token_lifecycle_and_redaction(tmp_path, monkeypatch, capsy
         assert 'controlled-token-canary' not in str(exc.value)
         assert token.exists()
     assert 'controlled-token-canary' not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('git_access', [True, False])
+def test_preflight_uses_actual_git_transport_instead_of_gitlab_homepage(tmp_path, monkeypatch, git_access):
+    import contextlib
+    import local_runner
+    from types import SimpleNamespace
+    calls = []
+    def probe(args, **kwargs):
+        calls.append(args)
+        if args[:2] == ['git', 'ls-remote']:
+            if not git_access:
+                raise OSError('Controlled transport failure')
+            return 'a' * 40 + '\tHEAD'
+        if args[:2] == ['javac', '-version']:
+            return 'javac 21.0.1'
+        if args[:2] == ['mvn', '-version']:
+            return 'Apache Maven 3.8.7'
+        return 'Docker Desktop'
+    def http(url, **kwargs):
+        assert url != 'https://gitlab.com'
+        return contextlib.nullcontext(SimpleNamespace(status=200))
+    monkeypatch.setattr(local_runner, 'command', probe)
+    monkeypatch.setattr(local_runner.shutil, 'which', lambda _: '/controlled/tool')
+    monkeypatch.setattr(local_runner.shutil, 'disk_usage', lambda _: SimpleNamespace(free=100 * 1024 ** 3))
+    monkeypatch.setattr(local_runner, 'busy_ports', lambda: [])
+    monkeypatch.setattr(local_runner.urllib.request, 'urlopen', http)
+    result = local_runner.preflight(tmp_path, require_registration=False)
+    assert bool(result['checks']['network']) == git_access
+    assert any(c[:2] == ['git', 'ls-remote'] for c in calls)
