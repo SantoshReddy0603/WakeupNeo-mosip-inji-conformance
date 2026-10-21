@@ -4,6 +4,7 @@ Run from a fresh source extraction. Images/dependency caches may be reused, data
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -31,7 +32,16 @@ def merged(root, project, issuer_image):
 
 
 def docker(*args, capture=False):
+    environment = dict(os.environ)
+    if args and args[0] == 'compose':
+        # An isolated managed stack owns its freshly generated configuration.
+        # GitHub defines missing secrets as empty variables, which otherwise
+        # override --env-file (even nonempty external credentials are unrelated).
+        environment.update(dict(line.split('=', 1) for line in
+                                (ROOT / 'docker/.env').read_text().splitlines()
+                                if '=' in line and not line.startswith('#')))
     return subprocess.run(['docker', *args], check=True, text=True,
+                          env=environment,
                           stdout=subprocess.PIPE if capture else None).stdout
 
 
