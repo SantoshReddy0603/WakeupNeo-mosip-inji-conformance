@@ -171,6 +171,35 @@ def test_readiness_rejects_bad_url_and_negative_timeout():
     with pytest.raises(ValueError):wait(['http://localhost'],timeout=-1)
 
 
+def test_readiness_waits_for_actual_authorization_metadata_after_502(monkeypatch):
+    from wait_ready import authorization_metadata_url
+    issuer='https://issuer.example/auth/realms/course'
+    endpoint=authorization_metadata_url(issuer)
+    assert endpoint=='https://issuer.example/.well-known/oauth-authorization-server/auth/realms/course'
+    calls=[]
+    def get(url,**kwargs):
+        calls.append(url)
+        response=requests.Response()
+        response.status_code=502 if len(calls)==1 else 200
+        response._content=json.dumps({'issuer':issuer,'authorization_endpoint':issuer+'/authorize',
+            'token_endpoint':issuer+'/token','jwks_uri':issuer+'/keys'}).encode()
+        return response
+    monkeypatch.setattr('wait_ready.requests.get',get)
+    assert wait([],authorization_server=issuer,timeout=1,interval=0.001)=={}
+    assert calls==[endpoint,endpoint]
+
+
+@pytest.mark.parametrize('metadata',[{'issuer':'https://wrong.example'},
+    {'issuer':'https://issuer.example/auth/realms/course','authorization_endpoint':'a','token_endpoint':'t'}])
+def test_authorization_metadata_requires_correct_issuer_and_endpoints(monkeypatch,metadata):
+    def get(*args,**kwargs):
+        response=requests.Response();response.status_code=200;response._content=json.dumps(metadata).encode()
+        return response
+    monkeypatch.setattr('wait_ready.requests.get',get)
+    errors=wait([],authorization_server='https://issuer.example/auth/realms/course',timeout=0.02,interval=0.001)
+    assert errors and 'expected' in next(iter(errors.values()))
+
+
 def test_diff_does_not_hide_failure_to_skip_or_review_changes():
     old={'results':{'verify::negative':'FAILED','verify::happy':'REVIEW'},'gate_met':False,'benchmark':{'policy':'a'}}
     new={'results':{'verify::negative':'SKIPPED','verify::happy':'PASSED'},'gate_met':True,'benchmark':{'policy':'b'}}

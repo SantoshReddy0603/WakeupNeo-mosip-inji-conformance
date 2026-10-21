@@ -3,13 +3,25 @@ import os
 import argparse
 import sys
 import time
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 import requests
 from local_network import configure
 
 
-def wait(urls,timeout=180,interval=2,request_timeout=5,verify=True,ui_url=None):
+def authorization_metadata_url(issuer):
+    parsed=urlsplit(issuer)
+    if (parsed.scheme not in {'http','https'} or not parsed.hostname or parsed.username
+            or parsed.password or parsed.query or parsed.fragment):
+        raise ValueError('Authorization issuer must be an HTTP(S) URL without credentials, query or fragment')
+    return urlunsplit((parsed.scheme,parsed.netloc,
+        '/.well-known/oauth-authorization-server'+parsed.path,'',''))
+
+
+def wait(urls,timeout=180,interval=2,request_timeout=5,verify=True,ui_url=None,authorization_server=None):
     if min(timeout,interval,request_timeout)<=0:raise ValueError('Readiness timeouts/interval must be positive')
+    urls=list(urls)
+    authorization_url=authorization_metadata_url(authorization_server) if authorization_server else None
+    if authorization_url:urls.append(authorization_url)
     for url in urls:
         parsed=urlsplit(url)
         if parsed.scheme not in {'http','https'} or not parsed.hostname or parsed.username or parsed.password:
@@ -28,8 +40,13 @@ def wait(urls,timeout=180,interval=2,request_timeout=5,verify=True,ui_url=None):
                     valid='text/html' in response.headers.get('Content-Type','') and 'id="root"' in response.text
                 else:
                     value=response.json()
-                    valid=(isinstance(value,list) and url.endswith('/available') or isinstance(value,dict)
-                        and (value.get('status')=='UP' or url.endswith('/openid-credential-issuer') and value.get('credential_endpoint')))
+                    if url==authorization_url:
+                        valid=(isinstance(value,dict) and value.get('issuer')==authorization_server
+                            and all(isinstance(value.get(key),str) and value[key]
+                                for key in ['authorization_endpoint','token_endpoint','jwks_uri']))
+                    else:
+                        valid=(isinstance(value,list) and url.endswith('/available') or isinstance(value,dict)
+                            and (value.get('status')=='UP' or url.endswith('/openid-credential-issuer') and value.get('credential_endpoint')))
                 if valid:
                     del pending[url]
                     print('Ready: '+url,flush=True)
@@ -68,7 +85,8 @@ def main(argv=None):
         if os.getenv('VERIFY_UI_URL'):urls.append(os.environ['VERIFY_UI_URL'])
     try:
         failures=wait(urls,timeout=args.timeout,verify=False if args.insecure else os.getenv('CA_BUNDLE') or True,
-            ui_url=os.getenv('VERIFY_UI_URL'))
+            ui_url=os.getenv('VERIFY_UI_URL'),
+            authorization_server=os.getenv('VCI_AUTHORIZATION_SERVER') if component in {'combined','certify'} else None)
     except ValueError as exc:
         parser.error(str(exc))
     for url,reason in failures.items():print('Startup failed: '+url+' - '+reason,file=sys.stderr)
