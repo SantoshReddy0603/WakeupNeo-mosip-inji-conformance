@@ -229,11 +229,16 @@ def test_ci_export_retains_failed_review_without_private_runtime_data(tmp_path):
     source={'schema_version':2,'run_id':'controlled-fixture','runs':{'verify':{
         'summary':{'is_gated_pass':False,'plan_id':'fixture-plan','client_secret':'DO-NOT-EXPORT'},
         'results':{'fixture-module':'REVIEW'},'modules':[{'access_token':'DO-NOT-EXPORT'}]}},
-        'consolidated':{'gate_met':False,'status':'FAILED','private_key':'DO-NOT-EXPORT'}}
+        'consolidated':{'gate_met':False,'status':'FAILED','private_key':'DO-NOT-EXPORT'},
+        'retained_source':{'kind':'offline_harness_gate_recalculation',
+                           'live_official_api_rechecked':False,'secret':'DO-NOT-EXPORT'}}
     (private/'conformance-summary.json').write_text(json.dumps(source))
     result=export(private,tmp_path/'safe')
     assert result['runs']['verify']['results']['fixture-module']=='REVIEW'
     assert not result['consolidated']['gate_met']
+    assert result['derived_from_retained_results'] is True
+    assert result['official_conformance_result'] is False
+    assert result['live_official_api_rechecked'] is False
     assert 'DO-NOT-EXPORT' not in (tmp_path/'safe/ci-summary.json').read_text()
     assert 'FAILED' in (tmp_path/'safe/ci-report.html').read_text()
     source['consolidated']['gate_met']=True

@@ -126,8 +126,12 @@ public class OpenIDConformanceTest {
         JsonNode gate = "combined".equals(targetComponent) ? report.path("consolidated") : report.path("runs").path(targetComponent).path("summary");
         Assert.assertEquals(runnerExitCode, 0, "Runner process failed");
         Assert.assertTrue(gate.path("combined".equals(targetComponent) ? "gate_met" : "is_gated_pass").asBoolean(false), "Release gate rejected");
-        // Consolidated regression decisions also apply to a component suite.
-        Assert.assertTrue(report.path("consolidated").path("gate_met").asBoolean(false), "Consolidated regression gate rejected");
+        if (!"combined".equals(targetComponent)) {
+            Assert.assertTrue(gate.path("regression_gate_met").asBoolean(
+                report.path("consolidated").path("gate_met").asBoolean(false)), "Component regression gate rejected");
+            if (gate.has("gate_met"))
+                Assert.assertTrue(gate.path("gate_met").asBoolean(false), "Effective component gate rejected");
+        }
         Assert.assertTrue(gate.path("passed").asInt() > 0, "No passing tests");
         test.pass("Release gate accepted");
         } catch (AssertionError failure) {

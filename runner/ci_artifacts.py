@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 FIELDS={'component','plan_name','plan_id','status','total','passed','failed','warnings','skipped',
-        'expected_failures','is_gated_pass','gate_met','components','timestamp','total_tests'}
+        'expected_failures','is_gated_pass','gate_met','regression_gate_met','components','timestamp','total_tests'}
 
 
 def export(reports,output):
@@ -21,6 +21,10 @@ def export(reports,output):
     safe={'schema_version':2,'run_id':data['run_id'],'kind':'restricted_ci_summary',
         'source_summary_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'runs':{},
         'consolidated':{k:v for k,v in data['consolidated'].items() if k in FIELDS}}
+    if data.get('retained_source'):
+        safe['derived_from_retained_results'] = True
+        safe['official_conformance_result'] = False
+        safe['live_official_api_rechecked'] = data['retained_source'].get('live_official_api_rechecked') is True
     for component,run in data['runs'].items():
         if component not in {'certify','verify'}:raise ValueError('Unknown component')
         if not isinstance(run['results'],dict) or any(not isinstance(name,str) or not isinstance(status,str) or status not in {
@@ -30,7 +34,7 @@ def export(reports,output):
         safe['runs'][component]={'summary':{k:v for k,v in run['summary'].items() if k in FIELDS},
             'results':run['results']}
     if data['consolidated'].get('gate_met') and any(
-            not r['summary'].get('is_gated_pass') or not r['results'] or any(
+            not r['summary'].get('is_gated_pass') or r['summary'].get('gate_met') is False or not r['results'] or any(
                 status not in {'PASSED','WARNING','SKIPPED','EXPECTED_FAILURE'} for status in r['results'].values())
             for r in safe['runs'].values()):
         raise ValueError('Inconsistent positive gate; refusal to publish a false-green summary')

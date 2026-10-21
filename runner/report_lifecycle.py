@@ -157,7 +157,9 @@ def main():
     storage = upload_artifacts(reports, report['run_id'], prefix)
     (reports/'artifact-storage-validation.json').write_text(json.dumps(storage,indent=2))
     print(json.dumps({'reporters':codes,'storage_artifacts_verified':len(storage['verified']), 'artifact_prefix':prefix}))
-    return 1 if any(codes.values()) or not report['consolidated']['gate_met'] else 0
+    selected_gate = (report['consolidated']['gate_met'] if args.combined else
+        report['runs'][args.component]['summary'].get('gate_met', report['consolidated']['gate_met']))
+    return 1 if any(codes.values()) or not selected_gate else 0
 
 if __name__ == '__main__':
     raise SystemExit(main())

@@ -18,6 +18,7 @@ from oidf_client import OIDFClient, TERMINAL
 from oid4vp_handoff import OID4VPHandoffClient, generate_signing_jwk
 from local_network import configure as configure_network
 from preflight import validate_storage
+from gate_policy import apply_component_gates
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG = logging.getLogger('conformance')
@@ -294,6 +295,7 @@ def main(argv=None):
     totals = {k: sum(r['summary'].get(k, 0) for r in runs.values()) for k in ['total', 'passed', 'failed', 'expected_failures', 'warnings', 'skipped']}
     status = ('BASELINE_ACCEPTED' if totals['expected_failures'] else 'PASSED') if gate else 'FAILED'
     current_results = {f'{c}::{k}': v for c, run in runs.items() for k, v in run['results'].items()}
+    diff = None
     if args.diff:
         try:
             baseline = json.loads(resolve_path(args.diff).read_text(encoding='utf-8-sig'))
@@ -317,6 +319,12 @@ def main(argv=None):
     if resolve_path(args.expected_failures).is_file():
         output['consolidated']['benchmark']={'policy':'all-required-results-pass-with-evidence-v1',
             'expected_failures_sha256':hashlib.sha256(resolve_path(args.expected_failures).read_bytes()).hexdigest()}
+    gate = apply_component_gates(output, components, diff)
+    status = output['consolidated']['status']
+    for component, result in runs.items():
+        atomic_json(output_dir / f'{component}-conformance-report.json', result)
+        component_status = result['summary'].get('status', 'FAILED') if result['summary']['gate_met'] else 'FAILED'
+        save_badge(output_dir / f'{component}-conformance-badge.svg', component, component_status)
     atomic_json(output_dir / 'conformance-summary.json', output)
     save_badge(output_dir / 'combined-conformance-badge.svg', 'Inji OpenID', status)
     print(json.dumps(output['consolidated'], indent=2))

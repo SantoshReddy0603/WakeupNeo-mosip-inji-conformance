@@ -10,6 +10,7 @@ from diff_engine import DiffEngine
 from badge_generator import BadgeGenerator
 from oidf_client import OIDFClient
 from local_network import configure
+from gate_policy import apply_component_gates
 
 
 def hashes(root):
@@ -65,6 +66,19 @@ def validate_and_copy(source, destination, components, expected_id, client, base
     # A component-only replay has a component-only gate. Preserve the original
     # consolidated gate and bytes separately; never promote the official run.
     source_gate = report['consolidated']['gate_met']
+    inherited_diff = None
+    diff_path = source / 'conformance-diff.json'
+    if diff_path.is_file():
+        inherited_diff = json.loads(diff_path.read_text())
+    # Do not discard an existing per-component rejection when projecting a run.
+    inherited = {c: [{'reason': 'retained component regression rejection'}]
+                 for c, r in report['runs'].items()
+                 if r['summary'].get('regression_gate_met') is False}
+    if inherited:
+        inherited_diff = {'has_regressions': True, 'component_regressions': inherited}
+    legacy_unexplained_failure = (not source_gate and all(
+        r['summary'].get('is_gated_pass') is True for r in report['runs'].values())
+        and inherited_diff is None)
     if set(components) != set(report['runs']):
         report = copy.deepcopy(report)
         report['runs'] = {c: report['runs'][c] for c in components}
@@ -78,6 +92,7 @@ def validate_and_copy(source, destination, components, expected_id, client, base
         report['retained_source'] = {'run_id':expected_id, 'combined_gate_met':source_gate,
             'kind':'component_projection', 'official_conformance_result':False}
         shutil.copyfile(source/'conformance-summary.json',destination/'original-conformance-summary.json')
+    diff = inherited_diff
     if baseline:
         diff = DiffEngine.compare_runs({'results':selected},report)
         diff.update(baseline_run_id=previous.get('run_id'), current_run_id=expected_id,
@@ -89,6 +104,26 @@ def validate_and_copy(source, destination, components, expected_id, client, base
             report = copy.deepcopy(report)
             report['consolidated'].update(gate_met=False,status='FAILED')
             shutil.copyfile(source/'conformance-summary.json',destination/'original-conformance-summary.json')
+        if inherited_diff and inherited_diff.get('has_regressions'):
+            for c, failures in inherited_diff.get('component_regressions', {}).items():
+                diff.setdefault('component_regressions', {}).setdefault(c, []).extend(failures)
+            diff['has_regressions'] = True
+        (destination/'conformance-diff.json').write_text(json.dumps(diff,indent=2))
+    apply_component_gates(report, components, diff,
+                          error='Unexplained retained failed gate' if legacy_unexplained_failure else None)
+    report['retained_source'] = {**report.get('retained_source', {}),
+        'run_id': expected_id, 'combined_gate_met': source_gate,
+        'kind': 'component_gate_recalculation', 'official_conformance_result': False,
+        'summary_sha256': before['conformance-summary.json']}
+    shutil.copyfile(source/'conformance-summary.json',destination/'original-conformance-summary.json')
+    for c in components:
+        original_report = source / (c + '-conformance-report.json')
+        if original_report.is_file():
+            shutil.copyfile(original_report, destination / ('original-' + c + '-conformance-report.json'))
+        (destination / (c + '-conformance-report.json')).write_text(json.dumps(report['runs'][c], indent=2))
+        effective = report['runs'][c]['summary']['gate_met']
+        (destination / (c + '-conformance-badge.svg')).write_text(BadgeGenerator.generate_svg(
+            c + ' retained validation', 'PASSED' if effective else 'FAILED', '#4c1' if effective else '#e05d44'))
     if report != json.loads((source/'conformance-summary.json').read_text()):
         (destination/'conformance-summary.json').write_text(json.dumps(report,indent=2))
         original_badge = source/'combined-conformance-badge.svg'
