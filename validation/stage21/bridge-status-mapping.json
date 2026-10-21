@@ -1,0 +1,12 @@
+{
+  "fixture": "status-mapping",
+  "official_conformance_result": false,
+  "testng": {
+    "ignored": "0",
+    "total": "6",
+    "passed": "4",
+    "failed": "0",
+    "skipped": "2"
+  },
+  "xml_sha256": "2be201ac2878fdc0f4197ad2310bf074a113be36ffc397bd5c9ad877baa393c4"
+}

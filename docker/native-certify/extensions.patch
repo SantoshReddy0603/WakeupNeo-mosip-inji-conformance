@@ -1,0 +1,135 @@
+diff --git a/certify-core/src/main/java/io/mosip/certify/core/dto/CredentialRequest.java b/certify-core/src/main/java/io/mosip/certify/core/dto/CredentialRequest.java
+index da8ee7c..0da5dce 100644
+--- a/certify-core/src/main/java/io/mosip/certify/core/dto/CredentialRequest.java
++++ b/certify-core/src/main/java/io/mosip/certify/core/dto/CredentialRequest.java
+@@ -1,39 +1,43 @@
+-/*
+- * This Source Code Form is subject to the terms of the Mozilla Public
+- * License, v. 2.0. If a copy of the MPL was not distributed with this
+- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+- */
+-package io.mosip.certify.core.dto;
+-
+-import io.mosip.certify.core.constants.ErrorConstants;
+-import io.mosip.certify.core.constants.VCIErrorConstants;
+-import jakarta.validation.Valid;
+-import jakarta.validation.constraints.NotEmpty;
+-import lombok.Data;
+-import java.util.List;
+-import com.fasterxml.jackson.annotation.JsonProperty;
+-import jakarta.validation.constraints.NotBlank;
+-
+-import java.util.Map;
+-
+-@Data
+-public class CredentialRequest {
+-
+-    @NotBlank(message = ErrorConstants.INVALID_CREDENTIAL_REQUEST)
+-    @JsonProperty("credential_configuration_id")
+-    private String credentialConfigId;
+-
+-    /**
+-     * REQUIRED (in this implementation).
+-     * JSON object containing proof(s) of possession of the key material the issued Credential shall be bound to.
+-     * Keys are proof types (e.g., "jwt"); values are non-empty lists of proof strings.
+-     */
+-    @Valid
+-    @NotEmpty(message = VCIErrorConstants.INVALID_PROOF)
+-    private Map<
+-            ProofType,
+-            @NotEmpty(message = VCIErrorConstants.INVALID_PROOF) List<
+-                    @NotBlank(message = VCIErrorConstants.INVALID_PROOF) String
+-                    >
+-            > proofs;
+-}
+\ No newline at end of file
++/*
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
++ */
++package io.mosip.certify.core.dto;
++
++import io.mosip.certify.core.constants.ErrorConstants;
++import io.mosip.certify.core.constants.VCIErrorConstants;
++import jakarta.validation.Valid;
++import jakarta.validation.constraints.NotEmpty;
++import lombok.Data;
++import java.util.List;
++import com.fasterxml.jackson.annotation.JsonProperty;
++import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
++import jakarta.validation.constraints.NotBlank;
++
++import java.util.Map;
++
++@Data
++// OpenID4VCI 1.0 section 8.2 requires ignoring unrecognized request parameters.
++// This applies only to extensions, not the required configuration ID or proofs.
++@JsonIgnoreProperties(ignoreUnknown = true)
++public class CredentialRequest {
++
++    @NotBlank(message = ErrorConstants.INVALID_CREDENTIAL_REQUEST)
++    @JsonProperty("credential_configuration_id")
++    private String credentialConfigId;
++
++    /**
++     * REQUIRED (in this implementation).
++     * JSON object containing proof(s) of possession of the key material the issued Credential shall be bound to.
++     * Keys are proof types (e.g., "jwt"); values are non-empty lists of proof strings.
++     */
++    @Valid
++    @NotEmpty(message = VCIErrorConstants.INVALID_PROOF)
++    private Map<
++            ProofType,
++            @NotEmpty(message = VCIErrorConstants.INVALID_PROOF) List<
++                    @NotBlank(message = VCIErrorConstants.INVALID_PROOF) String
++                    >
++            > proofs;
++}
+diff --git a/certify-core/src/test/java/io/mosip/certify/core/dto/CredentialRequestExtensionTest.java b/certify-core/src/test/java/io/mosip/certify/core/dto/CredentialRequestExtensionTest.java
+new file mode 100755
+index 0000000..c674e58
+--- /dev/null
++++ b/certify-core/src/test/java/io/mosip/certify/core/dto/CredentialRequestExtensionTest.java
+@@ -0,0 +1,41 @@
++package io.mosip.certify.core.dto;
++
++import com.fasterxml.jackson.databind.json.JsonMapper;
++import jakarta.validation.Validation;
++import jakarta.validation.ValidatorFactory;
++import org.junit.Test;
++import static org.junit.Assert.*;
++
++public class CredentialRequestExtensionTest {
++    private final JsonMapper mapper = JsonMapper.builder().build();
++
++    @Test
++    public void ignoresExtensionsWhilePreservingCredentialAndProof() throws Exception {
++        CredentialRequest request = mapper.readValue("""
++            {"credential_configuration_id":"course-completion-sdjwt", "proofs":{"jwt":["holder-proof"]},
++             "random_extension":{"nested":true}}
++            """, CredentialRequest.class);
++        assertEquals("course-completion-sdjwt", request.getCredentialConfigId());
++        assertEquals("holder-proof", request.getProofs().get(ProofType.JWT).getFirst());
++        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
++            assertTrue(factory.getValidator().validate(request).isEmpty());
++        }
++    }
++
++    @Test
++    public void missingRequiredCredentialAndEmptyProofAreStillInvalid() throws Exception {
++        CredentialRequest request = mapper.readValue("""
++            {"proofs":{"jwt":[]},"extension":"ignored"}
++            """, CredentialRequest.class);
++        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
++            assertFalse(factory.getValidator().validate(request).isEmpty());
++        }
++    }
++
++    @Test
++    public void unsupportedProofTypeIsStillRejected() {
++        assertThrows(Exception.class, () -> mapper.readValue("""
++            {"credential_configuration_id":"course-completion-sdjwt","proofs":{"unsupported":["proof"]}}
++            """, CredentialRequest.class));
++    }
++}

@@ -1,0 +1,12 @@
+{
+  "fixture": "gate-failed",
+  "official_conformance_result": false,
+  "testng": {
+    "ignored": "0",
+    "total": "3",
+    "passed": "2",
+    "failed": "1",
+    "skipped": "0"
+  },
+  "xml_sha256": "fe6bc554e36a102de356d3435f390b698f9c24eb8d033f8a579678f535bc03bf"
+}

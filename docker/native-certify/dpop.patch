@@ -1,0 +1,514 @@
+diff --git a/certify-service/src/main/java/io/mosip/certify/filter/AccessTokenValidationFilter.java b/certify-service/src/main/java/io/mosip/certify/filter/AccessTokenValidationFilter.java
+index c579922..00e9c75 100644
+--- a/certify-service/src/main/java/io/mosip/certify/filter/AccessTokenValidationFilter.java
++++ b/certify-service/src/main/java/io/mosip/certify/filter/AccessTokenValidationFilter.java
+@@ -1,121 +1,150 @@
+-/*
+- * This Source Code Form is subject to the terms of the Mozilla Public
+- * License, v. 2.0. If a copy of the MPL was not distributed with this
+- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+- */
+-package io.mosip.certify.filter;
+-
+-import java.io.IOException;
+-import java.time.Clock;
+-import java.time.Instant;
+-import java.util.HashMap;
+-import java.util.List;
+-import java.util.Objects;
+-
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.beans.factory.annotation.Value;
+-import org.springframework.context.annotation.Profile;
+-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+-import org.springframework.security.oauth2.jwt.Jwt;
+-import org.springframework.security.oauth2.jwt.JwtClaimNames;
+-import org.springframework.security.oauth2.jwt.JwtClaimValidator;
+-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
+-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+-import org.springframework.stereotype.Component;
+-import org.springframework.web.filter.OncePerRequestFilter;
+-
+-import io.mosip.certify.core.constants.Constants;
+-import io.mosip.certify.core.dto.ParsedAccessToken;
+-import io.mosip.certify.core.util.CommonUtil;
+-import jakarta.servlet.FilterChain;
+-import jakarta.servlet.ServletException;
+-import jakarta.servlet.http.HttpServletRequest;
+-import jakarta.servlet.http.HttpServletResponse;
+-import lombok.extern.slf4j.Slf4j;
+-
+-
+-@Slf4j
+-@Component
+-@Profile("!local")
+-public class AccessTokenValidationFilter extends OncePerRequestFilter {
+-
+-    @Value("${mosip.certify.authn.issuer-uri}")
+-    private String issuerUri;
+-
+-    @Value("${mosip.certify.authn.jwk-set-uri}")
+-    private String jwkSetUri;
+-
+-    @Value("#{${mosip.certify.authn.allowed-audiences}}")
+-    private List<String> allowedAudiences;
+-
+-    @Value("#{${mosip.certify.authn.filter-urls}}")
+-    private List<String> urlPatterns;
+-
+-    @Autowired
+-    private ParsedAccessToken parsedAccessToken;
+-
+-    private NimbusJwtDecoder nimbusJwtDecoder;
+-
+-
+-    private boolean isJwt(String token) {
+-        return token.split("\\.").length == 3;
+-    }
+-
+-    private NimbusJwtDecoder getNimbusJwtDecoder() {
+-        if(nimbusJwtDecoder == null) {
+-            nimbusJwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithms((algo) -> {
+-                algo.add(SignatureAlgorithm.ES256);
+-                algo.add(SignatureAlgorithm.RS256);
+-                algo.add(SignatureAlgorithm.PS256);
+-            }).build();
+-            nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+-                    new JwtTimestampValidator(),
+-                    new JwtIssuerValidator(issuerUri),
+-                    new JwtClaimValidator<List<String>>(JwtClaimNames.AUD,
+-                            aud -> aud.stream().anyMatch(allowedAudiences::contains)),
+-                    new JwtClaimValidator<String>(JwtClaimNames.SUB, Objects::nonNull),
+-                    new JwtClaimValidator<String>(Constants.CLIENT_ID, Objects::nonNull),
+-                    new JwtClaimValidator<Instant>(JwtClaimNames.IAT,
+-                            iat -> iat != null && iat.isBefore(Instant.now(Clock.systemUTC()))),
+-                    new JwtClaimValidator<Instant>(JwtClaimNames.EXP,
+-                            exp -> exp != null && exp.isAfter(Instant.now(Clock.systemUTC())))));
+-        }
+-        return nimbusJwtDecoder;
+-    }
+-
+-    @Override
+-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+-        final String path = request.getRequestURI();
+-        return !urlPatterns.contains(path);
+-    }
+-
+-    @Override
+-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+-        String authorizationHeader = request.getHeader("Authorization");
+-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+-            String token = authorizationHeader.substring(7);
+-            //validate access token no matter if its JWT or Opaque
+-            if(isJwt(token)) {
+-                try {
+-                    //Verifies signature and claim predicates, If invalid throws exception
+-                    Jwt jwt = getNimbusJwtDecoder().decode(token);
+-                    parsedAccessToken.setClaims(new HashMap<>());
+-                    parsedAccessToken.getClaims().putAll(jwt.getClaims());
+-                    parsedAccessToken.setAccessTokenHash(CommonUtil.generateOIDCAtHash(token));
+-                    parsedAccessToken.setActive(true);
+-                    filterChain.doFilter(request, response);
+-                    return;
+-
+-                } catch (Exception e) {
+-                    log.error("Access token validation failed", e);
+-                }
+-            }
+-        }
+-
+-        log.error("No Bearer / Opaque token provided, continue with the request chain");
+-        parsedAccessToken.setActive(false);
+-        filterChain.doFilter(request, response);
+-    }
+-}
++/*
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
++ */
++package io.mosip.certify.filter;
++
++import java.io.IOException;
++import java.time.Clock;
++import java.time.Instant;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Objects;
++
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Profile;
++import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
++import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
++import org.springframework.security.oauth2.jwt.Jwt;
++import org.springframework.security.oauth2.jwt.JwtClaimNames;
++import org.springframework.security.oauth2.jwt.JwtClaimValidator;
++import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
++import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
++import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
++import org.springframework.stereotype.Component;
++import org.springframework.web.filter.OncePerRequestFilter;
++
++import io.mosip.certify.core.constants.Constants;
++import io.mosip.certify.core.dto.ParsedAccessToken;
++import io.mosip.certify.core.util.CommonUtil;
++import jakarta.servlet.FilterChain;
++import jakarta.servlet.ServletException;
++import jakarta.servlet.http.HttpServletRequest;
++import jakarta.servlet.http.HttpServletResponse;
++import lombok.extern.slf4j.Slf4j;
++
++
++@Slf4j
++@Component
++@Profile("!local")
++public class AccessTokenValidationFilter extends OncePerRequestFilter {
++
++    @Value("${mosip.certify.authn.issuer-uri}")
++    private String issuerUri;
++
++    @Value("${mosip.certify.authn.jwk-set-uri}")
++    private String jwkSetUri;
++
++    @Value("#{${mosip.certify.authn.allowed-audiences}}")
++    private List<String> allowedAudiences;
++
++    @Value("#{${mosip.certify.authn.filter-urls}}")
++    private List<String> urlPatterns;
++
++    @Autowired
++    private ParsedAccessToken parsedAccessToken;
++
++    @Autowired
++    private DpopProofValidator dpopProofValidator;
++
++    @Value("${mosip.certify.domain.url}")
++    private String publicIssuerUrl;
++
++    private NimbusJwtDecoder nimbusJwtDecoder;
++
++
++    private boolean isJwt(String token) {
++        return token.split("\\.").length == 3;
++    }
++
++    private NimbusJwtDecoder getNimbusJwtDecoder() {
++        if(nimbusJwtDecoder == null) {
++            nimbusJwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithms((algo) -> {
++                algo.add(SignatureAlgorithm.ES256);
++                algo.add(SignatureAlgorithm.RS256);
++                algo.add(SignatureAlgorithm.PS256);
++            }).build();
++            nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
++                    new JwtTimestampValidator(),
++                    new JwtIssuerValidator(issuerUri),
++                    new JwtClaimValidator<List<String>>(JwtClaimNames.AUD,
++                            aud -> aud.stream().anyMatch(allowedAudiences::contains)),
++                    new JwtClaimValidator<String>(JwtClaimNames.SUB, Objects::nonNull),
++                    new JwtClaimValidator<String>(Constants.CLIENT_ID, Objects::nonNull),
++                    new JwtClaimValidator<Instant>(JwtClaimNames.IAT,
++                            iat -> iat != null && iat.isBefore(Instant.now(Clock.systemUTC()))),
++                    new JwtClaimValidator<Instant>(JwtClaimNames.EXP,
++                            exp -> exp != null && exp.isAfter(Instant.now(Clock.systemUTC())))));
++        }
++        return nimbusJwtDecoder;
++    }
++
++    @Override
++    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
++        final String path = request.getRequestURI();
++        return !urlPatterns.contains(path);
++    }
++
++    @Override
++    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
++        String authorizationHeader = request.getHeader("Authorization");
++        boolean dpop = authorizationHeader != null && authorizationHeader.regionMatches(true, 0, "DPoP ", 0, 5);
++        if (authorizationHeader != null && (dpop || authorizationHeader.regionMatches(true, 0, "Bearer ", 0, 7))) {
++            String token = authorizationHeader.substring(dpop ? 5 : 7).strip();
++            //validate access token no matter if its JWT or Opaque
++            if(isJwt(token)) {
++                String dpopError = "invalid_token";
++                try {
++                    //Verifies signature and claim predicates, If invalid throws exception
++                    Jwt jwt = getNimbusJwtDecoder().decode(token);
++                    Object confirmation = jwt.getClaims().get("cnf");
++                    String thumbprint = confirmation instanceof java.util.Map<?, ?> map && map.get("jkt") instanceof String value
++                            ? value : null;
++                    if (dpop) {
++                        if (thumbprint == null) throw new IllegalArgumentException("Access token has no DPoP binding");
++                        dpopError = "invalid_dpop_proof";
++                        var proofs = java.util.Collections.list(request.getHeaders("DPoP"));
++                        if (proofs.size() != 1) throw new IllegalArgumentException("Exactly one DPoP proof is required");
++                        dpopProofValidator.validate(proofs.getFirst(), token, thumbprint, request.getMethod(),
++                                publicIssuerUrl.replaceAll("/+$", "") + request.getRequestURI());
++                    } else if (confirmation != null) {
++                        throw new IllegalArgumentException("DPoP-bound token cannot use Bearer authentication");
++                    }
++                    parsedAccessToken.setClaims(new HashMap<>());
++                    parsedAccessToken.getClaims().putAll(jwt.getClaims());
++                    parsedAccessToken.setAccessTokenHash(CommonUtil.generateOIDCAtHash(token));
++                    parsedAccessToken.setActive(true);
++                    filterChain.doFilter(request, response);
++                    return;
++
++                } catch (Exception e) {
++                    log.error("Access token validation failed", e);
++                    if (dpop) {
++                        parsedAccessToken.setActive(false);
++                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
++                        response.setContentType("application/json");
++                        response.setHeader("WWW-Authenticate", "DPoP error=\"" + dpopError + "\", algs=\"ES256\"");
++                        response.getWriter().write("{\"error\":\"" + dpopError + "\"}");
++                        return;
++                    }
++                }
++            }
++        }
++
++        log.error("No Bearer / Opaque token provided, continue with the request chain");
++        parsedAccessToken.setActive(false);
++        filterChain.doFilter(request, response);
++    }
++}
+diff --git a/certify-service/src/main/java/io/mosip/certify/filter/DpopProofValidator.java b/certify-service/src/main/java/io/mosip/certify/filter/DpopProofValidator.java
+new file mode 100755
+index 0000000..3800c2f
+--- /dev/null
++++ b/certify-service/src/main/java/io/mosip/certify/filter/DpopProofValidator.java
+@@ -0,0 +1,96 @@
++/*
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
++ */
++package io.mosip.certify.filter;
++
++import com.nimbusds.jose.JWSAlgorithm;
++import com.nimbusds.jose.crypto.ECDSAVerifier;
++import com.nimbusds.jose.jwk.Curve;
++import com.nimbusds.jose.jwk.ECKey;
++import com.nimbusds.jwt.SignedJWT;
++import org.springframework.jdbc.core.JdbcTemplate;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Component;
++
++import java.net.URI;
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.sql.Timestamp;
++import java.time.Clock;
++import java.time.Instant;
++import java.util.Base64;
++
++/** Native RFC 9449 resource proof validation with an atomic persistent replay check. */
++@Component
++public class DpopProofValidator {
++    private final JdbcTemplate jdbc;
++    private final Clock clock;
++
++    @Autowired
++    public DpopProofValidator(JdbcTemplate jdbc) {
++        this(jdbc, Clock.systemUTC());
++    }
++
++    DpopProofValidator(JdbcTemplate jdbc, Clock clock) {
++        this.jdbc = jdbc;
++        this.clock = clock;
++    }
++
++    public void validate(String proof, String accessToken, String boundThumbprint,
++                         String method, String resourceUri) throws Exception {
++        require(proof != null && proof.length() <= 16384, "Missing or oversized proof");
++        SignedJWT jwt = SignedJWT.parse(proof);
++        require(jwt.getHeader().getType() != null &&
++                "dpop+jwt".equalsIgnoreCase(jwt.getHeader().getType().toString()), "Wrong proof type");
++        require(JWSAlgorithm.ES256.equals(jwt.getHeader().getAlgorithm()), "Unsupported proof algorithm");
++        require(jwt.getHeader().getJWK() instanceof ECKey, "Proof requires an embedded public EC key");
++        ECKey key = (ECKey) jwt.getHeader().getJWK();
++        require(!key.isPrivate() && Curve.P_256.equals(key.getCurve()), "Proof key must be public P-256");
++        require(jwt.verify(new ECDSAVerifier(key)), "Invalid proof signature");
++        String thumbprint = key.computeThumbprint().toString();
++        require(boundThumbprint != null && constantEquals(thumbprint, boundThumbprint), "Access token key mismatch");
++        var claims = jwt.getJWTClaimsSet();
++        require(method.equals(claims.getStringClaim("htm")), "HTTP method mismatch");
++        require(sameResource(claims.getStringClaim("htu"), resourceUri), "Resource URI mismatch");
++        String hash = Base64.getUrlEncoder().withoutPadding().encodeToString(
++                MessageDigest.getInstance("SHA-256").digest(accessToken.getBytes(StandardCharsets.US_ASCII)));
++        require(constantEquals(hash, claims.getStringClaim("ath")), "Access token hash mismatch");
++        require(claims.getIssueTime() != null, "Missing proof issue time");
++        Instant issued = claims.getIssueTime().toInstant();
++        Instant now = clock.instant();
++        require(!issued.isBefore(now.minusSeconds(300)) && !issued.isAfter(now.plusSeconds(5)), "Proof outside time window");
++        String id = claims.getJWTID();
++        require(id != null && !id.isBlank() && id.length() <= 200, "Missing or oversized proof identifier");
++        // Expired records can be removed because their proof issue times are no longer acceptable.
++        jdbc.update("DELETE FROM certify.dpop_replay WHERE expires_at < ?", Timestamp.from(now));
++        int inserted = jdbc.update("INSERT INTO certify.dpop_replay (jkt,jti,expires_at) VALUES (?,?,?) " +
++                        "ON CONFLICT (jkt,jti) DO NOTHING", thumbprint, id, Timestamp.from(issued.plusSeconds(305)));
++        require(inserted == 1, "Replayed proof");
++    }
++
++    private static boolean constantEquals(String expected, String actual) {
++        return actual != null && MessageDigest.isEqual(expected.getBytes(StandardCharsets.US_ASCII),
++                actual.getBytes(StandardCharsets.US_ASCII));
++    }
++
++    private static boolean sameResource(String supplied, String expected) {
++        if (supplied == null) return false;
++        URI proof = URI.create(supplied).normalize();
++        URI resource = URI.create(expected).normalize();
++        if (proof.getUserInfo() != null || proof.getHost() == null || resource.getHost() == null) return false;
++        // RFC 9449 excludes query and fragment. Preserve escaped path characters.
++        return resource.getScheme().equalsIgnoreCase(proof.getScheme()) &&
++                resource.getHost().equalsIgnoreCase(proof.getHost()) &&
++                port(proof) == port(resource) && resource.getRawPath().equals(proof.getRawPath());
++    }
++
++    private static int port(URI uri) {
++        return uri.getPort() >= 0 ? uri.getPort() : "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80;
++    }
++
++    private static void require(boolean condition, String message) {
++        if (!condition) throw new IllegalArgumentException(message);
++    }
++}
+diff --git a/certify-service/src/test/java/io/mosip/certify/filter/DpopProofValidatorTest.java b/certify-service/src/test/java/io/mosip/certify/filter/DpopProofValidatorTest.java
+new file mode 100755
+index 0000000..1fd4652
+--- /dev/null
++++ b/certify-service/src/test/java/io/mosip/certify/filter/DpopProofValidatorTest.java
+@@ -0,0 +1,130 @@
++package io.mosip.certify.filter;
++
++import com.nimbusds.jose.*;
++import com.nimbusds.jose.crypto.ECDSASigner;
++import com.nimbusds.jose.jwk.Curve;
++import com.nimbusds.jose.jwk.ECKey;
++import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
++import com.nimbusds.jwt.JWTClaimsSet;
++import com.nimbusds.jwt.SignedJWT;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.springframework.jdbc.core.JdbcTemplate;
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.time.*;
++import java.util.*;
++import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.ArgumentMatchers.*;
++import static org.mockito.Mockito.*;
++
++class DpopProofValidatorTest {
++    private static final Instant NOW = Instant.parse("2026-10-11T12:00:00Z");
++    private static final String TOKEN = "unit-access-token";
++    private static final String URI = "https://issuer.example/v1/certify/issuance/credential";
++    private ECKey key;
++    private JdbcTemplate jdbc;
++    private DpopProofValidator validator;
++    private Map<String, Object> claims;
++
++    @BeforeEach void setup() throws Exception {
++        key = new ECKeyGenerator(Curve.P_256).generate();
++        jdbc = mock(JdbcTemplate.class);
++        when(jdbc.update(anyString(), any(), any(), any())).thenReturn(1);
++        validator = new DpopProofValidator(jdbc, Clock.fixed(NOW, ZoneOffset.UTC));
++        claims = new HashMap<>();
++        claims.put("jti", UUID.randomUUID().toString());
++        claims.put("iat", NOW.getEpochSecond());
++        claims.put("htm", "POST");
++        claims.put("htu", URI);
++        claims.put("ath", Base64.getUrlEncoder().withoutPadding().encodeToString(
++                MessageDigest.getInstance("SHA-256").digest(TOKEN.getBytes(StandardCharsets.US_ASCII))));
++    }
++
++    private String proof(JWSHeader header, ECKey signer) throws Exception {
++        SignedJWT jwt = new SignedJWT(header, JWTClaimsSet.parse(claims));
++        jwt.sign(new ECDSASigner(signer));
++        return jwt.serialize();
++    }
++    private String proof() throws Exception {
++        return proof(new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("dpop+jwt"))
++                .jwk(key.toPublicJWK()).build(), key);
++    }
++    private void validate(String proof) throws Exception {
++        validator.validate(proof, TOKEN, key.computeThumbprint().toString(), "POST", URI);
++    }
++    private void rejectedClaim(String name, Object value) throws Exception {
++        claims.put(name, value);
++        String proof = proof();
++        assertThrows(Exception.class, () -> validate(proof));
++        verify(jdbc, never()).update(anyString(), any(), any(), any());
++    }
++
++    @Test void validProofIsAcceptedAndRecorded() throws Exception { assertDoesNotThrow(() -> validate(proof())); }
++    @Test void wrongMethodIsRejected() throws Exception { rejectedClaim("htm", "GET"); }
++    @Test void wrongResourceIsRejected() throws Exception { rejectedClaim("htu", URI + "/other"); }
++    @Test void escapedPathIsNotDecodedAsAnotherResource() throws Exception { rejectedClaim("htu", URI.replace("/issuance/", "/issuance%2F")); }
++    @Test void wrongTokenHashIsRejected() throws Exception { rejectedClaim("ath", "wrong"); }
++    @Test void missingTokenHashIsRejected() throws Exception { rejectedClaim("ath", null); }
++    @Test void missingIdentifierIsRejected() throws Exception { rejectedClaim("jti", null); }
++    @Test void missingIssueTimeIsRejected() throws Exception { rejectedClaim("iat", null); }
++    @Test void oldProofIsRejected() throws Exception { rejectedClaim("iat", NOW.minusSeconds(301).getEpochSecond()); }
++    @Test void futureProofIsRejected() throws Exception { rejectedClaim("iat", NOW.plusSeconds(6).getEpochSecond()); }
++    @Test void userInfoInResourceIsRejected() throws Exception { rejectedClaim("htu", URI.replace("issuer.example", "attacker@issuer.example")); }
++    @Test void queryAndFragmentDoNotChangeResourceIdentity() throws Exception {
++        claims.put("htu", URI + "?x=1#fragment");
++        assertDoesNotThrow(() -> validate(proof()));
++    }
++    @Test void tokenMustBeBoundToProofKey() throws Exception {
++        String proof = proof();
++        assertThrows(Exception.class, () -> validator.validate(proof, TOKEN, "different-thumbprint", "POST", URI));
++    }
++    @Test void unboundTokenIsRejected() throws Exception {
++        String proof = proof();
++        assertThrows(Exception.class, () -> validator.validate(proof, TOKEN, null, "POST", URI));
++    }
++    @Test void wrongJwtTypeIsRejected() throws Exception {
++        String proof = proof(new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("JWT"))
++                .jwk(key.toPublicJWK()).build(), key);
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void embeddedPrivateKeyIsRejected() throws Exception {
++        // Construct raw input: Nimbus also prevents creating a private JWK header.
++        String[] parts = proof().split("\\.");
++        String header = com.nimbusds.jose.util.JSONObjectUtils.toJSONString(Map.of(
++                "alg", "ES256", "typ", "dpop+jwt", "jwk", key.toJSONObject()));
++        String unsafe = com.nimbusds.jose.util.Base64URL.encode(header).toString() + "." + parts[1] + "." + parts[2];
++        assertThrows(Exception.class, () -> validate(unsafe));
++    }
++    @Test void invalidSignatureIsRejected() throws Exception {
++        String proof = proof(new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("dpop+jwt"))
++                .jwk(key.toPublicJWK()).build(), new ECKeyGenerator(Curve.P_256).generate());
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void replayIsRejected() throws Exception {
++        when(jdbc.update(anyString(), any(), any(), any())).thenReturn(1, 0);
++        String proof = proof();
++        validate(proof);
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void unavailableReplayDatabaseFailsClosed() throws Exception {
++        when(jdbc.update(anyString(), any(), any(), any())).thenThrow(new IllegalStateException("database unavailable"));
++        String proof = proof();
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void missingEmbeddedKeyIsRejected() throws Exception {
++        String proof = proof(new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("dpop+jwt")).build(), key);
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void unsupportedAlgorithmIsRejected() throws Exception {
++        ECKey other = new ECKeyGenerator(Curve.P_384).generate();
++        String proof = proof(new JWSHeader.Builder(JWSAlgorithm.ES384).type(new JOSEObjectType("dpop+jwt"))
++                .jwk(other.toPublicJWK()).build(), other);
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++    @Test void unknownCriticalHeaderIsRejected() throws Exception {
++        String proof = proof(new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("dpop+jwt"))
++                .jwk(key.toPublicJWK()).customParam("unknown", true).criticalParams(Set.of("unknown")).build(), key);
++        assertThrows(Exception.class, () -> validate(proof));
++    }
++}

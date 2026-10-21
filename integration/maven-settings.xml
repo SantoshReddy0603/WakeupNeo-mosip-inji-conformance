@@ -1,0 +1,12 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors><mirror><id>central-direct</id><mirrorOf>*,!danubetech-maven-public,!jitpack.io,!google</mirrorOf>
+    <url>https://repo.maven.apache.org/maven2</url>
+  </mirror></mirrors>
+  <profiles><profile><id>upstream-dependencies</id><repositories>
+    <repository><id>maven-central-priority</id><url>https://repo.maven.apache.org/maven2</url></repository>
+    <repository><id>google</id><url>https://dl.google.com/dl/android/maven2</url></repository>
+    <repository><id>danubetech-maven-public</id><url>https://repo.danubetech.com/repository/maven-public/</url></repository>
+    <repository><id>jitpack.io</id><url>https://jitpack.io</url></repository>
+  </repositories></profile></profiles>
+  <activeProfiles><activeProfile>upstream-dependencies</activeProfile></activeProfiles>
+</settings>

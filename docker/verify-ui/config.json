@@ -1,0 +1,14 @@
+{
+  "verifiableClaims": [{
+    "logo": "/assets/cert.png",
+    "name": "Official conformance PID",
+    "essential": true,
+    "clientIdPrefix": "pre_registered",
+    "purpose": "Verify the credential presented by the official OpenID conformance wallet",
+    "dcqlQuery": {
+      "credentials": [{"id": "pid", "format": "dc+sd-jwt", "meta": {"vct_values": ["urn:eudi:pid:1"]}}]
+    }
+  }],
+  "VCRenderOrders": {},
+  "webWallets": []
+}

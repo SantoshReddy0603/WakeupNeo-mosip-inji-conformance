@@ -1,0 +1,13 @@
+{
+  "plan_name": "oid4vp-1final-verifier-test-plan",
+  "variant": {
+    "vp_profile": "plain_vp",
+    "credential_format": "sd_jwt_vc",
+    "client_id_prefix": "redirect_uri",
+    "request_method": "url_query",
+    "response_mode": "direct_post"
+  },
+  "configuration": {
+    "credential": {"signing_jwk": ${SIGNING_JWK}}
+  }
+}

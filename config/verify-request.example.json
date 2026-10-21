@@ -1,0 +1,12 @@
+{
+  "clientId": "https://host.docker.internal:8445/v1/verify/vp-submission/direct-post",
+  "presentationDefinition": {
+    "id": "pid-verification",
+    "input_descriptors": [{
+      "id": "pid",
+      "format": {"vc+sd-jwt": {"sd-jwt_alg_values": ["ES256"]}},
+      "constraints": {"fields": [{"path": ["$.vct"], "filter": {"type": "string", "const": "urn:eudi:pid:1"}}]}
+    }]
+  },
+  "acceptVPWithoutHolderProof": false
+}

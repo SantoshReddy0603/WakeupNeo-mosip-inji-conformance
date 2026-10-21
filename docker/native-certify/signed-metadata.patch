@@ -1,0 +1,275 @@
+diff --git a/certify-service/src/main/java/io/mosip/certify/controller/WellKnownController.java b/certify-service/src/main/java/io/mosip/certify/controller/WellKnownController.java
+index dc0e1a9..0600b8d 100644
+--- a/certify-service/src/main/java/io/mosip/certify/controller/WellKnownController.java
++++ b/certify-service/src/main/java/io/mosip/certify/controller/WellKnownController.java
+@@ -1,63 +1,72 @@
+-package io.mosip.certify.controller;
+-
+-import io.mosip.certify.core.dto.CredentialIssuerMetadataDTO;
+-import io.mosip.certify.core.spi.CredentialConfigurationService;
+-import io.mosip.certify.core.spi.JwksService;
+-import io.mosip.certify.core.spi.VCIssuanceService;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.web.bind.annotation.GetMapping;
+-import org.springframework.web.bind.annotation.RestController;
+-
+-import java.util.Collections;
+-import java.util.HashMap;
+-import java.util.List;
+-import java.util.Map;
+-
+-@RestController
+-public class WellKnownController {
+-
+-    @Autowired
+-    private CredentialConfigurationService credentialConfigurationService;
+-
+-    @Autowired
+-    private VCIssuanceService vcIssuanceService;
+-
+-    @Autowired
+-    private JwksService jwksService;
+-
+-    @GetMapping(value = "/.well-known/openid-credential-issuer", produces = "application/json")
+-    public CredentialIssuerMetadataDTO getCredentialIssuerMetadata() {
+-        return credentialConfigurationService.fetchCredentialIssuerMetadata();
+-    }
+-
+-    @GetMapping(value = "/.well-known/did.json", produces = "application/json")
+-    public Map<String, Object> getDIDDocument() {
+-        return vcIssuanceService.getDIDDocument();
+-    }
+-
+-    @GetMapping(value = "/.well-known/jwks.json", produces = "application/json")
+-    public ResponseEntity<Map<String, Object>> getJwks() {
+-        try {
+-            Map<String, Object> response = jwksService.getJwks();
+-
+-            if (response != null && response.containsKey("keys")) {
+-                @SuppressWarnings("unchecked")
+-                List<Map<String, Object>> jwkList = (List<Map<String, Object>>) response.get("keys");
+-                return ResponseEntity.ok(response);
+-            } else {
+-                Map<String, Object> errorResponse = new HashMap<>();
+-                errorResponse.put("keys", Collections.emptyList());
+-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
+-            }
+-
+-        } catch (Exception e) {
+-            // Return empty keys array per OAuth 2.0 spec - clients should handle this gracefully
+-            // Do NOT cache error responses - allow retries
+-            Map<String, Object> errorResponse = new HashMap<>();
+-            errorResponse.put("keys", Collections.emptyList());
+-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
+-        }
+-    }
+-}
+\ No newline at end of file
++package io.mosip.certify.controller;
++
++import io.mosip.certify.core.dto.CredentialIssuerMetadataDTO;
++import io.mosip.certify.core.spi.CredentialConfigurationService;
++import io.mosip.certify.core.spi.JwksService;
++import io.mosip.certify.core.spi.VCIssuanceService;
++import io.mosip.certify.services.SignedIssuerMetadataService;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.ResponseEntity;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.RestController;
++
++import java.util.Collections;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Map;
++
++@RestController
++public class WellKnownController {
++
++    @Autowired
++    private CredentialConfigurationService credentialConfigurationService;
++
++    @Autowired
++    private VCIssuanceService vcIssuanceService;
++
++    @Autowired
++    private JwksService jwksService;
++
++    @Autowired
++    private SignedIssuerMetadataService signedIssuerMetadataService;
++
++    @GetMapping(value = "/.well-known/openid-credential-issuer", produces = "application/jwt")
++    public String getSignedCredentialIssuerMetadata() throws Exception {
++        return signedIssuerMetadataService.signedMetadata();
++    }
++
++    @GetMapping(value = "/.well-known/openid-credential-issuer", produces = "application/json")
++    public CredentialIssuerMetadataDTO getCredentialIssuerMetadata() {
++        return credentialConfigurationService.fetchCredentialIssuerMetadata();
++    }
++
++    @GetMapping(value = "/.well-known/did.json", produces = "application/json")
++    public Map<String, Object> getDIDDocument() {
++        return vcIssuanceService.getDIDDocument();
++    }
++
++    @GetMapping(value = "/.well-known/jwks.json", produces = "application/json")
++    public ResponseEntity<Map<String, Object>> getJwks() {
++        try {
++            Map<String, Object> response = jwksService.getJwks();
++
++            if (response != null && response.containsKey("keys")) {
++                @SuppressWarnings("unchecked")
++                List<Map<String, Object>> jwkList = (List<Map<String, Object>>) response.get("keys");
++                return ResponseEntity.ok(response);
++            } else {
++                Map<String, Object> errorResponse = new HashMap<>();
++                errorResponse.put("keys", Collections.emptyList());
++                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
++            }
++
++        } catch (Exception e) {
++            // Return empty keys array per OAuth 2.0 spec - clients should handle this gracefully
++            // Do NOT cache error responses - allow retries
++            Map<String, Object> errorResponse = new HashMap<>();
++            errorResponse.put("keys", Collections.emptyList());
++            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
++        }
++    }
++}
+diff --git a/certify-service/src/main/java/io/mosip/certify/services/SignedIssuerMetadataService.java b/certify-service/src/main/java/io/mosip/certify/services/SignedIssuerMetadataService.java
+new file mode 100644
+index 0000000..39f2719
+--- /dev/null
++++ b/certify-service/src/main/java/io/mosip/certify/services/SignedIssuerMetadataService.java
+@@ -0,0 +1,55 @@
++/*
++ * This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
++ */
++package io.mosip.certify.services;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import io.mosip.certify.core.spi.CredentialConfigurationService;
++import io.mosip.kernel.signature.dto.JWSSignatureRequestDtoV2;
++import io.mosip.kernel.signature.service.SignatureService;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.stereotype.Service;
++import java.nio.charset.StandardCharsets;
++import java.time.Instant;
++import java.util.Base64;
++import java.util.HashMap;
++import java.util.Map;
++
++/** Sign current issuer metadata with the configured native key-manager identity. */
++@Service
++public class SignedIssuerMetadataService {
++    @Autowired private CredentialConfigurationService configurations;
++    @Autowired private SignatureService signatures;
++    @Autowired private ObjectMapper mapper;
++    @Value("${mosip.certify.metadata.signing.application-id}") private String applicationId;
++    @Value("${mosip.certify.metadata.signing.reference-id}") private String referenceId;
++
++    public String signedMetadata() throws Exception {
++        var metadata = configurations.fetchCredentialIssuerMetadata();
++        Map<String, Object> claims = new HashMap<>(mapper.convertValue(metadata, Map.class));
++        long now = Instant.now().getEpochSecond();
++        claims.put("sub", metadata.getCredentialIssuer());
++        claims.put("iss", metadata.getCredentialIssuer());
++        claims.put("iat", now);
++        claims.put("exp", now + 300);
++        JWSSignatureRequestDtoV2 request = new JWSSignatureRequestDtoV2();
++        request.setDataToSign(Base64.getUrlEncoder().withoutPadding().encodeToString(
++                mapper.writeValueAsString(claims).getBytes(StandardCharsets.UTF_8)));
++        request.setApplicationId(applicationId);
++        request.setReferenceId(referenceId);
++        request.setSignAlgorithm("ES256");
++        request.setAdditionalHeaders(Map.of("typ", "openidvci-issuer-metadata+jwt"));
++        request.setIncludePayload(true);
++        request.setIncludeCertificateChain(true);
++        request.setIncludeCertHash(true);
++        request.setValidateJson(false);
++        request.setB64JWSHeaderParam(true);
++        request.setCertificateUrl("");
++        String signed = signatures.jwsSignV2(request).getJwtSignedData();
++        if (signed == null || signed.isBlank()) throw new IllegalStateException("Metadata signing failed");
++        return signed;
++    }
++}
+diff --git a/certify-service/src/test/java/io/mosip/certify/services/SignedIssuerMetadataServiceTest.java b/certify-service/src/test/java/io/mosip/certify/services/SignedIssuerMetadataServiceTest.java
+new file mode 100644
+index 0000000..70489b5
+--- /dev/null
++++ b/certify-service/src/test/java/io/mosip/certify/services/SignedIssuerMetadataServiceTest.java
+@@ -0,0 +1,67 @@
++package io.mosip.certify.services;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import com.nimbusds.jose.JWSAlgorithm;
++import com.nimbusds.jose.JWSHeader;
++import com.nimbusds.jose.JOSEObjectType;
++import com.nimbusds.jose.crypto.ECDSASigner;
++import com.nimbusds.jose.crypto.ECDSAVerifier;
++import com.nimbusds.jose.jwk.Curve;
++import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
++import com.nimbusds.jwt.JWTClaimsSet;
++import com.nimbusds.jwt.SignedJWT;
++import io.mosip.certify.core.dto.CredentialIssuerMetadataDTO;
++import io.mosip.certify.core.spi.CredentialConfigurationService;
++import io.mosip.kernel.signature.dto.JWSSignatureRequestDtoV2;
++import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
++import io.mosip.kernel.signature.service.SignatureService;
++import org.junit.jupiter.api.Test;
++import org.springframework.test.util.ReflectionTestUtils;
++import java.util.Base64;
++import java.nio.charset.StandardCharsets;
++import static org.mockito.Mockito.*;
++import static org.mockito.ArgumentMatchers.any;
++import static org.junit.jupiter.api.Assertions.*;
++
++class SignedIssuerMetadataServiceTest {
++    @Test void signsCurrentMetadataWithIssuerIdentityAndRequiredClaims() throws Exception {
++        var service = new SignedIssuerMetadataService();
++        var configurations = mock(CredentialConfigurationService.class);
++        var signatures = mock(SignatureService.class);
++        ReflectionTestUtils.setField(service, "configurations", configurations);
++        ReflectionTestUtils.setField(service, "signatures", signatures);
++        ReflectionTestUtils.setField(service, "mapper", new ObjectMapper());
++        ReflectionTestUtils.setField(service, "applicationId", "test-signing-app");
++        ReflectionTestUtils.setField(service, "referenceId", "test-signing-ref");
++        var metadata = new CredentialIssuerMetadataDTO();
++        metadata.setCredentialIssuer("https://issuer.example");
++        metadata.setCredentialEndpoint("https://issuer.example/credential");
++        when(configurations.fetchCredentialIssuerMetadata()).thenReturn(metadata);
++        var key = new ECKeyGenerator(Curve.P_256).generate();
++        when(signatures.jwsSignV2(any())).thenAnswer(invocation -> {
++            JWSSignatureRequestDtoV2 request = invocation.getArgument(0);
++            assertEquals("test-signing-app", request.getApplicationId());
++            assertEquals("test-signing-ref", request.getReferenceId());
++            assertEquals("ES256", request.getSignAlgorithm());
++            assertTrue(request.getIncludeCertificateChain());
++            String payload = new String(Base64.getUrlDecoder().decode(request.getDataToSign()), StandardCharsets.UTF_8);
++            SignedJWT jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256)
++                    .type(new JOSEObjectType((String) request.getAdditionalHeaders().get("typ")))
++                    .jwk(key.toPublicJWK()).build(), JWTClaimsSet.parse(payload));
++            jwt.sign(new ECDSASigner(key));
++            var response = new JWTSignatureResponseDto();
++            response.setJwtSignedData(jwt.serialize());
++            return response;
++        });
++        SignedJWT signed = SignedJWT.parse(service.signedMetadata());
++        assertTrue(signed.verify(new ECDSAVerifier(key.toPublicJWK())));
++        assertEquals("openidvci-issuer-metadata+jwt", signed.getHeader().getType().toString());
++        assertEquals(metadata.getCredentialIssuer(), signed.getJWTClaimsSet().getSubject());
++        assertEquals(metadata.getCredentialIssuer(), signed.getJWTClaimsSet().getIssuer());
++        assertEquals(metadata.getCredentialEndpoint(), signed.getJWTClaimsSet().getStringClaim("credential_endpoint"));
++        assertNotNull(signed.getJWTClaimsSet().getIssueTime());
++        assertTrue(signed.getJWTClaimsSet().getExpirationTime().after(signed.getJWTClaimsSet().getIssueTime()));
++        doThrow(new IllegalStateException("Signing unavailable")).when(signatures).jwsSignV2(any());
++        assertThrows(Exception.class, service::signedMetadata);
++    }
++}

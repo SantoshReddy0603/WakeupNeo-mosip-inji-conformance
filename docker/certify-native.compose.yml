@@ -1,0 +1,4 @@
+# Explicit local native-source fix. The official baseline remains reproducible.
+services:
+  course-certify:
+    image: ${CERTIFY_NATIVE_IMAGE:-inji-harness/certify-native:local}

@@ -1,0 +1,222 @@
+name: Authorized live conformance release gate
+'on':
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      component:
+        type: choice
+        options:
+        - combined
+        - certify
+        - verify
+        default: combined
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: live-inji-conformance-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  authorize-revision:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) ||
+      (github.event_name == 'release' && github.event.action == 'published' && !github.event.release.draft && !github.event.release.prerelease)
+    runs-on: ubuntu-24.04
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate event and require release commit on default branch
+      id: revision
+      shell: bash
+      env:
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      run: |
+        python3 runner/release_policy.py
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        git check-ref-format "refs/heads/$DEFAULT_BRANCH"
+        git merge-base --is-ancestor "$GITHUB_SHA" "refs/remotes/origin/$DEFAULT_BRANCH"
+        echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+  live-release-gate:
+    needs: authorize-revision
+    if: needs.authorize-revision.result == 'success' 
+    # Reachable external deployments use disposable hosted Linux; Desktop-managed
+    # local networking requires a dedicated, protected WSL/Linux runner.
+    runs-on: ${{ fromJSON(vars.INJI_MANAGED_LOCAL_STACK == 'true' && '["self-hosted","linux","x64","inji-conformance"]' || '["ubuntu-24.04"]') }}
+    timeout-minutes: 180
+    env:
+      OIDF_URL: ${{ vars.OIDF_URL }}
+      CERTIFY_ISSUER_URL: ${{ vars.CERTIFY_ISSUER_URL }}
+      VERIFY_API_URL: ${{ vars.VERIFY_API_URL }}
+      VERIFY_UI_URL: ${{ vars.VERIFY_UI_URL }}
+      VERIFY_SDK_VERSION: ${{ vars.VERIFY_SDK_VERSION || '1.0.0-alpha.1' }}
+      S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+      S3_BUCKET: ${{ vars.S3_BUCKET || 'automationtests' }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      CA_BUNDLE: ${{ vars.CA_BUNDLE }}
+      OIDF_TOKEN: ${{ secrets.OIDF_TOKEN }}
+      CERTIFY_PLAN_CONFIG: ${{ vars.CERTIFY_PLAN_CONFIG }}
+      VERIFY_PLAN_CONFIG: ${{ vars.VERIFY_PLAN_CONFIG }}
+      VERIFY_REQUEST_FILE: ${{ vars.VERIFY_REQUEST_FILE }}
+      ISSUER_BROWSER_STEPS_FILE: ${{ vars.ISSUER_BROWSER_STEPS_FILE }}
+      VCI_CLIENT_ID: ${{ vars.VCI_CLIENT_ID }}
+      VCI_CLIENT2_ID: ${{ vars.VCI_CLIENT2_ID }}
+      VCI_AUTHORIZATION_SERVER: ${{ vars.VCI_AUTHORIZATION_SERVER }}
+      VCI_WALLET_JWKS_FILE: ${{ vars.VCI_WALLET_JWKS_FILE }}
+      VCI_WALLET2_JWKS_FILE: ${{ vars.VCI_WALLET2_JWKS_FILE }}
+      VCI_CLIENT_SECRET: ${{ secrets.VCI_CLIENT_SECRET }}
+      VCI_SCOPE: ${{ vars.VCI_SCOPE }}
+      VCI_CREDENTIAL_FORMAT: ${{ vars.VCI_CREDENTIAL_FORMAT }}
+      VCI_CREDENTIAL_CONFIGURATION_ID: ${{ vars.VCI_CREDENTIAL_CONFIGURATION_ID }}
+      VCI_CLIENT_AUTH_TYPE: ${{ vars.VCI_CLIENT_AUTH_TYPE }}
+      VCI_SENDER_CONSTRAIN: ${{ vars.VCI_SENDER_CONSTRAIN }}
+      ISSUER_LOGIN_USERNAME: ${{ secrets.ISSUER_LOGIN_USERNAME }}
+      ISSUER_LOGIN_PASSWORD: ${{ secrets.ISSUER_LOGIN_PASSWORD }}
+    steps:
+    - name: Isolate this execution's private evidence and CI summary
+      shell: bash
+      run: |
+        echo "CONFORMANCE_REPORTS_DIR=$RUNNER_TEMP/inji-conformance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+        echo "CONFORMANCE_CI_DIR=$RUNNER_TEMP/inji-ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        persist-credentials: false
+        ref: ${{ needs.authorize-revision.outputs.sha }}
+        # Services in managed mode use a separate fresh extraction and owned volumes.
+        clean: true
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: mosip/mosip-functional-tests
+        ref: 085cfa94301738d901c5b70547dbf005cb762c2b
+        path: integration-work/commons
+        persist-credentials: false
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: inji/inji-certify
+        ref: 8fdf71656979a72fa8263766d4dec3cc25127b76
+        path: integration-work/certify
+        persist-credentials: false
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: inji/inji-verify
+        ref: 4c4289026968beb535d3dbdd500947152c43f708
+        path: integration-work/verify
+        persist-credentials: false
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: runner/requirements*.txt
+    - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+      with:
+        distribution: temurin
+        java-version: '21'
+    - name: Install checksum-verified Maven 3.8.7 baseline
+      run: python3 runner/install_maven.py --directory "$RUNNER_TEMP/inji-tools"
+    - name: Validate real deployment inputs
+      shell: bash
+      env:
+        MODE: ${{ inputs.component || 'combined' }}
+        MANAGED_LOCAL_STACK: ${{ vars.INJI_MANAGED_LOCAL_STACK || 'false' }}
+      run: |
+        command -v python3
+        command -v mvn
+        command -v docker
+        if [[ "${MANAGED_LOCAL_STACK}" != true ]]; then
+          test -n "$OIDF_URL"
+          if [[ "$MODE" != verify ]]; then test -n "$CERTIFY_ISSUER_URL"; fi
+          if [[ "$MODE" != certify ]]; then test -n "$VERIFY_API_URL"; fi
+        fi
+        if [[ "$MANAGED_LOCAL_STACK" == true ]]; then
+          python3 -c 'import subprocess; name=subprocess.check_output(["docker","info","--format","{{.OperatingSystem}}"],text=True); assert "docker desktop" in name.lower(), "Managed local networking requires Docker Desktop; configure deployment URLs for a native Linux engine"'
+        fi
+    - run: python3 -m pip install -r runner/requirements-dev.txt
+    - run: python3 -m playwright install chromium
+    - name: Build actual module reporting integrations
+      shell: bash
+      run: |
+        mvn -B -s integration/maven-settings.xml -f integration-work/commons/pom.xml install -DskipTests -Dmaven.javadoc.skip=true -Dgpg.skip=true
+        python3 integration/install.py --certify-repo integration-work/certify --verify-repo integration-work/verify
+        for component in certify verify; do
+          mvn -B -s integration/maven-settings.xml -f "integration-work/$component/api-test/pom.xml" compile -DskipTests
+          mvn -B -s integration/maven-settings.xml -f "integration-work/$component/api-test/pom.xml" dependency:build-classpath "-Dmdep.outputFile=$GITHUB_WORKSPACE/integration-work/$component.cp"
+        done
+    - name: Prepare pinned development images when absent
+      if: vars.INJI_MANAGED_LOCAL_STACK == 'true'
+      shell: bash
+      run: |
+        python3 runner/setup.py
+        if ! docker image inspect inji-harness/certify-positive:local >/dev/null 2>&1; then
+          python3 runner/build_native_certify.py --positive-serial
+        fi
+        if ! docker image inspect inji-harness/oidf:local >/dev/null 2>&1; then
+          docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
+        fi
+        if ! docker image inspect inji-harness/minio:RELEASE.2025-09-07T16-13-09Z >/dev/null 2>&1; then
+          docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
+        fi
+        for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine quay.io/keycloak/keycloak:26.4.0 injistack/inji-verify-service:1.0.0-alpha.1 injistack/inji-verify-ui:1.0.0-alpha.1; do
+          if ! docker image inspect "$image" >/dev/null 2>&1; then docker pull "$image"; fi
+        done
+    - name: Execute and gate live plans
+      shell: bash
+      env:
+        MODE: ${{ inputs.component || 'combined' }}
+        MOSIP_FUNCTIONAL_TESTS_REPO: ${{ github.workspace }}/integration-work/commons
+        CERTIFY_API_TEST_REPO: ${{ github.workspace }}/integration-work/certify
+        VERIFY_API_TEST_REPO: ${{ github.workspace }}/integration-work/verify
+        CERTIFY_API_TEST_CLASSPATH_FILE: ${{ github.workspace }}/integration-work/certify.cp
+        VERIFY_API_TEST_CLASSPATH_FILE: ${{ github.workspace }}/integration-work/verify.cp
+        MANAGED_LOCAL_STACK: ${{ vars.INJI_MANAGED_LOCAL_STACK || 'false' }}
+      run: |-
+        if [[ "$MANAGED_LOCAL_STACK" == true ]]; then
+          export CONFORMANCE_RESOLVE_LOCAL=true
+          export OIDF_URL="${OIDF_URL:-https://localhost:8443}"
+          export CERTIFY_ISSUER_URL="${CERTIFY_ISSUER_URL:-https://host.docker.internal:8446}"
+          export VERIFY_API_URL="${VERIFY_API_URL:-https://localhost:8445/v1/verify}"
+          export VERIFY_UI_URL="${VERIFY_UI_URL:-https://host.docker.internal:8445/verify}"
+          clean_root="$RUNNER_TEMP/inji-source-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "INJI_CLEAN_ROOT=$clean_root" >> "$GITHUB_ENV"
+          mkdir "$clean_root"
+          git archive HEAD | tar -x -C "$clean_root"
+          cd "$clean_root"
+          export INJI_CLEAN_PROJECT="inji-clean-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          export CERTIFY_NATIVE_IMAGE="${CERTIFY_NATIVE_IMAGE:-inji-harness/certify-positive:local}"
+          entrypoint=run-clean-conformance.sh
+          flags=()
+        else
+          entrypoint=run-conformance.sh
+          flags=(--skip-docker)
+        fi
+        if [[ "$MODE" == combined ]]; then
+          bash "$entrypoint" --combined --parallel 2 "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
+        else
+          bash "$entrypoint" --component "$MODE" "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
+        fi
+    - name: Clean up only this managed run's owned volumes
+      if: always() && vars.INJI_MANAGED_LOCAL_STACK == 'true'
+      shell: bash
+      run: |
+        if [[ -n "${INJI_CLEAN_ROOT:-}" && -f "$INJI_CLEAN_ROOT/docker/isolated-state.json" ]]; then
+          python3 "$INJI_CLEAN_ROOT/runner/isolated_stack.py" down --project "inji-clean-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$CONFORMANCE_REPORTS_DIR"
+          cp "$INJI_CLEAN_ROOT/docker/isolated-state.json" "$CONFORMANCE_REPORTS_DIR/isolated-stack-state.json"
+        fi
+    - name: Export restricted results after success or failure
+      if: always()
+      run: python3 runner/ci_artifacts.py --reports-dir "$CONFORMANCE_REPORTS_DIR" --output-dir "$CONFORMANCE_CI_DIR"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: live-conformance-results
+        path: ${{ env.CONFORMANCE_CI_DIR }}/
+        if-no-files-found: error
+        retention-days: 7
+    environment: inji-conformance
