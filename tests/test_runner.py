@@ -155,6 +155,20 @@ def test_real_transport_create_start_poll_export(api, tmp_path):
     assert any(c[:2] == ('POST', '/api/runner/test-1') for c in api['calls'])
 
 
+@pytest.mark.parametrize('token', [None, '', '   ', 'development-test-token'])
+def test_optional_token_matches_in_both_real_http_clients(api, token):
+    client = OIDFClient(api['url'], token=token)
+    try:
+        # Exercises the official HTTP transport: blank headers previously fail
+        # locally in httpx before reaching even a development suite endpoint.
+        assert client.create_test_plan('test-plan', {'alias': 'token-regression'}, {})['id']
+        expected = 'Bearer development-test-token' if token == 'development-test-token' else None
+        assert client.session.headers.get('Authorization') == expected
+        assert client._upstream.httpclient.headers.get('Authorization') == expected
+    finally:
+        client.close()
+
+
 @pytest.mark.parametrize('state', ['RUNNING', 'WAITING', 'CREATED'])
 def test_interim_pass_cannot_pass_timeout(api, state):
     api['status'] = state

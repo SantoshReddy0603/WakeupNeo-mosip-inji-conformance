@@ -18,12 +18,14 @@ class OIDFClient:
         self.timeout = timeout
         self._loop = None
         self._upstream = None
-        self.token = token
+        # Optional GitHub secrets exist as empty strings when unset. The pinned
+        # official client distinguishes None from '', and would send 'Bearer '.
+        self.token = token.strip() or None if token is not None else None
         self.session = requests.Session()
         self.session.verify = verify_ssl
         self.session.headers.update({'Accept': 'application/json'})
-        if token:
-            self.session.headers['Authorization'] = f'Bearer {token}'
+        if self.token:
+            self.session.headers['Authorization'] = f'Bearer {self.token}'
 
     def _official(self, method, *args):
         # One event loop/client per runner instance; no cross-thread async client.
