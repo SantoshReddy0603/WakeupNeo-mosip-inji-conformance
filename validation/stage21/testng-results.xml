@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="26" passed="16" failed="7" skipped="3">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2026-10-21T13:50:03 IST" name="Inji combined OpenID conformance" finished-at="2026-10-21T13:50:04 IST" duration-ms="317">
+    <groups>
+    </groups>
+    <test started-at="2026-10-21T13:50:03 IST" name="OpenID conformance" finished-at="2026-10-21T13:50:04 IST" duration-ms="317">
+      <class name="io.mosip.testrig.OpenIDConformanceTest">
+        <test-method is-config="true" signature="setupSuite(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:01 IST" name="setupSuite" finished-at="2026-10-21T13:50:03 IST" duration-ms="2380" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[combined]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[https://localhost:8443]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[https://host.docker.internal:8446]]>
+              </value>
+            </param>
+            <param index="4">
+              <value>
+                <![CDATA[https://localhost:8445/v1/verify]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupSuite -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:03 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="70" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-metadata-test]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-metadata-test-signed]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-happy-flow]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-happy-flow-additional-requests]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-happy-flow-multiple-clients]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-happy-flow-skip-notification]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="SKIP">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-batch-issuance]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[SKIPPED]]>
+              </value>
+            </param>
+          </params>
+          <exception class="org.testng.SkipException">
+            <message>
+              <![CDATA[SKIPPED: certify::oid4vci-1_0-issuer-batch-issuance]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.testng.SkipException: SKIPPED: certify::oid4vci-1_0-issuer-batch-issuance
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:117)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.testng.SkipException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-invalid-nonce]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-invalid-jwt-proof-signature]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-missing-proof]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="SKIP">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[SKIPPED]]>
+              </value>
+            </param>
+          </params>
+          <exception class="org.testng.SkipException">
+            <message>
+              <![CDATA[SKIPPED: certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.testng.SkipException: SKIPPED: certify::oid4vci-1_0-issuer-fail-invalid-key-attestation-signature
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:117)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.testng.SkipException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="SKIP">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[SKIPPED]]>
+              </value>
+            </param>
+          </params>
+          <exception class="org.testng.SkipException">
+            <message>
+              <![CDATA[SKIPPED: certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.testng.SkipException: SKIPPED: certify::oid4vci-1_0-issuer-fail-unsupported-encryption-algorithm
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:117)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.testng.SkipException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-unknown-credential-configuration]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-on-access-token-in-query]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[certify::oid4vci-1_0-issuer-fail-unknown-credential-identifier]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-happy-flow]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-happy-flow]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-happy-flow
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-minimal-cnf-jwk]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-minimal-cnf-jwk]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-minimal-cnf-jwk
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-request-uri-method-post]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-request-uri-method-post]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-request-uri-method-post
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-invalid-kb-jwt-signature]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-invalid-kb-jwt-signature]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-invalid-kb-jwt-signature
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-invalid-credential-signature]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-invalid-credential-signature]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-invalid-credential-signature
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-invalid-sd-hash]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[REVIEW]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[REVIEW: verify::oid4vp-1final-verifier-invalid-sd-hash]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: REVIEW: verify::oid4vp-1final-verifier-invalid-sd-hash
+at org.testng.Assert.fail(Assert.java:110)
+at io.mosip.testrig.OpenIDConformanceTest.testConformanceModule(OpenIDConformanceTest.java:118)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-invalid-kb-jwt-nonce]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="1" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-invalid-kb-jwt-aud]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-kb-jwt-iat-in-past]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testConformanceModule(java.lang.String,java.lang.String)[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testConformanceModule" data-provider="conformanceTestCases" finished-at="2026-10-21T13:50:04 IST" duration-ms="0" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[verify::oid4vp-1final-verifier-kb-jwt-iat-in-future]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[PASSED]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testConformanceModule -->
+        <test-method signature="testReleaseGateBenchmark()[pri:1000, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="testReleaseGateBenchmark" finished-at="2026-10-21T13:50:04 IST" duration-ms="8" status="FAIL">
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[Release gate rejected expected [true] but found [false]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: Release gate rejected expected [true] but found [false]
+at org.testng.Assert.fail(Assert.java:110)
+at org.testng.Assert.failNotEquals(Assert.java:1577)
+at org.testng.Assert.assertTrue(Assert.java:56)
+at io.mosip.testrig.OpenIDConformanceTest.testReleaseGateBenchmark(OpenIDConformanceTest.java:128)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:139)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:677)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:221)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:50)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:969)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:194)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:148)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:829)
+at org.testng.TestRunner.run(TestRunner.java:602)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:437)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:431)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:391)
+at org.testng.SuiteRunner.run(SuiteRunner.java:330)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1256)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1176)
+at org.testng.TestNG.runSuites(TestNG.java:1099)
+at org.testng.TestNG.run(TestNG.java:1067)
+at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:308)
+at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:71)
+at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:113)
+at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testReleaseGateBenchmark -->
+        <test-method is-config="true" signature="tearDownSuite()[pri:0, instance:io.mosip.testrig.OpenIDConformanceTest@3bf9ce3e]" started-at="2026-10-21T13:50:04 IST" name="tearDownSuite" finished-at="2026-10-21T13:50:08 IST" duration-ms="3596" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownSuite -->
+      </class> <!-- io.mosip.testrig.OpenIDConformanceTest -->
+    </test> <!-- OpenID conformance -->
+  </suite> <!-- Inji combined OpenID conformance -->
+</testng-results>

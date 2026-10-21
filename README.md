@@ -1,3 +1,5 @@
+> Stage 21 current status: release automation is implemented and the complete fresh-volume local sequence is verified (run a882dbdca4a84cf5a9441e7b9ffd8112; 115 artifacts read back; cleanup verified); see [CI_CD_SETUP.md](CI_CD_SETUP.md) and the final validation evidence. Historical hosted CI passed on 797b021; later source revisions require their own CI run. Official REVIEW results and strict FAILED gates remain unchanged. **POST coverage not established.** Formal certification is optional.
+
 # Automated Inji conformance harness
 
 This project runs real OpenID Foundation issuer/verifier test plans, maps results into TestNG and ExtentReports, exports official plan archives, and gates releases. Production entry points have no mock mode or fallback service. Controlled HTTP fixtures live only under `tests/`; their results validate the harness, not Inji conformance.

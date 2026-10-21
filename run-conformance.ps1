@@ -89,6 +89,8 @@ if (-not $SkipDocker) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     docker compose --env-file docker/.env -f docker/storage.compose.yml up -d --build
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    & $Python runner/init_local_storage.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     foreach ($line in Get-Content docker/.env) {
         $setting = $line -split '=', 2
         if ($setting.Count -eq 2 -and $setting[0] -in @('AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY','AWS_REGION','S3_ENDPOINT','S3_BUCKET','ISSUER_LOGIN_USERNAME','ISSUER_LOGIN_PASSWORD')) {

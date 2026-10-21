@@ -1,5 +1,7 @@
 name: Authorized live conformance release gate
 'on':
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       component:
@@ -16,13 +18,36 @@ concurrency:
   group: live-inji-conformance-${{ github.repository }}
   cancel-in-progress: false
 jobs:
+  authorize-revision:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) ||
+      (github.event_name == 'release' && github.event.action == 'published' && !github.event.release.draft && !github.event.release.prerelease)
+    runs-on: ubuntu-24.04
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate event and require release commit on default branch
+      id: revision
+      shell: bash
+      env:
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      run: |
+        python3 runner/release_policy.py
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        git check-ref-format "refs/heads/$DEFAULT_BRANCH"
+        git merge-base --is-ancestor "$GITHUB_SHA" "refs/remotes/origin/$DEFAULT_BRANCH"
+        echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
   live-release-gate:
-    if: github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-    runs-on:
-    - self-hosted
-    - linux
-    - x64
-    - inji-conformance
+    needs: authorize-revision
+    if: needs.authorize-revision.result == 'success' 
+    # Reachable external deployments use disposable hosted Linux; Desktop-managed
+    # local networking requires a dedicated, protected WSL/Linux runner.
+    runs-on: ${{ fromJSON(vars.INJI_MANAGED_LOCAL_STACK == 'true' && '["self-hosted","linux","x64","inji-conformance"]' || '["ubuntu-24.04"]') }}
     timeout-minutes: 180
     env:
       OIDF_URL: ${{ vars.OIDF_URL }}
@@ -63,8 +88,9 @@ jobs:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         persist-credentials: false
-        # Dedicated trusted runner: preserve generated local credentials for existing volumes.
-        clean: false
+        ref: ${{ needs.authorize-revision.outputs.sha }}
+        # Services in managed mode use a separate fresh extraction and owned volumes.
+        clean: true
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: mosip/mosip-functional-tests
@@ -122,6 +148,23 @@ jobs:
           mvn -B -s integration/maven-settings.xml -f "integration-work/$component/api-test/pom.xml" compile -DskipTests
           mvn -B -s integration/maven-settings.xml -f "integration-work/$component/api-test/pom.xml" dependency:build-classpath "-Dmdep.outputFile=$GITHUB_WORKSPACE/integration-work/$component.cp"
         done
+    - name: Prepare pinned development images when absent
+      if: vars.INJI_MANAGED_LOCAL_STACK == 'true'
+      shell: bash
+      run: |
+        python3 runner/setup.py
+        if ! docker image inspect inji-harness/certify-positive:local >/dev/null 2>&1; then
+          python3 runner/build_native_certify.py --positive-serial
+        fi
+        if ! docker image inspect inji-harness/oidf:local >/dev/null 2>&1; then
+          docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
+        fi
+        if ! docker image inspect inji-harness/minio:RELEASE.2025-09-07T16-13-09Z >/dev/null 2>&1; then
+          docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
+        fi
+        for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine quay.io/keycloak/keycloak:26.4.0 injistack/inji-verify-service:1.0.0-alpha.1 injistack/inji-verify-ui:1.0.0-alpha.1; do
+          if ! docker image inspect "$image" >/dev/null 2>&1; then docker pull "$image"; fi
+        done
     - name: Execute and gate live plans
       shell: bash
       env:
@@ -139,14 +182,32 @@ jobs:
           export CERTIFY_ISSUER_URL="${CERTIFY_ISSUER_URL:-https://host.docker.internal:8446}"
           export VERIFY_API_URL="${VERIFY_API_URL:-https://localhost:8445/v1/verify}"
           export VERIFY_UI_URL="${VERIFY_UI_URL:-https://host.docker.internal:8445/verify}"
-          flags=(--native-positive --insecure)
+          clean_root="$RUNNER_TEMP/inji-source-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "INJI_CLEAN_ROOT=$clean_root" >> "$GITHUB_ENV"
+          mkdir "$clean_root"
+          git archive HEAD | tar -x -C "$clean_root"
+          cd "$clean_root"
+          export INJI_CLEAN_PROJECT="inji-clean-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          export CERTIFY_NATIVE_IMAGE="${CERTIFY_NATIVE_IMAGE:-inji-harness/certify-positive:local}"
+          entrypoint=run-clean-conformance.sh
+          flags=()
         else
+          entrypoint=run-conformance.sh
           flags=(--skip-docker)
         fi
         if [[ "$MODE" == combined ]]; then
-          bash run-conformance.sh --combined --parallel 2 "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
+          bash "$entrypoint" --combined --parallel 2 "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
         else
-          bash run-conformance.sh --component "$MODE" "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
+          bash "$entrypoint" --component "$MODE" "${flags[@]}" --reports-dir "$CONFORMANCE_REPORTS_DIR"
+        fi
+    - name: Clean up only this managed run's owned volumes
+      if: always() && vars.INJI_MANAGED_LOCAL_STACK == 'true'
+      shell: bash
+      run: |
+        if [[ -n "${INJI_CLEAN_ROOT:-}" && -f "$INJI_CLEAN_ROOT/docker/isolated-state.json" ]]; then
+          python3 "$INJI_CLEAN_ROOT/runner/isolated_stack.py" down --project "inji-clean-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$CONFORMANCE_REPORTS_DIR"
+          cp "$INJI_CLEAN_ROOT/docker/isolated-state.json" "$CONFORMANCE_REPORTS_DIR/isolated-stack-state.json"
         fi
     - name: Export restricted results after success or failure
       if: always()

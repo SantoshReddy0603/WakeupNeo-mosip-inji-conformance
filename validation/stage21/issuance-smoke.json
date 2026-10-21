@@ -1,0 +1,30 @@
+{
+  "kind": "local_issuance_smoke",
+  "status": "PASSED",
+  "credential_format": "dc+sd-jwt",
+  "credential_configuration_id": "course-completion-sdjwt",
+  "vct": "urn:inji:development:course-completion:1",
+  "signature_verified": true,
+  "disclosure_hashes_verified": true,
+  "holder_binding_verified": true,
+  "synthetic_database_record_verified": true,
+  "holder_binding_format": "cnf.jwk",
+  "issuer_metadata_signature_verified": true,
+  "credential_selector_and_error_responses_verified": true,
+  "certificate_serials_positive_verified": true,
+  "unrecognized_request_parameter_checked": false,
+  "dpop_binding_and_replay_verified": true,
+  "dpop_negative_checks": [
+    "wrong_method",
+    "wrong_resource",
+    "wrong_token_hash",
+    "expired_proof",
+    "future_proof",
+    "missing_proof",
+    "wrong_key",
+    "replay",
+    "bearer_downgrade"
+  ],
+  "official_conformance_result": false,
+  "credential_sha256": "777825c336b936d6d205ff4bf9830c766c6fadf0f5357f03a1299d06b5758e09"
+}

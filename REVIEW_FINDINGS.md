@@ -1,3 +1,5 @@
+> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate. Stage 21 verified clean-volume orchestration and ordinary hosted CI is evidenced separately.
+
 # Six-case verifier investigation — Stage 17
 
 Fresh run `c4633b091cdd4b8eb4facd3c36986c94`; issuer plan `qJ6tKNfFZCfzm`; verifier plan `tSq9qkf5JI4G6`; exact target `oid4vp-1final-verifier-test-plan`. Historical run `141a3630f7874e98ae4964653f953899` and Stage 16 serial evidence are byte-preserved.
@@ -99,7 +101,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ## Remaining dependency
-No further screenshot upload is pending in these six instances. OIDF must clarify whether authoritative assessment is available for this general alpha plan, how to record it legitimately, and whether raw REVIEW changes at all or is accompanied by a separate assessment. A support reply alone must not be interpreted as PASS. The email draft is prepared but has not been sent. No new credentials are required for the local work. Remote CI, empty-volume deployment and status-list conformance remain outside the verification achieved here.
+No further screenshot upload is pending in these six instances. OIDF must clarify whether authoritative assessment is available for this general alpha plan, how to record it legitimately, and whether raw REVIEW changes at all or is accompanied by a separate assessment. A support reply alone must not be interpreted as PASS. The email draft is prepared but has not been sent. No new credentials are required for the local work. This historical review diagnosis did not test deployment. Stage 21 separately verified empty-volume deployment; ordinary hosted CI passed in Stage 18. Live GitHub and status-list conformance remain unverified.
 
 ## Reproduction and command evidence
 See [RESULTS.md](RESULTS.md), [REPRODUCE.md](REPRODUCE.md), [exact commands/exits](outputs/stage-17-review-resolution/evidence/checks/commands.json), [official outcomes](outputs/stage-17-review-resolution/official-outcomes.json), [source hashes/lines](outputs/stage-17-review-resolution/evidence/checks/official-source-index.json), [API inventory](outputs/stage-17-review-resolution/evidence/checks/api-inventory.json), [outputs/stage-17-review-resolution/evidence/redaction manifest](outputs/stage-17-review-resolution/evidence/manifest.json). Sanitized exports are explicitly unsigned derivatives, never original signed exports. Original private exports remain locally intact.

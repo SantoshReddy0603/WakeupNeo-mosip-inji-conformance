@@ -1,0 +1,32 @@
+{
+  "certify": {
+    "counts": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xml_files": [
+      "validation/stage21/native-tests/TEST-io.mosip.certify.core.dto.CredentialRequestExtensionTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.core.dto.CredentialSelectorTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.filter.AccessTokenValidationFilterTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.filter.DpopProofValidatorTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.proof.SDJwtHolderBindingTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.services.CredentialErrorResponseTest.xml",
+      "validation/stage21/native-tests/TEST-io.mosip.certify.services.SignedIssuerMetadataServiceTest.xml"
+    ],
+    "official_conformance_result": false
+  },
+  "keymanager": {
+    "counts": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xml_files": [
+      "validation/stage21/native-tests/TEST-io.mosip.kernel.keymanager.hsm.util.CertificateSerialNumberTest.xml"
+    ],
+    "official_conformance_result": false
+  }
+}

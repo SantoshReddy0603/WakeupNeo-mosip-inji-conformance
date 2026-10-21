@@ -1,3 +1,5 @@
+> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate. Stage 21 verified clean-volume orchestration and ordinary hosted CI is evidenced separately.
+
 # Review process — current Stage 17 findings
 
 The pinned suite requests a screenshot after a successful HTTP response. `ImageAPI` and `waitForPlaceholders` deliberately record REVIEW after image submission. A filled placeholder is evidence, not an approval. Negative tests explicitly support immediate HTTP 4xx rejection or deferred HTTP 2xx followed by rejection evidence; the latter takes the screenshot/REVIEW branch. No protocol defect is established merely by choosing the supported deferred path. Changing response timing solely to obtain PASS is not a remedy.

@@ -1,0 +1,12 @@
+{
+  "fixture": "pass",
+  "official_conformance_result": false,
+  "testng": {
+    "ignored": "0",
+    "total": "3",
+    "passed": "3",
+    "failed": "0",
+    "skipped": "0"
+  },
+  "xml_sha256": "e62d22d6001433d2955052ac2bf383452a2480bd94506685817074bfcc322d51"
+}

@@ -1,0 +1,35 @@
+{
+  "project": "inji-clean-stage21-b1b2c3d4",
+  "volumes": [
+    "mongodb-data",
+    "verify-final-data",
+    "course-data",
+    "course-auth-data",
+    "storage-data"
+  ],
+  "images": {
+    "mongodb": "sha256:b415b12f638e2685d06c58ab7fb5943577c50fadec6d9340ef67d21aeac72070",
+    "conformance-server": "sha256:988cce6869af89d74b9b0b2c90e495949bb473c7ff77b2c3f398649947bc9943",
+    "conformance-httpd": "sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "final-database": "sha256:724292da1f2e50bdccfc3302ce75bbba7f4a6076701b588cc795fcac65683550",
+    "final-verify": "sha256:064fcfa12773ec11834d5d769f2b6bb6bcc61cf9ae89ae918f8ae3934419907d",
+    "final-ui": "sha256:e30b69ca51ab98cafd2ccf24f9c8c7da3c56cbb1b266d4e222f772a8fca82167",
+    "inji-httpd": "sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "course-database": "sha256:724292da1f2e50bdccfc3302ce75bbba7f4a6076701b588cc795fcac65683550",
+    "course-auth": "sha256:5f3fb534cde6bf006d79f5912473e5d2c828c707cdfc52e16972803aca9d43dd",
+    "course-certify": "sha256:5aa0ba5750b177b10348344708ae86b64a173ea3657b75272dab7014b943a2a6",
+    "course-httpd": "sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "minio": "sha256:61659fb68412165f9d79177dd7b6113a0c2310b07d59ab6793e7dc63b165c976"
+  },
+  "initial_volumes": [],
+  "cleanup": {
+    "removed_owned_volumes": [
+      "inji-clean-stage21-b1b2c3d4_course-auth-data",
+      "inji-clean-stage21-b1b2c3d4_course-data",
+      "inji-clean-stage21-b1b2c3d4_mongodb-data",
+      "inji-clean-stage21-b1b2c3d4_storage-data",
+      "inji-clean-stage21-b1b2c3d4_verify-final-data"
+    ],
+    "remaining_volumes": []
+  }
+}

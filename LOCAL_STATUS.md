@@ -1,3 +1,5 @@
+> Stage 21 current status: release automation is implemented and the complete fresh-volume local sequence is verified (run a882dbdca4a84cf5a9441e7b9ffd8112; 115 artifacts read back; cleanup verified); see [CI_CD_SETUP.md](CI_CD_SETUP.md) and the final validation evidence. Historical hosted CI passed on 797b021; later source revisions require their own CI run. Official REVIEW results and strict FAILED gates remain unchanged. **POST coverage not established.** Formal certification is optional.
+
 > Stage 17: 117 harness tests passed; fresh parallel official execution and retained three-mode reporting verified. Verify remains 4 PASS/6 REVIEW, combined gate FAILED. See RESULTS.md and REVIEW_FINDINGS.md for evidence and limits; earlier stage notes below are historical.
 
 > Stage 16 update (20 October 2026): 106 harness tests passed; 10 focused repetitions passed (220 checks); clean native tests reproduced (49 Certify, 3 key-manager). Fresh Certify-only, Verify-only, serial combined and parallel combined official plans were executed, with real TestNG/Extent/S3 reporting. Results remain 12 PASS/3 SKIP for Certify and 4 PASS/6 REVIEW for Verify. See [RESULTS.md](RESULTS.md) for current IDs, evidence and limits. Statements about earlier stages below are historical.
@@ -28,7 +30,7 @@ The verifier target remains `oid4vp-1final-verifier-test-plan`. Preserved histor
 
 - No external issuer registry, personal records, login or secret is required for local implementation.
 - Six official REVIEW results require the applicable reviewer process because screenshot submission alone cannot produce PASS. Review the preserved official plans/evidence and use the official review/certification process; the agent will not approve its own evidence or rewrite outcomes.
-- GitHub execution is deferred at your request. When ready, supply the repository URL and register a reachable self-hosted runner labelled `inji-conformance`; configure the endpoint/profile/file variables and GitHub secret references listed in SETUP.md. Credentials stay in the runner/secret store, not chat. No remote repository has been created.
+- Repository publication and ordinary hosted CI are verified for Stage 18. The implementation remains in draft PR #1. Live GitHub execution requires an approved main deployment plus the environment described in CI_CD_SETUP.md; environment/runner administration is unavailable to this connector. Credentials stay in environment secrets, never chat.
 
 ## 4. Compatibility blockers that configuration alone cannot solve
 
@@ -47,7 +49,7 @@ The verifier target remains `oid4vp-1final-verifier-test-plan`. Preserved histor
 | Mandatory | Per-module existing api-testrig bridge | Installed and compiled in both actual modules; both suites executed through the actual existing reporter and S3 lifecycle; real HTML bytes verified |
 | Mandatory | Combined consolidated run | Implemented and executed against both real services |
 | Mandatory | One-command execution | Bash/PowerShell wrappers implemented; dependency/runtime/profile failures propagate |
-| Good-to-have | GitHub Actions | File and local checks prepared; remote execution deferred |
+| Good-to-have | GitHub Actions | Five ordinary hosted jobs passed on 797b021; production-release trigger implemented/tested locally; live environment pending |
 | Good-to-have | Selective component/plan | Certify, Verify and combined modes supported; custom plan config paths supported |
 | Good-to-have | Expected failures | Explicit, reason/issue/expiry-backed; defaults empty; incomplete results cannot be waived |
 | Good-to-have | Result diff | Regression and removed-test gates implemented and tested |

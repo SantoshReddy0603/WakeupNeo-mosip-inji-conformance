@@ -1,0 +1,12 @@
+{
+  "fixture": "identity-mismatch",
+  "official_conformance_result": false,
+  "testng": {
+    "ignored": "0",
+    "total": "3",
+    "passed": "0",
+    "failed": "0",
+    "skipped": "3"
+  },
+  "xml_sha256": "32c0de20e0a116a538830fb4aeca72111a19e5f9b9b5f1be83f8e15168aba0f4"
+}

@@ -1,3 +1,5 @@
+> Stage 21 current status: release automation is implemented and the complete fresh-volume local sequence is verified (run a882dbdca4a84cf5a9441e7b9ffd8112; 115 artifacts read back; cleanup verified); see [CI_CD_SETUP.md](CI_CD_SETUP.md) and the final validation evidence. Historical hosted CI passed on 797b021; later source revisions require their own CI run. Official REVIEW results and strict FAILED gates remain unchanged. **POST coverage not established.** Formal certification is optional.
+
 # Reproducing Stage 16
 
 Use Linux or WSL Ubuntu, Python 3.12, Java 21, Maven, Docker Compose and a running Docker Desktop/Linux engine. Full Windows Java reporting was not verified. Keep generated development credentials local.
@@ -17,7 +19,7 @@ bash -n run-full-stack-conformance.sh
 mvn -B -f testrig/pom.xml test-compile
 ```
 
-`evidence/core/environment.log` records actual tool versions. `evidence/python-dependencies.json` records installed Python versions. Requirements retain their existing compatible ranges; an empty dependency cache was not tested. Actionlint was run with `-shellcheck= -config-file .github/actionlint.yaml .github/workflows/full-stack-conformance.yml`; this validates workflow syntax and expressions, while Bash was parsed separately. No shellcheck or remote Actions success is claimed.
+`evidence/core/environment.log` records actual tool versions. `evidence/python-dependencies.json` records installed Python versions. Requirements retain their existing compatible ranges; an empty dependency cache was not tested. Actionlint was run with `-shellcheck= -config-file .github/actionlint.yaml .github/workflows/full-stack-conformance.yml`; this validates workflow syntax and expressions, while Bash was parsed separately. Shellcheck was not run. Historical ordinary hosted CI passed on 797b021; live Actions remains separately unverified.
 
 Clean native builds (use new output directories; build helpers validate pinned caches and use Linux temporary sources):
 

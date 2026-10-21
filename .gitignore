@@ -21,3 +21,7 @@ __pycache__/
 upstream/
 integration-work/
 outputs/
+
+# Isolated deployment ownership/configuration state
+docker/isolated-state.json
+docker/isolated.compose.yml

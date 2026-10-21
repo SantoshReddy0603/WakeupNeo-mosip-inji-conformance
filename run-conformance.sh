@@ -98,6 +98,7 @@ if ! $skip_docker; then
   fi
   "$python_cmd" runner/wait_ready.py "${mode[@]}" "${runner_args[@]}"
   docker compose --env-file docker/.env -f docker/storage.compose.yml up -d --build
+  "$python_cmd" runner/init_local_storage.py
   if [[ "$component" != verify ]]; then
     issuer_args=()
     [[ " ${runner_args[*]} " != *' --insecure '* ]] || issuer_args+=(--insecure)

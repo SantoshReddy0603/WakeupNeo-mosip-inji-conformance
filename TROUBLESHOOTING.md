@@ -18,3 +18,6 @@
 | MinIO read-back differs or upload fails | Check the configured endpoint, bucket, access policy and artifact-storage-validation.json. A differing byte hash is a failed validation, not a successful upload. |
 
 Exact command logs, statuses and current requirement evidence are provided in the delivered Stage 14 validation directory. Runtime reports and official exports can contain sensitive development configuration; keep them separate from source distribution.
+
+
+Stage 21 clean-bootstrap fixes: the managed wrappers now run runner/init_local_storage.py after MinIO starts. A fresh storage-data volume has no automationtests bucket; read-only preflight correctly rejects it until initialized. The initializer creates a missing bucket only on loopback port 9000, preserves an existing bucket and propagates access-denied errors. External storage is never automatically provisioned. The isolated wrapper also re-enters its absolute source directory after Docker Desktop mount initialization to avoid retaining a stale WSL directory handle. Both original failed attempts remain in the validation evidence. Cleanup validates Compose project and volume labels before deleting this run's five volumes.

@@ -1,0 +1,12 @@
+{
+  "fixture": "missing-component",
+  "official_conformance_result": false,
+  "testng": {
+    "ignored": "0",
+    "total": "2",
+    "passed": "0",
+    "failed": "0",
+    "skipped": "2"
+  },
+  "xml_sha256": "1a197f84963af75c9e2661ef1658afa8971b47fb970d9b2ef0285f99d8f48dfb"
+}

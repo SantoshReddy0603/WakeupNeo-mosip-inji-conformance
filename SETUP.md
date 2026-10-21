@@ -138,3 +138,28 @@ For local workflow lint outside a Git checkout, supply the bundled label configu
 ```sh
 actionlint -config-file .github/actionlint.yaml .github/workflows/full-stack-conformance.yml
 ```
+
+
+## Fresh empty-volume reproduction (Stage 21)
+
+Use Docker Desktop Linux containers with Linux/WSL Python and Java 21, Maven 3.8.7, Docker Compose, and the requirements-dev dependencies. Install Playwright Chromium. Keep the virtual environment outside the fresh source directory or point PYTHON to its absolute executable. Reserve loopback ports 8443, 8445, 8446, 9000 and 9001; stop conflicting services deliberately without deleting their volumes.
+
+Prepare the pinned images once from the normal source checkout:
+
+```sh
+python runner/setup.py
+python runner/build_native_certify.py --positive-serial
+docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
+docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
+for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine quay.io/keycloak/keycloak:26.4.0 injistack/inji-verify-service:1.0.0-alpha.1 injistack/inji-verify-ui:1.0.0-alpha.1; do docker pull "$image"; done
+mkdir ../mosip-clean-run
+git archive HEAD | tar -x -C ../mosip-clean-run
+cd ../mosip-clean-run
+bash run-clean-conformance.sh --combined --parallel 2 --reports-dir reports/fresh
+```
+
+For the submission ZIP, extract its source directory again into a new directory instead of git archive. Do not copy docker/.env, docker/local, generated certificates or previous reports. Build/image and Maven/Python caches may be reused; the clean wrapper explicitly refuses old source-local state and existing project volumes. The ordinary one-command scripts remain available for component selection; the clean wrapper forwards --component certify, --component verify or --combined to the same runner.
+
+The wrapper creates a unique inji-clean-* project, twelve real services, five new volumes and fresh signing/development credentials. It initializes only the loopback MinIO bucket, configures real course issuance, executes the normal runner/TestNG/Extent/S3 lifecycle and returns the genuine gate status. An EXIT trap verifies ownership and cleans only its isolated volumes, including on failures. The ownership/image record remains in docker/isolated-state.json; keep it as local evidence, never copy generated keys into submissions. No historical project is removed. An interrupted hard kill can be recovered with `python runner/isolated_stack.py down --project <project-recorded-in-isolated-state.json>` from the same extraction. Cleanup rejects an inconsistent project or volume label.
+
+Expected acceptance: Certify may pass with three optional skips; six verifier screenshot REVIEW outcomes produce a failed Verify/combined gate and exit 1. A storage error, empty result set, missing TestNG XML, missing Extent HTML or absent upload verification is an implementation/infrastructure failure, not evidence of an expected benchmark failure. Inspect conformance-summary.json, reporter-exit-statuses.json and artifact-storage-validation.json before interpreting exit 1. Real status counts from the current clean validation are recorded in the final evidence, independently of historical results.

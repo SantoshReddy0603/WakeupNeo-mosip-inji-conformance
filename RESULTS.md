@@ -1,3 +1,5 @@
+> Stage 21 current status: release automation is implemented and the complete fresh-volume local sequence is verified (run a882dbdca4a84cf5a9441e7b9ffd8112; 115 artifacts read back; cleanup verified); see [CI_CD_SETUP.md](CI_CD_SETUP.md) and the final validation evidence. Historical hosted CI passed on 797b021; later source revisions require their own CI run. Official REVIEW results and strict FAILED gates remain unchanged. **POST coverage not established.** Formal certification is optional.
+
 > Stage 18: 124 Python tests, 49 native Certify tests, 3 native key-manager tests, both native 11-status mapping validators and seven standalone TestNG contract scenarios passed locally. Hosted/live workflows are separated and pinned. Native Request URI POST returned 405 (Allow: GET); it remains unsupported. Published to ci/stage-18 in draft PR #1; hosted CI verification is recorded in the PR Actions checks and the local Stage 18 delivery report. See CI_CD_SETUP.md and REQUEST_URI_POST_STATUS.md. Earlier dated runs below remain historical; combined official gate stays FAILED.
 
 # Results — Stage 17
