@@ -1,6 +1,6 @@
 # Approved local runner operation
 
-The managed development topology requires Linux x64 with Docker Desktop integration. Stage 22 used Ubuntu on WSL, Java 21, Maven 3.8.7 and an official ephemeral GitHub runner. That runner unregistered after its job. No always-on service is assumed or installed. Native Linux Docker networking and a completely uncached deployment remain separate validation targets.
+The managed development topology requires Linux x64 with Docker Desktop integration. The verified deployment used Ubuntu on WSL, Java 21, Maven 3.8.7 and an official ephemeral GitHub runner. That runner unregistered after its job. No always-on service is assumed or installed. Native Linux Docker networking and a completely uncached deployment remain separate validation targets.
 
 ## Preflight and one approved job
 

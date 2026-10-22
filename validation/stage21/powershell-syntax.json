@@ -1,5 +1,0 @@
-{
-  "command": "PowerShell Language.Parser.ParseFile run-conformance.ps1; fail on parse errors",
-  "exit_status": 0,
-  "scope": "syntax only; complete Windows Java lifecycle not newly executed"
-}

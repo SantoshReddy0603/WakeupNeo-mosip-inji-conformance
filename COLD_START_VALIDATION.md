@@ -1,6 +1,6 @@
 # Isolated deployment validation
 
-Stage 22 verified fresh tracked-source extraction, newly generated development certificates/keys, twelve real services, five fresh volumes, official plan execution, TestNG/Extent, 115 MinIO read-backs, GitHub artifact upload and owned cleanup. It reused Docker images/dependency caches. Do not describe that run as an empty-cache deployment.
+The recorded deployment verified fresh tracked-source extraction, newly generated development certificates/keys, twelve real services, five fresh volumes, official plan execution, TestNG/Extent, 115 MinIO read-backs, GitHub artifact upload and owned cleanup. It reused Docker images/dependency caches. Do not describe that run as an empty-cache deployment.
 
 An empty-cache full deployment must use a separate disposable Docker Desktop machine/VM with WSL integration, or a separately provisioned compatible Docker daemon. The current managed manifests rely on Docker Desktop's `host.docker.internal` topology. A new checkout on the existing daemon is insufficient to prove empty image caches, and deleting this development machine's images/volumes would destroy retained state. Native Linux hosted networking has not been validated for these manifests.
 
@@ -33,4 +33,4 @@ bash run-clean-conformance.sh --combined --parallel 2 --reports-dir /absolute/pr
 
 The isolated-stack launcher requires the prepared image set and generates its own fresh certificates/keys. Record the actual command exit: the conformance command is expected to return 1 if the six official REVIEWs persist. Verify component gates, native/combined XML and HTML, official exports, MinIO read-back hashes and cleanup ownership. Export only restricted CI evidence with `runner/ci_artifacts.py`; retain raw credentials, exports and screenshots privately. Run `runner/verify_storage.py` against the actual deployment environment before storage teardown if doing an additional independent read-back. Archive logs and provenance before disposing of the isolated environment.
 
-No fresh-machine PASS is implied by these commands. The Stage 23 validation report records which portions were actually executed and any remaining environment limitation. No existing Docker image cache or historical volume may be pruned to simulate this test.
+Completely empty-cache deployment on a separate machine remains unverified. No existing Docker image cache or historical volume may be pruned to simulate this test.
