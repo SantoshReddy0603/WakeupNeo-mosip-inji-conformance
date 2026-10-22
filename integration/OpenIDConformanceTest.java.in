@@ -106,7 +106,13 @@ public class OpenIDConformanceTest implements ITest {
         JsonNode summary = report.path("runs").path(COMPONENT).path("summary");
         Assert.assertTrue(summary.path("passed").asInt() > 0, "No passing conformance modules");
         Assert.assertTrue(summary.path("is_gated_pass").asBoolean(false), "Component gate rejected");
-        Assert.assertTrue(report.path("consolidated").path("gate_met").asBoolean(false), "Regression gate rejected");
+        // Older summaries contain only a combined regression decision. Fail
+        // closed for those; current summaries explicitly scope it per module.
+        boolean regressionGate = summary.path("regression_gate_met").asBoolean(
+            report.path("consolidated").path("gate_met").asBoolean(false));
+        Assert.assertTrue(regressionGate, "Component regression gate rejected");
+        if (summary.has("gate_met"))
+            Assert.assertTrue(summary.path("gate_met").asBoolean(false), "Effective component gate rejected");
     }
 
     @AfterMethod(alwaysRun = true)

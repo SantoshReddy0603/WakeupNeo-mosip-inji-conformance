@@ -24,7 +24,9 @@ def test_retained_replay_preserves_results_timestamp_and_original(retained):
     result = validate_and_copy(source,destination,['certify'],'retained-run',client)
     assert result['consolidated']['gate_met'] is False
     assert hashes(source) == before
-    assert (source/'conformance-summary.json').read_bytes() == (destination/'conformance-summary.json').read_bytes()
+    assert (source/'conformance-summary.json').read_bytes() == (destination/'original-conformance-summary.json').read_bytes()
+    assert result['runs']['certify']['summary']['gate_met'] is False
+    assert result['consolidated']['timestamp'] == '2026-01-01T00:00:00Z'
 
 @pytest.mark.parametrize('defect',['identity','live_status','mapping','gate','output'])
 def test_retained_replay_rejects_invalid_provenance(retained,defect):

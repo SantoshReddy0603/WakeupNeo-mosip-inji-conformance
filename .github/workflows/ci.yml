@@ -180,10 +180,14 @@ jobs:
 
         mvn -B -s integration/maven-settings.xml -f upstream/component/api-test/pom.xml dependency:build-classpath "-Dmdep.outputFile=$GITHUB_WORKSPACE/component.cp"
         python tests/validate_native_mapping.py --component "$COMPONENT" --repo upstream/component --classpath-file component.cp --output reports/native-mapping
+        python tests/validate_independent_gates.py --component "$COMPONENT" --repo upstream/component --classpath-file component.cp --output reports/independent-gates
+        if [[ "$COMPONENT" == certify ]]; then
+          python tests/validate_independent_gates.py --component combined --output reports/combined-gates
+        fi
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
         name: native-api-mapping-${{ matrix.component }}
-        path: reports/native-mapping/
+        path: reports/
         if-no-files-found: error
         retention-days: 7

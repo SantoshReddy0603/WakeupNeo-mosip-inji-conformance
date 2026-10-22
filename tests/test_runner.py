@@ -350,6 +350,25 @@ def test_cli_combined_with_real_transport_contract(api, tmp_path):
     assert len(summary['consolidated']['results']) == 4
 
 
+@pytest.mark.parametrize('regressed_component', ['certify', 'verify'])
+def test_cli_combined_regression_does_not_contaminate_other_component(api, tmp_path, regressed_component):
+    plan = template(tmp_path)
+    first, second = tmp_path / 'first', tmp_path / 'second'
+    args = ['--combined', '--parallel', '2', '--oidf-url', api['url'],
+            '--certify-config', str(plan), '--verify-config', str(plan)]
+    assert main([*args, '--reports-dir', str(first)]) == 0
+    baseline = json.loads((first / 'conformance-summary.json').read_text())
+    baseline['consolidated']['results'][regressed_component + '::removed-controlled-fixture'] = 'PASSED'
+    baseline_path = tmp_path / 'baseline.json'
+    baseline_path.write_text(json.dumps(baseline))
+    assert main([*args, '--reports-dir', str(second), '--diff', str(baseline_path)]) == 1
+    report = json.loads((second / 'conformance-summary.json').read_text())
+    for c in ['certify', 'verify']:
+        assert report['runs'][c]['summary']['is_gated_pass'] is True
+        assert report['runs'][c]['summary']['gate_met'] == (c != regressed_component)
+    assert not report['consolidated']['gate_met']
+
+
 def test_screenshot_receipt_preserves_official_review(api, tmp_path):
     image = tmp_path / 'screen.png'
     image.write_bytes(b'\x89PNG\r\n\x1a\ncontrolled-unit-fixture')

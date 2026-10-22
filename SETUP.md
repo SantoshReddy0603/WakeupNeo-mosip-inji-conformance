@@ -1,3 +1,5 @@
+> Stage 23: independent module conformance/regression gates are implemented. Stage 22 hosted CI [39588526466](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588526466) passed all five jobs; live CI [39588709057](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588709057) executed and failed the strict gate for six official REVIEW results. Certify: 12 PASS/3 optional SKIP; Verify: 4 PASS/6 REVIEW; combined: FAILED. Those are Stage 22 results, not a new Stage 23 official run. See [STAGE23_VALIDATION.md](STAGE23_VALIDATION.md) for current evidence. **POST coverage not established.** OIDF certification is not required for assignment completion.
+
 # Local setup and execution
 
 The local synthetic issuer, authentication provider, database, signing keys, verifier, suite and MinIO are configured automatically. No external issuer registry, personal data, account or GitHub token is required. Current compatibility limits are listed in LOCAL_STATUS.md. The native issuer gate passes; verifier/combined gates currently fail on six REVIEW results. This setup does not claim certification.
@@ -163,3 +165,17 @@ For the submission ZIP, extract its source directory again into a new directory 
 The wrapper creates a unique inji-clean-* project, twelve real services, five new volumes and fresh signing/development credentials. It initializes only the loopback MinIO bucket, configures real course issuance, executes the normal runner/TestNG/Extent/S3 lifecycle and returns the genuine gate status. An EXIT trap verifies ownership and cleans only its isolated volumes, including on failures. The ownership/image record remains in docker/isolated-state.json; keep it as local evidence, never copy generated keys into submissions. No historical project is removed. An interrupted hard kill can be recovered with `python runner/isolated_stack.py down --project <project-recorded-in-isolated-state.json>` from the same extraction. Cleanup rejects an inconsistent project or volume label.
 
 Expected acceptance: Certify may pass with three optional skips; six verifier screenshot REVIEW outcomes produce a failed Verify/combined gate and exit 1. A storage error, empty result set, missing TestNG XML, missing Extent HTML or absent upload verification is an implementation/infrastructure failure, not evidence of an expected benchmark failure. Inspect conformance-summary.json, reporter-exit-statuses.json and artifact-storage-validation.json before interpreting exit 1. Real status counts from the current clean validation are recorded in the final evidence, independently of historical results.
+
+## Reproduce independent module and combined reporting
+
+From the configured development deployment, use the same real endpoints and native fixes:
+
+```bash
+bash run-conformance.sh --component certify --native-positive --insecure
+bash run-conformance.sh --component verify --insecure
+bash run-conformance.sh --combined --native-positive --parallel 2 --insecure
+```
+
+Use distinct `--reports-dir` paths to preserve each run. Managed clean-volume execution uses `run-clean-conformance.sh` with the same component/combined selection after preparing the pinned images. A standalone Certify run passes when its own conformance and regression benchmarks pass; Verify and combined remain failures while the official REVIEWs persist. A combined report now preserves those independent gates inside both native TestNG suites. TestNG includes an additional harness gate assertion; it is not an official test module. For an existing deployment, use `--skip-docker` and configure its real plan/authentication/storage inputs. For retained online validation use `--existing-run DIR --run-id ID --reports-dir EMPTY_DIR` with the original suite database still available. Removed isolated suite volumes cannot supply live checks for old IDs; offline archived-result re-reporting must say so explicitly.
+
+See [RUNNER_OPERATIONS.md](RUNNER_OPERATIONS.md) for approved one-job startup/recovery and [COLD_START_VALIDATION.md](COLD_START_VALIDATION.md) for isolated empty-cache deployment.
