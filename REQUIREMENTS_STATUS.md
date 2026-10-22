@@ -1,30 +1,26 @@
-> Stage 23: independent module conformance/regression gates are implemented. Stage 22 hosted CI [39588526466](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588526466) passed all five jobs; live CI [39588709057](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588709057) executed and failed the strict gate for six official REVIEW results. Certify: 12 PASS/3 optional SKIP; Verify: 4 PASS/6 REVIEW; combined: FAILED. Those are Stage 22 results, not a new Stage 23 official run. See [STAGE23_VALIDATION.md](STAGE23_VALIDATION.md) for current evidence. **POST coverage not established.** OIDF certification is not required for assignment completion.
+# Assignment requirement checklist
 
-# Assignment requirements — Stage 21
+See PROJECT_STATUS.md for actual outcomes and limitations.
 
-Implemented source, local tests and live execution are distinct. Official combined acceptance remains FAILED (16 PASS, 6 REVIEW, 3 optional SKIP). Certification is optional. Source paths refer to this project; packaged validation is under validation/stage21.
-
-| ID | Requirement | Status | Evidence / limitation |
+| ID | Requirement | Source | Tested locally |
 |---|---|---|---|
-| M1 | Docker Compose: Inji Certify + Inji Verify + Conformance Suite | Verified | Source-only extraction; twelve services, five fresh volumes/keys, official parallel plans, 115 MinIO read-backs, native and consolidated reports; owned cleanup removed five volumes. Images and dependency caches reused. Native hosted Linux managed networking and empty dependency/image caches not validated. |
-| M2 | Programmatic create/configure/run/poll/retrieve using official automation | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| M3 | OpenIDConformanceTest in both existing api-testrigs with PASS/FAIL/SKIP and reporting | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| M4 | Combined run and consolidated cross-module conformance report | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| M5 | One-command --component certify / --component verify / --combined | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| G1 | GitHub Actions CI/CD | Live manual dispatch verified; release event pending | Ordinary hosted CI: five jobs passed on 797b021. Release event filtering, immutable SHA/default-branch ancestry, protected environment and isolated cleanup implemented and tested locally. Current branch CI must be checked separately. Stage 22 live run 39588709057 executed on main; reporting/storage/upload/cleanup completed and strict conformance failed for six REVIEWs. Actual release-published execution remains approval-dependent; runner was ephemeral. |
-| G2 | Selective component/plan execution | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| G3 | Expected-Failures | Verified | Controlled HTTP/result fixtures verify expected-failure mapping and strict gates. These fixtures are not official conformance results; no official failure was waived. No real result was deliberately damaged or waived for a demonstration. |
-| G4 | Result Diff Between Runs | Verified | Read-only diff of actual historical versus fresh and actual serial versus parallel results: all 25 statuses unchanged in both comparisons; every combined gate remains FAILED. Controlled tests also exercise regressions. No actual official result was deliberately corrupted to manufacture a regression. |
-| G5 | Documentation | Verified | Documents explain actual service topology, official-library flow, component handoffs, strict mapping/storage, setup, failure diagnosis and self-certification dependencies.  |
-| B1 | Parallel Execution | Verified | Fresh official combined execution with --parallel 2 and independent aliases, serial per-plan modules; TestNG/Extent/S3 preserved actual failed gate. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official verifier manual-review outcomes remain REVIEW. |
-| D1 | Docker Compose configuration including server, mongodb, httpd | Verified | Source-only extraction; twelve services, five fresh volumes/keys, official parallel plans, 115 MinIO read-backs, native and consolidated reports; owned cleanup removed five volumes. Images and dependency caches reused. Native hosted Linux managed networking and empty dependency/image caches not validated. |
-| D2 | Issuer/verifier JSON templates with correct 1.0 variants | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| D3 | run-full-stack-conformance.sh | Verified | Fresh official create/execute/poll/export and three one-command modes; real native module TestNG/Extent/S3 lifecycle; full-stack wrapper replayed fresh combined results. Stage 17: fresh parallel official plans plus retained Certify/Verify/combined entrypoints with actual TestNG/Extent/MinIO read-back; six REVIEW remain failures in strict mapping. Official Verify and combined gates remain FAILED on six REVIEW; full-stack mode is retained retrieval, not another fresh execution. |
-| D4 | .github/workflows/full-stack-conformance.yml | Live manual dispatch verified; release event pending | Ordinary hosted CI: five jobs passed on 797b021. Release event filtering, immutable SHA/default-branch ancestry, protected environment and isolated cleanup implemented and tested locally. Current branch CI must be checked separately. Stage 22 live run 39588709057 executed on main; reporting/storage/upload/cleanup completed and strict conformance failed for six REVIEWs. Actual release-published execution remains approval-dependent; runner was ephemeral. |
-| D5a | Architecture | Verified | Content checked against actual implementation, errors encountered and applicable official guidance.  |
-| D5b | How API automation works | Verified | Content checked against actual implementation, errors encountered and applicable official guidance.  |
-| D5c | Per-component handoff handling | Verified | Content checked against actual implementation, errors encountered and applicable official guidance.  |
-| D5d | How to submit for self-certification | Verified | Content checked against actual implementation, errors encountered and applicable official guidance. Instructions only are required. Formal certification, eligible certification profile and OIDF assessment are optional outside this assignment. |
-| D5e | Troubleshooting | Verified | Content checked against actual implementation, errors encountered and applicable official guidance.  |
-
-**POST coverage not established.** Neither screenshots nor REVIEW are a certification PASS. See CI_CD_SETUP.md for the precise live execution dependency; source workflow existence does not prove a live GitHub run.
+| M1 | Docker Compose: Inji Certify + Inji Verify + Conformance Suite | True | True |
+| M2 | Programmatic create/configure/run/poll/retrieve using official automation | True | True |
+| M3 | OpenIDConformanceTest in both existing api-testrigs with PASS/FAIL/SKIP and reporting | True | True |
+| M4 | Combined run and consolidated cross-module conformance report | True | True |
+| M5 | One-command --component certify / --component verify / --combined | True | True |
+| G1 | GitHub Actions CI/CD | True | True |
+| G2 | Selective component/plan execution | True | True |
+| G3 | Expected-Failures | True | True |
+| G4 | Result Diff Between Runs | True | True |
+| G5 | Documentation | True | True |
+| B1 | Parallel Execution | True | True |
+| D1 | Docker Compose configuration including server, mongodb, httpd | True | True |
+| D2 | Issuer/verifier JSON templates with correct 1.0 variants | True | True |
+| D3 | run-full-stack-conformance.sh | True | True |
+| D4 | .github/workflows/full-stack-conformance.yml | True | True |
+| D5a | Architecture | True | True |
+| D5b | How API automation works | True | True |
+| D5c | Per-component handoff handling | True | True |
+| D5d | How to submit for self-certification | True | True |
+| D5e | Troubleshooting | True | True |

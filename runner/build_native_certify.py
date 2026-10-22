@@ -18,7 +18,7 @@ def main():
     parser.add_argument('--dpop', action='store_true', help='Build the native sender-constrained token validator too')
     parser.add_argument('--holder-binding', action='store_true', help='Also embed the validated holder public key in SD-JWT cnf.jwk')
     parser.add_argument('--signed-metadata', action='store_true', help='Also sign issuer metadata using the native issuer key manager')
-    parser.add_argument('--credential-errors', action='store_true', help='Build all staged Final-profile fixes including credential selector/error handling')
+    parser.add_argument('--credential-errors', action='store_true', help='Build all Final-profile fixes including credential selector/error handling')
     parser.add_argument('--positive-serial', action='store_true', help='Also rebuild the native key manager with positive bounded certificate serials')
     parser.add_argument('--keymanager-source', type=Path, help='Optional pinned key-manager source cache')
     args = parser.parse_args()
@@ -36,7 +36,7 @@ def main():
     current = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source, text=True).strip()
     if current != PIN:
         raise ValueError('Native source must match the tested release commit')
-    # Overlapping staged patches cannot safely be re-applied to a previously
+    # Overlapping patches cannot safely be re-applied to a previously
     # patched checkout. Clone the pinned commit for every build/profile instead.
     with tempfile.TemporaryDirectory(prefix='inji-native-build-') as temporary:
         build_profile(args,source,Path(temporary)/'source')

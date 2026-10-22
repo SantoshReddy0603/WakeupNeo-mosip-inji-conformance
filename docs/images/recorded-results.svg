@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="390" viewBox="0 0 1100 390" role="img" aria-labelledby="title desc">
+<title id="title">Recorded official conformance outcomes</title><desc id="desc">Certify has twelve passes and three optional skips. Verify has four passes and six reviews. The combined gate is failed. This graphic summarizes recorded results and is not original suite evidence.</desc>
+<rect width="1100" height="390" rx="20" fill="#0e2032"/><g font-family="Arial, sans-serif"><text x="40" y="48" fill="#fff" font-size="26" font-weight="700">Recorded results, preserved without promotion</text>
+<rect x="40" y="82" width="490" height="195" rx="14" fill="#18374e"/><rect x="570" y="82" width="490" height="195" rx="14" fill="#18374e"/>
+<text x="65" y="123" fill="#fff" font-size="23" font-weight="700">Inji Certify</text><text x="595" y="123" fill="#fff" font-size="23" font-weight="700">Inji Verify</text>
+<g font-size="20"><text x="65" y="163" fill="#65d9ad">12 PASS</text><text x="245" y="163" fill="#c0cfdd">3 optional SKIP</text><text x="595" y="163" fill="#65d9ad">4 PASS</text><text x="775" y="163" fill="#ffd17a">6 REVIEW</text></g>
+<rect x="65" y="184" width="440" height="18" rx="5" fill="#8795a5"/><rect x="65" y="184" width="352" height="18" rx="5" fill="#36bd89"/><rect x="595" y="184" width="440" height="18" rx="5" fill="#dca94c"/><rect x="595" y="184" width="176" height="18" rx="5" fill="#36bd89"/>
+<text x="65" y="244" fill="#65d9ad" font-size="21" font-weight="700">Component gate PASSED · exit 0</text><text x="595" y="244" fill="#ffb5af" font-size="21" font-weight="700">Component gate FAILED · exit 1</text>
+<text x="40" y="318" fill="#ffb5af" font-size="22" font-weight="700">Combined gate FAILED · 16 PASS / 6 REVIEW / 3 SKIP</text><text x="40" y="354" fill="#a8c0d5" font-size="14">Run ec11687365de477282d0f8c2d0e8d4fb · recorded-results illustration, not original suite evidence</text></g></svg>

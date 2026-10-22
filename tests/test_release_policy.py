@@ -21,7 +21,7 @@ def test_production_release_and_default_dispatch():
     ('release', event(tag_name=''), 'refs/tags/'),
     ('push', event(), 'refs/tags/v1'),
     ('pull_request', event(), 'refs/pull/1/merge'),
-    ('workflow_dispatch', event(), 'refs/heads/ci/stage-18'),
+    ('workflow_dispatch', event(), 'refs/heads/feature/test-branch'),
     ('release', {}, 'refs/tags/v1'),
 ])
 def test_ineligible_events(name, payload, ref):

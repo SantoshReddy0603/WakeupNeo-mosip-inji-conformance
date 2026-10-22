@@ -1,8 +1,8 @@
-> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate. Stage 21 verified clean-volume orchestration and ordinary hosted CI is evidenced separately.
+> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate.
 
-# Six-case verifier investigation — Stage 17
+# Six-case verifier investigation
 
-Fresh run `c4633b091cdd4b8eb4facd3c36986c94`; issuer plan `qJ6tKNfFZCfzm`; verifier plan `tSq9qkf5JI4G6`; exact target `oid4vp-1final-verifier-test-plan`. Historical run `141a3630f7874e98ae4964653f953899` and Stage 16 serial evidence are byte-preserved.
+Fresh run `c4633b091cdd4b8eb4facd3c36986c94`; issuer plan `qJ6tKNfFZCfzm`; verifier plan `tSq9qkf5JI4G6`; exact target `oid4vp-1final-verifier-test-plan`. Historical run `141a3630f7874e98ae4964653f953899` and earlier serial-execution evidence are byte-preserved.
 
 Certify: **12 PASS, 3 optional SKIP; gate PASSED**. Verify: **4 PASS, 6 REVIEW; gate FAILED**. Combined: **16 PASS, 6 REVIEW, 3 SKIP; gate FAILED**. No TIMEOUT, no manual dispositions. Native observations match expectations in the six reviewed transactions; that is not an official PASS.
 
@@ -40,7 +40,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `839e22ff0f617e6f7053eee9fe9b9b1f24bbe4cded6f30526edb63fdc011c64e`; QR SHA-256 `e70ed2ff072ab7ae2ba29918bea2167b7018479492e806910c9204aaec9b2d26`; original screenshot file time `2026-10-20T06:47:54.116916+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:47:30.763044488Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [4QxprhVb9DdS5QF original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-happy-flow-4QxprhVb9DdS5QF-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-happy-flow-4QxprhVb9DdS5QF-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-happy-flow-4QxprhVb9DdS5QF-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-happy-flow-4QxprhVb9DdS5QF-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ### oid4vp-1final-verifier-minimal-cnf-jwk
@@ -51,7 +51,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `ae947f90d1e4d0759e4e9db94f19351be83d0473e1807f1784c4eb26e9e2ca2d`; QR SHA-256 `3c64963f2aa0f0b7ae79e7ea13b96db8932f76f601a000b631b89966a8ab5564`; original screenshot file time `2026-10-20T06:48:05.025620+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:47:57.198293379Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [3AaIDb69rsa7Lvf original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-minimal-cnf-jwk-3AaIDb69rsa7Lvf-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-minimal-cnf-jwk-3AaIDb69rsa7Lvf-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-minimal-cnf-jwk-3AaIDb69rsa7Lvf-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-minimal-cnf-jwk-3AaIDb69rsa7Lvf-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ### oid4vp-1final-verifier-request-uri-method-post
@@ -62,7 +62,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `ae947f90d1e4d0759e4e9db94f19351be83d0473e1807f1784c4eb26e9e2ca2d`; QR SHA-256 `392ae31a981189d4fc73abe3a8fe8aa7ebf4ae0a461e02b673ecd7e6eb8c2413`; original screenshot file time `2026-10-20T06:48:15.995721+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:48:07.465020583Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [HP1TBvN42w3mBIl original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-request-uri-method-post-HP1TBvN42w3mBIl-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-request-uri-method-post-HP1TBvN42w3mBIl-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-request-uri-method-post-HP1TBvN42w3mBIl-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-request-uri-method-post-HP1TBvN42w3mBIl-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 - **Coverage blocker:** despite the module name, this instance does NOT establish request_uri POST support. All three required POST/wallet_nonce condition successes are absent. The exact configured `request_method=url_query` bypasses `fetchAndProcessRequestUri()` in AbstractVP1FinalVerifierTest, so the subclass override neither POSTs nor enters its not-applicable SKIP branch. It instead completes the ordinary valid-presentation/screenshot path and returns REVIEW. This is an upstream applicability/coverage gap, not proof of POST validation.
 - The native pinned request service returns a request URI only for its `decentralized_identifier` client scheme; this run uses `redirect_uri`. Native DID support does not establish a compatible signed-request path for this configured suite variant. Configuration alone has not established a usable native POST path. No request-method/client-scheme/profile change, request translation, unsupported support claim or native rewrite was made. OIDF should clarify applicability of this named module in url_query and whether its coverage/result semantics should change upstream. Prior statements implying that this REVIEW proves POST/wallet_nonce validation are corrected here.
@@ -75,7 +75,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `c54b8aedc8cc4919d7a1e54c1c710b41531f6f0efbeb824db4e1b74d0756ab56`; QR SHA-256 `36bb8416f88d5303b84089663c2a5319843897c1277e01206a7eff5352602b39`; original screenshot file time `2026-10-20T06:48:27.074675+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:48:18.351742505Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [0rrHl0D1hFKNAG5 original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-kb-jwt-signature-0rrHl0D1hFKNAG5-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-kb-jwt-signature-0rrHl0D1hFKNAG5-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-kb-jwt-signature-0rrHl0D1hFKNAG5-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-kb-jwt-signature-0rrHl0D1hFKNAG5-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ### oid4vp-1final-verifier-invalid-credential-signature
@@ -86,7 +86,7 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `c54b8aedc8cc4919d7a1e54c1c710b41531f6f0efbeb824db4e1b74d0756ab56`; QR SHA-256 `9302956639cc2dbc245c90d9afe27a26abe6b890603ac3d1a860db1ace5bbdb7`; original screenshot file time `2026-10-20T06:48:35.101131+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:48:28.937497190Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [D4F9uRokdl7B3YB original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-credential-signature-D4F9uRokdl7B3YB-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-credential-signature-D4F9uRokdl7B3YB-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-credential-signature-D4F9uRokdl7B3YB-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-credential-signature-D4F9uRokdl7B3YB-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ### oid4vp-1final-verifier-invalid-sd-hash
@@ -97,11 +97,11 @@ Sources: [CreateSdJwtKbCredential.java](https://gitlab.com/openid/conformance-su
 - Original UI SHA-256 `446414f913fbfb2a11c08d28d26469cc2e14a202f1be910188fe3f77101e9736`; QR SHA-256 `c60abc07852e5e1e9bde71a01e3bda3e5af1514d7643dc16014b934313ca6cde`; original screenshot file time `2026-10-20T06:48:46.185587+00:00` (filesystem metadata, not a signed capture timestamp).
 - Official timestamps: `{"started": "2026-10-20T06:48:37.745251931Z"}`.
 - SDK status entries: 0; status reference present: False. Native log correlation available: True.
-- Evidence: [aY3aS4cDDokQ7Wi original screenshot](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-sd-hash-aY3aS4cDDokQ7Wi-ui.jpg), [SDK](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-sd-hash-aY3aS4cDDokQ7Wi-native-session-results.json), [official log](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-sd-hash-aY3aS4cDDokQ7Wi-official-log.json), [backend window](outputs/stage-17-review-resolution/evidence/reviews/fresh/oid4vp-1final-verifier-invalid-sd-hash-aY3aS4cDDokQ7Wi-native-backend.log).
+- Evidence for this historical instance is retained separately from the source distribution.
 - Finding: valid flow accepted / invalid flow rejected as expected; suite screenshot/REVIEW branch remains. No missing image upload, no local approval, no native bug established. Generic UI and backend-window limits above apply.
 
 ## Remaining dependency
-No further screenshot upload is pending in these six instances. OIDF must clarify whether authoritative assessment is available for this general alpha plan, how to record it legitimately, and whether raw REVIEW changes at all or is accompanied by a separate assessment. A support reply alone must not be interpreted as PASS. The email draft is prepared but has not been sent. No new credentials are required for the local work. This historical review diagnosis did not test deployment. Stage 21 separately verified empty-volume deployment; ordinary hosted CI passed in Stage 18. Live GitHub and status-list conformance remain unverified.
+All six historical screenshot placeholders were filled. Their official outcomes remain REVIEW. No authoritative review disposition is claimed. Later local and release-triggered validation verified deployment, reporting, storage and cleanup. Request URI POST coverage and status-list interoperability remain unestablished.
 
 ## Reproduction and command evidence
-See [RESULTS.md](RESULTS.md), [REPRODUCE.md](REPRODUCE.md), [exact commands/exits](outputs/stage-17-review-resolution/evidence/checks/commands.json), [official outcomes](outputs/stage-17-review-resolution/official-outcomes.json), [source hashes/lines](outputs/stage-17-review-resolution/evidence/checks/official-source-index.json), [API inventory](outputs/stage-17-review-resolution/evidence/checks/api-inventory.json), [outputs/stage-17-review-resolution/evidence/redaction manifest](outputs/stage-17-review-resolution/evidence/manifest.json). Sanitized exports are explicitly unsigned derivatives, never original signed exports. Original private exports remain locally intact.
+See [RESULTS.md](RESULTS.md) and [PROJECT_STATUS.md](PROJECT_STATUS.md). Historical execution artifacts and original private exports are retained separately.

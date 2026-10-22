@@ -1,6 +1,6 @@
-> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate. Stage 21 verified clean-volume orchestration and ordinary hosted CI is evidenced separately.
+> Review/certification discussion is optional. No OIDF contact, formal certification, review disposition or new POST protocol implementation is needed to deliver the assignment harness. Preserve REVIEW and the strict failed gate.
 
-# Review process — current Stage 17 findings
+# Verifier review process
 
 The pinned suite requests a screenshot after a successful HTTP response. `ImageAPI` and `waitForPlaceholders` deliberately record REVIEW after image submission. A filled placeholder is evidence, not an approval. Negative tests explicitly support immediate HTTP 4xx rejection or deferred HTTP 2xx followed by rejection evidence; the latter takes the screenshot/REVIEW branch. No protocol defect is established merely by choosing the supported deferred path. Changing response timing solely to obtain PASS is not a remedy.
 
@@ -12,4 +12,4 @@ All six actual responses requested `skipStatusChecks=false` with the Revocation 
 
 SDK correlation is cookie-bound: the real `/vp-session-results` request uses an HttpOnly transaction cookie, not a JSON transactionId. We retain the returned transaction ID, native creation IDs, request URL, observation time, suite/image identifiers and QR hash without exposing cookies. Identical generic success/failure screens across some transactions are expected; screenshots alone are insufficient to distinguish them. The backend windows correlate native request and transaction IDs but may contain interleaved threads; specific negative codes are established by SDK responses, not by those backend windows.
 
-Detailed cases and citations: [REVIEW_FINDINGS.md](REVIEW_FINDINGS.md). [Draft email, NOT SENT](OIDF_CLARIFICATION_DRAFT.md). Fresh review plan `tSq9qkf5JI4G6`; historical reference `141a3630f7874e98ae4964653f953899` preserved. Images are already submitted; no local approval endpoint or legitimate automatic transition has been established. No credentials are currently required. User approval is required before sending the draft or publishing evidence.
+Detailed cases and citations: [REVIEW_FINDINGS.md](REVIEW_FINDINGS.md). Fresh review plan `tSq9qkf5JI4G6`; historical reference `141a3630f7874e98ae4964653f953899` preserved. Images are already submitted; no local approval endpoint or legitimate automatic transition has been established. No credentials are currently required. Sensitive evidence must be shared only through an authorized channel.

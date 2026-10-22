@@ -1,5 +1,3 @@
-> Stage 23: independent module conformance/regression gates are implemented. Stage 22 hosted CI [39588526466](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588526466) passed all five jobs; live CI [39588709057](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39588709057) executed and failed the strict gate for six official REVIEW results. Certify: 12 PASS/3 optional SKIP; Verify: 4 PASS/6 REVIEW; combined: FAILED. Those are Stage 22 results, not a new Stage 23 official run. See [STAGE23_VALIDATION.md](STAGE23_VALIDATION.md) for current evidence. **POST coverage not established.** OIDF certification is not required for assignment completion.
-
 # Local setup and execution
 
 The local synthetic issuer, authentication provider, database, signing keys, verifier, suite and MinIO are configured automatically. No external issuer registry, personal data, account or GitHub token is required. Current compatibility limits are listed in LOCAL_STATUS.md. The native issuer gate passes; verifier/combined gates currently fail on six REVIEW results. This setup does not claim certification.
@@ -114,11 +112,11 @@ See ARCHITECTURE.md for the lifecycle and TROUBLESHOOTING.md for diagnosis.
 
 See integration/README.md. The component api-test modules moved from mosip-functional-tests to the Inji repositories; the installer targets the actual modules and their existing master listener. The tested source commits are pinned in the workflow.
 
-## GitHub Actions, kept local
+## GitHub Actions
 
-.github/workflows/full-stack-conformance.yml contains harness checks, both existing-module compile jobs, both pinned native product test jobs, and a live release/manual job on a runner labelled inji-conformance. It retains reports on failure. Local lint/compilation checks are recorded; no repository was created or published and no GitHub run is claimed.
+.github/workflows/full-stack-conformance.yml contains harness checks, both existing-module compile jobs, both pinned native product test jobs, and a live release/manual job on a runner labelled inji-conformance. It retains reports on failure. Hosted CI run 39716320075 passed all five jobs. Release workflow 39717011976, attempt 2, executed the real combined stack; reporting, storage, artifact upload and cleanup succeeded while six REVIEW outcomes failed the strict gate.
 
-When you later provide a repository, register a runner that can reach the real services. Configure the endpoint/client/profile/key-file/browser-file variables above as repository variables. Store runtime passwords, optional OIDF token and AWS access keys using the referenced GitHub secrets, never in a committed file. Key-file/browser-file variables must reference files available on that runner; generated private JWKS are excluded from source. Set S3_ENDPOINT, S3_BUCKET and AWS_REGION for MinIO/S3. Use protected environment controls for shared environments.
+For another live run, register an approved ephemeral runner that can reach the real services; follow RUNNER_OPERATIONS.md. Configure the endpoint/client/profile/key-file/browser-file variables above as repository variables. Store runtime passwords, optional OIDF token and AWS access keys using the referenced GitHub secrets, never in a committed file. Key-file/browser-file variables must reference files available on that runner; generated private JWKS are excluded from source. Set S3_ENDPOINT, S3_BUCKET and AWS_REGION for MinIO/S3. Use protected environment controls for shared environments.
 
 ## Reports and stopping
 
@@ -142,7 +140,7 @@ actionlint -config-file .github/actionlint.yaml .github/workflows/full-stack-con
 ```
 
 
-## Fresh empty-volume reproduction (Stage 21)
+## Fresh empty-volume reproduction
 
 Use Docker Desktop Linux containers with Linux/WSL Python and Java 21, Maven 3.8.7, Docker Compose, and the requirements-dev dependencies. Install Playwright Chromium. Keep the virtual environment outside the fresh source directory or point PYTHON to its absolute executable. Reserve loopback ports 8443, 8445, 8446, 9000 and 9001; stop conflicting services deliberately without deleting their volumes.
 
