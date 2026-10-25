@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import html
 import json
+import re
 from pathlib import Path
 
 FIELDS={'component','plan_name','plan_id','status','total','passed','failed','warnings','skipped',
@@ -25,6 +26,23 @@ def export(reports,output):
         safe['derived_from_retained_results'] = True
         safe['official_conformance_result'] = False
         safe['live_official_api_rechecked'] = data['retained_source'].get('live_official_api_rechecked') is True
+    if isinstance(data.get('deployment'), dict):
+        deployment = data['deployment']
+        safe_deployment = {}
+        if deployment.get('issuer_build') in {'stock-release', 'custom-image', 'declared-custom-image', 'unidentified-external-deployment'}:
+            safe_deployment['issuer_build'] = deployment['issuer_build']
+        image = deployment.get('issuer_image', '')
+        if isinstance(image, str) and re.fullmatch(r'(?:injistack/inji-certify-with-plugins|inji-harness/certify-[a-z-]+):[A-Za-z0-9_.-]+', image):
+            safe_deployment['issuer_image'] = image
+        image_id = deployment.get('issuer_image_id', '')
+        if isinstance(image_id, str) and re.fullmatch(r'sha256:[a-f0-9]{64}', image_id):
+            safe_deployment['issuer_image_id'] = image_id
+        versions = deployment.get('versions', {})
+        if isinstance(versions, dict):
+            safe_deployment['versions'] = {key: value for key, value in versions.items()
+                if key in {'CERTIFY_VERSION', 'VERIFY_VERSION', 'VERIFY_UI_VERSION', 'VERIFY_SDK_VERSION'}
+                and isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_.-]{1,100}', value)}
+        safe['deployment'] = safe_deployment
     for component,run in data['runs'].items():
         if component not in {'certify','verify'}:raise ValueError('Unknown component')
         if not isinstance(run['results'],dict) or any(not isinstance(name,str) or not isinstance(status,str) or status not in {

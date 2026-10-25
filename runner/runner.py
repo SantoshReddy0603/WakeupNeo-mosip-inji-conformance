@@ -19,6 +19,7 @@ from oid4vp_handoff import OID4VPHandoffClient, generate_signing_jwk
 from local_network import configure as configure_network
 from preflight import validate_storage
 from gate_policy import apply_component_gates
+from deployment_provenance import deployment_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG = logging.getLogger('conformance')
@@ -137,7 +138,7 @@ class ConformanceRunner:
                         return
                     handler = OID4VPHandoffClient(self.client.base_url, self.verify_url, self.verify_request,
                                                  self.client.session.verify,
-                                                 sdk_version=os.getenv('VERIFY_SDK_VERSION', '1.0.0-alpha.1'))
+                                                 sdk_version=os.getenv('VERIFY_SDK_VERSION') or None)
                     result['handoff'] = handler.execute_presentation_handoff(info, remaining)
                 elif self.browser_steps:
                     from browser_handoff import drive_browser, browser_url
@@ -241,7 +242,8 @@ def main(argv=None):
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
     output_dir = Path(args.reports_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    output = {'schema_version': 2, 'run_id': uuid.uuid4().hex, 'runs': {}}
+    output = {'schema_version': 2, 'run_id': uuid.uuid4().hex, 'runs': {},
+              'deployment': deployment_metadata()}
     components = ['certify', 'verify'] if args.combined else [args.component]
     # Replace stale summaries before any network operation, including startup failures.
     output['consolidated'] = {'status': 'RUNNING', 'gate_met': False, 'components': components}

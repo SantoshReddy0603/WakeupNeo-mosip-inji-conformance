@@ -14,27 +14,56 @@ Run the OpenID Foundation conformance suite against real Inji services, feed off
 - Artifact upload and byte-for-byte read-back, regression comparison, selective plans and parallel component execution.
 - Hosted CI plus an actual release-triggered full-stack workflow, with artifacts retained on benchmark failure.
 
-## Verified results
+## Recorded stock and patched results
 
-![Recorded conformance outcomes: Certify 12 PASS and 3 SKIP; Verify 4 PASS and 6 REVIEW; combined gate FAILED](docs/images/recorded-results.svg)
+Recorded stock reference run: `019bf015dcef47029010faa06a2cf788`. This used the unmodified `injistack/inji-certify-with-plugins:1.0.0-alpha.1` image and the unified stack.
 
-Latest recorded manual run: `ec11687365de477282d0f8c2d0e8d4fb`.
+| Evidence | Stock release gate (default) | Diagnostic, patched build |
+|---|---|---|
+| Official run ID | `019bf015dcef47029010faa06a2cf788` | `d39d9f65b0f04db79eb3d25501c9f26c` |
+| Issuer export | `plan-UYoPyoeGriNRN-export.zip` | `plan-yfOPDtRoNo2xZ-export.zip` |
+| Certify image | `injistack/inji-certify-with-plugins:1.0.0-alpha.1` | `inji-harness/certify-positive:local` |
+| Certify image ID | `sha256:1579b2449f1a7213fe25de1f6a1509b5636f1fedf0d7f5c4cfd07b9f0fc5b346` | `sha256:5aa0ba5750b177b10348344708ae86b64a173ea3657b75272dab7014b943a2a6` |
+| Certify | 2 PASS, 10 INTERRUPTED, 3 optional SKIP; FAILED | 12 PASS, 3 optional SKIP; PASSED |
+| Verify | 4 PASS, 6 REVIEW; FAILED | 4 PASS, 6 REVIEW; FAILED |
+| Combined | 6 PASS, 10 INTERRUPTED, 6 REVIEW, 3 SKIP; FAILED | 16 PASS, 6 REVIEW, 3 SKIP; FAILED |
 
-| Component | Official results | Gate | Reporter exit |
-|---|---|---|---:|
-| Certify | 12 PASS, 3 optional SKIP | PASSED | 0 |
-| Verify | 4 PASS, 6 REVIEW | FAILED | 1 |
-| Combined | 16 PASS, 6 REVIEW, 3 SKIP | FAILED | 1 |
+Stock reporting returned Certify 1, Verify 1 and combined 1. The lifecycle verified 114 stored artifacts, an independent read-back checked 71 core objects, and cleanup removed the five owned volumes. Official signed-metadata and issuance/error-response checks interrupted on the unmodified image. Exact conditions and original logs remain with the private run evidence.
 
-The manual run verified 115 uploaded artifacts and cleaned up its twelve services and five owned volumes. A separate full validation passed all 182 harness tests and independently read back 72 core stored artifacts. Component and combined native TestNG/Extent reports were generated.
+The 25 October local verifier reproduction, run `0d9b58120a964f628a34dd0c658d6c8f`, again returned 4 PASSED and 6 REVIEW with a failed gate (`plan-IpxODLyKkxZNN-export.zip`); [validation limits](docs/VALIDATION.md) identify the actual POST-named and happy-flow instances and their missing coverage.
 
-**REVIEW remains REVIEW.** The harness maps it to a failed TestNG assertion and rejects the release gate. It does not manufacture PASS results. TestNG includes an extra gate assertion, so its counts differ from the official module counts. These results establish working automation, not complete OpenID conformance or certification. The diagrams summarize recorded results; official outputs remain authoritative.
+The patched diagnostic uses the audited native fixes described in [docker/RELEASES.md](docker/RELEASES.md). Its issuer PASS does not qualify the stock release. The following illustration summarizes recorded patched results only:
+
+![Historical patched outcomes, not stock results](docs/images/recorded-results.svg)
+
+The standalone bridge compiled from fresh source and passed its seven TestNG mapping scenarios on actual JDK 11. The pinned native API-test modules require Java 21 and failed JDK 11 compilation with `error: invalid target release: 21`; exact upstream POM lines and compiler logs are cited in [validation limits](docs/VALIDATION.md). Their actual Java 21 integration/reporting is separate. Harness, syntax and workflow checks are listed in [the requirement checklist](REQUIREMENTS_STATUS.md).
+
+**REVIEW remains REVIEW.** The harness maps it to a failed TestNG assertion and rejects the release gate. It does not manufacture PASS results. TestNG includes an extra gate assertion, so its counts differ from the official module counts. These results establish working automation, not complete OpenID conformance or certification. The diagrams summarize recorded results; official outputs remain authoritative. This source-only package omits raw execution artifacts. A new installation or changed source needs its own validation.
+
+### Stock interruption triage
+
+The ten stock interruptions are PRODUCT_GAP findings from issuer export `plan-UYoPyoeGriNRN-export.zip` (run `019bf015dcef47029010faa06a2cf788`); matched diagnostic results are from `plan-yfOPDtRoNo2xZ-export.zip` (run `d39d9f65b0f04db79eb3d25501c9f26c`). No harness correction was justified; exact messages, last successful steps, requests/responses and matched patched instance IDs are in [the triage](docs/STOCK_CERTIFY_TRIAGE.md). Names share prefix `oid4vci-1_0-issuer-`; patch paths share `docker/native-certify/`; isolated patch attribution is not verified.
+
+| Test name | Status | Class | Evidence | Patch that fixes it | Action taken |
+|---|---|---|---|---|---|
+| `metadata-test-signed` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `B61Vqr31wC8p2Rk`: 200 OK, empty body | `signed-metadata.patch` | Retain stock failure |
+| `happy-flow` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `iqk1VhClUfgzhkl`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized extension field | `extensions.patch`, `dpop.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-additional-requests` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `0LUs3j7U97cH1vZ`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-multiple-clients` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `zoskf1s65ZJqWV6`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-skip-notification` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `H3hsOeWhUSaZn5x`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `fail-invalid-nonce` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `QoyggTSnn6w5sAo`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
+| `fail-invalid-jwt-proof-signature` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `s8WWjo8wtU8MEpq`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
+| `fail-unknown-credential-configuration` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `dJqxkp28p6TKPud`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `credential-errors.patch` | Retain stock failure |
+| `fail-unknown-credential-identifier` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `wZUaQwM0lQnFZDW`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized credential_identifier | `credential-errors.patch` | Retain stock failure |
+| `fail-on-access-token-in-query` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `O2E2YHPFYOnxRY4`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+
+The live variant cross-check found `dpop` and `mtls`, with no unconstrained Bearer option. Seven stock mTLS-labelled cases produced 2 PASSED, 4 FAILED and 1 INTERRUPTED (official plan `45vEXNrkMzWtm`, `plan-45vEXNrkMzWtm-export.zip`); token responses were unbound Bearer, so end-to-end mTLS binding is **not verified**. The three entry-point defaults remain unchanged; [the triage](docs/STOCK_CERTIFY_TRIAGE.md) records all before/after outcomes and the decision.
 
 ## Requirements
 
 The validated environment is Windows with Ubuntu/WSL, Docker Desktop Linux containers and Ubuntu integration, Python 3.12, Java 21 and Maven 3.8.7. Use at least 6 GiB of Linux memory; the tested environment had about 7.6 GiB. Keep ports `8443`, `8445`, `8446`, `9000` and `9001` available.
 
-Internet access is required for upstream source, images, Maven dependencies and the matching Playwright browser. No external issuer account, real personal records or GitHub token is needed for local synthetic issuance. Native hosted Linux networking has not been validated for these manifests.
+Internet access is required for upstream source, images, Maven dependencies and the matching Playwright browser. No external issuer account, real personal records or GitHub token is needed for local synthetic issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the separate B4 empty-cache procedure.
 
 ## Prepare the environment and images
 
@@ -52,23 +81,21 @@ docker info
 docker compose version
 ```
 
-Prepare the pinned native images once. These commands generate development configuration in this checkout; use a separate clean extraction for execution:
+Prepare the stock deployment images once. These commands generate development configuration in this checkout; use a separate clean extraction for execution:
 
 ```bash
 python runner/setup.py
-python runner/build_native_certify.py --positive-serial
 docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
-docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile storage build minio
 
-for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine \
-  quay.io/keycloak/keycloak:26.4.0 \
-  injistack/inji-verify-service:1.0.0-alpha.1 \
-  injistack/inji-verify-ui:1.0.0-alpha.1; do
-  docker pull "$image"
-done
+while IFS= read -r image; do
+  if ! docker image inspect "$image" >/dev/null 2>&1; then
+    docker pull "$image" || exit
+  fi
+done < <(docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --images | sort -u)
 ```
 
-The prepared native Certify image contains the verified fixes; it is a local build of pinned source, not an unmodified upstream release. See [native release details](docker/RELEASES.md).
+For a separate patched diagnostic, build its image with `python runner/build_native_certify.py --positive-serial`. It is a local build of pinned source, not an unmodified upstream release. See [native release details](docker/RELEASES.md).
 
 ## Run both components with fresh data
 
@@ -89,19 +116,19 @@ echo "Execution exit code: $RUN_EXIT"
 cat "$REPORT_DIR/reporter-exit-statuses.json"
 ```
 
-The clean wrapper starts twelve real services with fresh keys and five owned volumes, runs the normal reporting lifecycle, and cleans up only its owned deployment on exit. It expects the images prepared above. With the recorded six REVIEW results, combined execution exits **1**. Inspect reports to distinguish that benchmark failure from startup, browser, reporting or storage errors. Each run needs a fresh extraction.
+The unified stack starts ten real services with fresh keys and five owned volumes, runs the normal reporting lifecycle, and cleans up only its owned deployment on exit. It expects the images prepared above. Stock execution exits **1** when its recorded interruptions and REVIEWs recur. Explicit patched diagnostics also exit **1** while REVIEW remains. Inspect reports to distinguish that benchmark failure from startup, browser, reporting or storage errors. Each run needs a fresh extraction.
 
 ### Component and persistent development modes
 
-The ordinary wrapper supports one-command execution with a persistent local development deployment:
+The ordinary wrapper defaults to the unmodified release:
 
 ```bash
-bash run-conformance.sh --component certify --native-positive --insecure
+bash run-conformance.sh --component certify --insecure
 bash run-conformance.sh --component verify --insecure
-bash run-conformance.sh --combined --native-positive --parallel 2 --insecure
+bash run-conformance.sh --combined --parallel 2 --insecure
 ```
 
-Choose one command at a time. `--native-positive` selects all verified Certify/key-manager fixes. Use distinct `--reports-dir` paths to preserve runs. `--skip-docker` targets an already configured deployment and requires its actual environment settings. `--insecure` is explicitly for local self-signed TLS; use a trusted CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See [SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
+Choose one command at a time. Add `--native-positive` only for a separately labelled patched diagnostic. Use distinct `--reports-dir` paths to preserve runs. `--skip-docker` targets an already configured deployment and requires its actual environment settings. `--insecure` is explicitly for local self-signed TLS; use a trusted CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See [SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
 
 ## Reports and interfaces
 
@@ -118,10 +145,12 @@ On Windows/WSL, open reports with `explorer.exe "$(wslpath -w "$REPORT_DIR")"`. 
 
 ## CI and validation
 
-- [Hosted CI on the validated merged source](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39716320075): all five jobs passed.
-- [Actual release-triggered full-stack run](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39717011976/attempts/2): reporting, storage, artifact upload and cleanup succeeded; six REVIEW outcomes failed the strict gate.
+The updated candidate passed [ordinary CI 40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114 storage objects were verified; and five owned volumes were removed with none remaining. Official run `2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2 implementation success is not stock conformance or certification. See [validation evidence and limits](docs/VALIDATION.md#b2-verified-scratch-retry--25-october-2026).
 
-Pull requests run harness checks, both API test-rig integrations and native product tests. Privileged live release/manual jobs require an approved environment and reachable deployment or ephemeral local runner. No live conformance claim follows from unit tests alone. See [CI/CD setup](CI_CD_SETUP.md) and [runner operations](RUNNER_OPERATIONS.md).
+- Recorded hosted implementation checks passed all five jobs on their tested revision. Inspect the repository Actions tab for the exact revision you intend to run.
+- A recorded release-triggered full-stack run completed reporting, storage, artifact upload and cleanup; six REVIEW outcomes failed the strict gate. Historical evidence is retained separately.
+
+Pull requests run harness checks, both API test-rig integrations and native product tests. Privileged live release/manual jobs require an approved environment and either the default disposable ubuntu-24.04 managed deployment or a reachable external deployment; a dedicated self-hosted runner is an explicit opt-in. No live conformance claim follows from unit tests alone. See [CI/CD setup](CI_CD_SETUP.md) and [runner operations](RUNNER_OPERATIONS.md).
 
 Local checks after environment/image preparation:
 
@@ -134,7 +163,9 @@ mvn -f testrig/pom.xml test-compile
 ## Scope and remaining limits
 
 - Official verifier target: **`oid4vp-1final-verifier-test-plan`**. No alternative profile or protocol-translation proxy is substituted.
-- Six official verifier REVIEW outcomes remain unresolved. Request URI POST coverage and status-list interoperability are not established.
+- Six official verifier REVIEW outcomes remain unresolved; neither diagnostic issuer PASS nor screenshot capture changes their status (stock verifier export `plan-fnLpdorj2jZAD-export.zip`).
+- Request URI POST: instance `49xL7f98HbXNJZr` in stock run `019bf015dcef47029010faa06a2cf788` ends REVIEW with “Upload a screenshot showing that the verifier successfully verified the presented credential (for example, a page displaying the credential contents).” Its `url_query` variant never runs the three POST/wallet_nonce conditions; pinned suite source only calls that override for signed request URIs, establishing a suite applicability/coverage gap rather than a POST failure attributable to the harness or Verify. Actual native POST interoperability is **not verified**; see [validation limits](docs/VALIDATION.md) for the local reproduction evidence.
+- Status lists: stock happy-flow instance `qyHOyhAz17GKHWo` has native `statusCheck: []` and a suite credential without a status reference, while its official message requests a verification screenshot (same verifier export). This is missing coverage in the suite fixture, not evidence of successful status-list handling or an observed product rejection; no failing status-list test exists in this selected export to reproduce. Actual status-list interoperability is **not verified**, and no workaround or fixture substitution was introduced.
 - Fresh keys, volumes and source extraction were tested; a separate machine with completely empty Docker/Maven caches remains unverified.
 - Required-reviewer enforcement is unavailable on the current private repository plan; explicit operator approval is used.
 - Course issuance and the verifier plan's PID fixture are independent plans; combined execution does not prove course-to-PID credential interoperability.
@@ -142,4 +173,22 @@ mvn -f testrig/pom.xml test-compile
 
 ## Documentation
 
-[Setup](SETUP.md) · [Architecture](ARCHITECTURE.md) · [Requirement checklist](REQUIREMENTS_STATUS.md) · [Current status](PROJECT_STATUS.md) · [Troubleshooting](TROUBLESHOOTING.md) · [Review handling](REVIEW_PROCESS.md) · [Cold-start validation](COLD_START_VALIDATION.md)
+[Setup](SETUP.md) / [Architecture](ARCHITECTURE.md) / [Requirement checklist](REQUIREMENTS_STATUS.md) / [Troubleshooting](TROUBLESHOOTING.md) / [Review process](REVIEW_PROCESS.md) / [API reference](API_REFERENCE.md)
+
+## Versions and deployment selection
+
+runner/setup.py copies non-secret defaults from docker/versions.env into generated docker/.env. Edit CERTIFY_VERSION, VERIFY_VERSION, VERIFY_UI_VERSION and VERIFY_SDK_VERSION there. Existing values are preserved. No stable v1.0.x image tag was found on 24 October 2026 by enumerating every Docker Hub tags API page for injistack/inji-certify-with-plugins, injistack/inji-verify-service and injistack/inji-verify-ui and checking the official GitHub release/tag inventories (records: registry-version-inventory.json and upstream-release-inventory.json). This inventory was not refreshed on 25 October; retain the alpha label. Unknown SDK versions fail closed until their native URL construction is validated.
+
+Native patches and Maven artifact names remain pinned to their audited alpha source. Changing a stock tag does not make patches compatible with another release.
+
+All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or result translation is added. Native hosted execution is verified for [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`, with the strict conformance gate still FAILED.
+
+```bash
+python runner/setup.py
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --quiet
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage up -d --build
+```
+
+run-clean-conformance.sh defaults to stock Certify. For a separate diagnostic, explicitly export CERTIFY_NATIVE_IMAGE=inji-harness/certify-positive:local before running a fresh extraction. Summaries identify the managed image and image ID. Patched diagnostics never establish stock-release conformance.
+
+See [API reference](API_REFERENCE.md) for used routes, authentication, formats and examples.

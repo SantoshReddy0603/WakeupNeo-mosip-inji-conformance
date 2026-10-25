@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import secrets
+import os
 import json
 from cryptography import x509
 from cryptography.x509.oid import NameOID
@@ -26,13 +27,17 @@ def prepare():
                        'INJI_PUBLIC_URL=https://host.docker.internal:8445\n', encoding='utf-8')
     existing = dict(line.split('=', 1) for line in env.read_text().splitlines()
                     if '=' in line and not line.startswith('#'))
+    version_defaults = dict(line.split('=', 1) for line in
+                            (docker / 'versions.env').read_text().splitlines()
+                            if '=' in line and not line.startswith('#'))
+    version_defaults.update({key: os.environ[key] for key in version_defaults if os.getenv(key)})
     storage_defaults = {'CERTIFY_KEYSTORE_PASSWORD': secrets.token_urlsafe(32),
                         'ISSUER_LOGIN_USERNAME': 'development-learner',
                         'ISSUER_LOGIN_PASSWORD': secrets.token_urlsafe(24),
                         'AWS_ACCESS_KEY_ID': 'local-' + secrets.token_hex(8),
                         'AWS_SECRET_ACCESS_KEY': secrets.token_urlsafe(32),
                         'S3_ENDPOINT': 'http://localhost:9000', 'S3_BUCKET': 'automationtests',
-                        'AWS_REGION': 'us-east-1'}
+                        'AWS_REGION': 'us-east-1', **version_defaults}
     with env.open('a', encoding='utf-8') as stream:
         for setting, value in storage_defaults.items():
             if setting not in existing:
@@ -149,7 +154,7 @@ def prepare():
             b'verify', signing_key, signing_certificate, None, serialization.BestAvailableEncryption(password)))
     print('Created/preserved local secrets and TLS certificate. Nothing has been started.')
     print('Start suite: docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build')
-    print('Local course issuer: docker compose --env-file docker/.env -f docker/certify-final.compose.yml up -d')
+    print('Full stack: docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage up -d')
 
 
 if __name__ == '__main__':

@@ -52,13 +52,15 @@ def dpop_proof(key, url, token=None, overrides=None):
     return signed_jwt(key, {'typ': 'dpop+jwt', 'alg': 'ES256', 'jwk': public_jwk(key)}, claims)
 
 
-def configure(session):
-    template = '''{"iss":"$iss","vct":"$vct","cnf":$cnf,
+def configure(session, holder_binding=False):
+    template = '''{"iss":"$iss","vct":"$vct",
       "iat":$issued_at,"exp":$expires_at,
       "learner_name":"$_esc.java($learner_name)",
       "course_id":"$_esc.java($course_id)",
       "course_name":"$_esc.java($course_name)",
       "completed_on":"$_esc.java($completed_on)"}'''
+    if holder_binding:
+        template = template.replace('"vct":"$vct",', '"vct":"$vct","cnf":$cnf,')
     config = {'credentialConfigKeyId': CONFIG_ID, 'credentialFormat': 'dc+sd-jwt',
         'sdJwtVct': VCT, 'signatureAlgo': 'ES256',
         'keyManagerAppId': 'CERTIFY_VC_SIGN_EC_R1', 'keyManagerRefId': 'EC_SECP256R1_SIGN',
@@ -252,7 +254,8 @@ def main():
                   if '=' in line and not line.startswith('#'))
     session = requests.Session()
     session.verify = not args.insecure
-    configure(session)
+    from deployment_provenance import holder_binding_template_enabled
+    configure(session, holder_binding=args.require_cnf_jwk or holder_binding_template_enabled())
     if not args.configure_only:
         result = smoke(session, values, args.request_extension, args.dpop, args.require_cnf_jwk, args.signed_metadata, args.credential_errors, args.positive_serial)
         args.output.parent.mkdir(parents=True, exist_ok=True)

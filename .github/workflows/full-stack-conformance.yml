@@ -12,6 +12,12 @@ name: Authorized live conformance release gate
         - verify
         default: combined
         required: true
+      issuer_build:
+        description: Stock gates the release; patched is a separate diagnostic
+        type: choice
+        options: [stock, patched]
+        default: stock
+        required: true
 permissions:
   contents: read
 concurrency:
@@ -45,21 +51,20 @@ jobs:
   live-release-gate:
     needs: authorize-revision
     if: needs.authorize-revision.result == 'success' 
-    # Reachable external deployments use disposable hosted Linux; Desktop-managed
-    # local networking requires a dedicated, protected WSL/Linux runner.
-    runs-on: ${{ fromJSON(vars.INJI_MANAGED_LOCAL_STACK == 'true' && '["self-hosted","linux","x64","inji-conformance"]' || '["ubuntu-24.04"]') }}
+    # Managed jobs default to disposable hosted Linux. Self-hosted execution is explicit.
+    runs-on: ${{ fromJSON(vars.INJI_USE_SELF_HOSTED_RUNNER == 'true' && '["self-hosted","linux","x64","inji-conformance"]' || '["ubuntu-24.04"]') }}
     timeout-minutes: 180
+    name: ${{ inputs.issuer_build == 'patched' && 'Patched diagnostics with strict outcomes' || 'Stock release conformance gate' }}
     env:
+      ISSUER_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.issuer_build || 'stock' }}
       OIDF_URL: ${{ vars.OIDF_URL }}
       CERTIFY_ISSUER_URL: ${{ vars.CERTIFY_ISSUER_URL }}
       VERIFY_API_URL: ${{ vars.VERIFY_API_URL }}
       VERIFY_UI_URL: ${{ vars.VERIFY_UI_URL }}
-      VERIFY_SDK_VERSION: ${{ vars.VERIFY_SDK_VERSION || '1.0.0-alpha.1' }}
+      VERIFY_SDK_VERSION: ${{ vars.VERIFY_SDK_VERSION }}
       S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
       S3_BUCKET: ${{ vars.S3_BUCKET || 'automationtests' }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       CA_BUNDLE: ${{ vars.CA_BUNDLE }}
       OIDF_TOKEN: ${{ secrets.OIDF_TOKEN }}
       CERTIFY_PLAN_CONFIG: ${{ vars.CERTIFY_PLAN_CONFIG }}
@@ -120,6 +125,17 @@ jobs:
         java-version: '21'
     - name: Install checksum-verified Maven 3.8.7 baseline
       run: python3 runner/install_maven.py --directory "$RUNNER_TEMP/inji-tools"
+    - name: Load external storage credentials
+      if: vars.INJI_MANAGED_LOCAL_STACK != 'true'
+      shell: bash
+      env:
+        INJI_S3_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        INJI_S3_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        test -n "$INJI_S3_ACCESS_KEY"
+        test -n "$INJI_S3_SECRET_KEY"
+        printf 'AWS_ACCESS_KEY_ID=%s\n' "$INJI_S3_ACCESS_KEY" >> "$GITHUB_ENV"
+        printf 'AWS_SECRET_ACCESS_KEY=%s\n' "$INJI_S3_SECRET_KEY" >> "$GITHUB_ENV"
     - name: Validate real deployment inputs
       shell: bash
       env:
@@ -135,10 +151,10 @@ jobs:
           if [[ "$MODE" != certify ]]; then test -n "$VERIFY_API_URL"; fi
         fi
         if [[ "$MANAGED_LOCAL_STACK" == true ]]; then
-          python3 -c 'import subprocess; name=subprocess.check_output(["docker","info","--format","{{.OperatingSystem}}"],text=True); assert "docker desktop" in name.lower(), "Managed local networking requires Docker Desktop; configure deployment URLs for a native Linux engine"'
+          docker info --format '{{.OSType}}' | grep -Fx linux
         fi
     - run: python3 -m pip install -r runner/requirements-dev.txt
-    - run: python3 -m playwright install chromium
+    - run: python3 -m playwright install --with-deps chromium
     - name: Build actual module reporting integrations
       shell: bash
       run: |
@@ -153,18 +169,18 @@ jobs:
       shell: bash
       run: |
         python3 runner/setup.py
-        if ! docker image inspect inji-harness/certify-positive:local >/dev/null 2>&1; then
+        if [[ "$ISSUER_BUILD" == patched ]] && ! docker image inspect inji-harness/certify-positive:local >/dev/null 2>&1; then
           python3 runner/build_native_certify.py --positive-serial
         fi
         if ! docker image inspect inji-harness/oidf:local >/dev/null 2>&1; then
           docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
         fi
         if ! docker image inspect inji-harness/minio:RELEASE.2025-09-07T16-13-09Z >/dev/null 2>&1; then
-          docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
+          docker compose --env-file docker/.env -f docker/docker-compose.yml --profile storage build minio
         fi
-        for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine quay.io/keycloak/keycloak:26.4.0 injistack/inji-verify-service:1.0.0-alpha.1 injistack/inji-verify-ui:1.0.0-alpha.1; do
+        while IFS= read -r image; do
           if ! docker image inspect "$image" >/dev/null 2>&1; then docker pull "$image"; fi
-        done
+        done < <(docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --images | sort -u)
     - name: Execute and gate live plans
       shell: bash
       env:
@@ -188,7 +204,11 @@ jobs:
           git archive HEAD | tar -x -C "$clean_root"
           cd "$clean_root"
           export INJI_CLEAN_PROJECT="inji-clean-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
-          export CERTIFY_NATIVE_IMAGE="${CERTIFY_NATIVE_IMAGE:-inji-harness/certify-positive:local}"
+          if [[ "$ISSUER_BUILD" == patched ]]; then
+            export CERTIFY_NATIVE_IMAGE=inji-harness/certify-positive:local
+          else
+            unset CERTIFY_NATIVE_IMAGE
+          fi
           entrypoint=run-clean-conformance.sh
           flags=()
         else
@@ -217,6 +237,22 @@ jobs:
       with:
         name: live-conformance-results
         path: ${{ env.CONFORMANCE_CI_DIR }}/
+        if-no-files-found: error
+        retention-days: 7
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always() && vars.INJI_MANAGED_LOCAL_STACK == 'true'
+      with:
+        name: managed-reporting-evidence
+        path: |
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/extent-report.html
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/testng-results.xml
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/reporter-exit-statuses.json
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/artifact-storage-validation.json
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/isolated-stack-state.json
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/existing-certify/**/*.html
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/existing-certify/**/*.xml
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/existing-verify/**/*.html
+          ${{ env.CONFORMANCE_REPORTS_DIR }}/existing-verify/**/*.xml
         if-no-files-found: error
         retention-days: 7
     environment: inji-conformance

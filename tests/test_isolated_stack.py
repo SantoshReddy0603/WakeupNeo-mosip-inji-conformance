@@ -8,10 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_isolated_stack_has_fresh_owned_volumes_and_shared_network():
     config = merged(ROOT, 'inji-clean-test1234', 'inji-harness/certify-positive:local')
-    assert len(config['services']) == 12
+    assert len(config['services']) == 10
     assert len(config['volumes']) == 5
     assert config['networks'] == {'conformance': None}
-    assert all(item['networks'] == ['conformance'] for item in config['services'].values())
+    assert all(item['networks'] == ['conformance'] for name, item in config['services'].items() if name != 'conformance-httpd')
+    assert 'host.docker.internal' in config['services']['conformance-httpd']['networks']['conformance']['aliases']
     assert config['services']['course-certify']['image'] == 'inji-harness/certify-positive:local'
     assert './certify-final-init:/docker-entrypoint-initdb.d:ro' in config['services']['course-database']['volumes']
     assert config['services']['conformance-server']['environment']['FINTECHLABS_DEVMODE'] == 'true'

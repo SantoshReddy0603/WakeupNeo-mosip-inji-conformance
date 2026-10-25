@@ -11,12 +11,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_compose_has_only_real_services_and_valid_mounts():
     compose = yaml.safe_load((ROOT / 'docker/docker-compose.yml').read_text(encoding='utf-8-sig'))
     services = dict(compose['services'])
-    for file in ['verify-final.compose.yml', 'certify-final.compose.yml', 'storage.compose.yml']:
-        services.update(yaml.safe_load((ROOT / 'docker' / file).read_text())['services'])
     assert 'inji-verify-adapter' not in services
     assert set(['mongodb', 'conformance-server', 'conformance-httpd', 'course-certify', 'course-auth', 'final-verify']) <= services.keys()
-    assert services['course-certify']['image'] == 'injistack/inji-certify-with-plugins:1.0.0-alpha.1'
-    assert services['final-verify']['image'] == 'injistack/inji-verify-service:1.0.0-alpha.1'
+    assert services['course-certify']['image'] == 'injistack/inji-certify-with-plugins:${CERTIFY_VERSION:?Run runner/setup.py}'
+    assert services['final-verify']['image'] == 'injistack/inji-verify-service:${VERIFY_VERSION:?Run runner/setup.py}'
+    assert len(services) == 10
+    assert services['course-certify']['profiles'] == ['certify']
+    assert services['final-verify']['profiles'] == ['verify']
+    assert services['minio']['profiles'] == ['storage']
     assert services['conformance-server']['build']['args']['OIDF_REF'].endswith('11999aad62ec292f36101410d9d5b761d44903ff}')
     for service in services.values():
         if 'build' in service:

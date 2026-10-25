@@ -18,13 +18,15 @@ def merged(root, project, issuer_image):
     if not re.fullmatch(r'inji-clean-[a-z0-9-]{8,48}', project):
         raise ValueError('Use a unique inji-clean- project name with at least eight suffix characters')
     result = {'name': project, 'services': {}, 'networks': {'conformance': None}, 'volumes': {}}
-    for name in ['docker-compose.yml', 'verify-final.compose.yml', 'certify-final.compose.yml', 'storage.compose.yml']:
+    for name in ['docker-compose.yml']:
         document = yaml.safe_load((root / 'docker' / name).read_text())
         for service, config in document['services'].items():
             if service in result['services']:
                 raise ValueError('Duplicate service in source manifests')
-            config['networks'] = ['conformance']
-            if service == 'course-certify':
+            config['networks'] = ({'conformance': {'aliases': ['host.docker.internal', 'course-httpd']}}
+                                  if service == 'conformance-httpd' else ['conformance'])
+            config.pop('profiles', None)
+            if service == 'course-certify' and issuer_image:
                 config['image'] = issuer_image
             result['services'][service] = config
         result['volumes'].update(document.get('volumes', {}))
@@ -62,7 +64,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['up', 'down'])
     parser.add_argument('--project', required=True)
-    parser.add_argument('--issuer-image', default='inji-harness/certify-positive:local')
+    parser.add_argument('--issuer-image', help='Explicit image override; otherwise use the configured unmodified release')
     args = parser.parse_args()
     config = merged(ROOT, args.project, args.issuer_image)
     state = ROOT / 'docker/isolated-state.json'
@@ -77,11 +79,14 @@ def main():
             raise ValueError('Project already has containers')
         local_setup.prepare()
         manifest.write_text(yaml.safe_dump(config, sort_keys=False), encoding='utf-8')
+        rendered = json.loads(docker(*prefix, 'config', '--format', 'json', capture=True))
         images = {}
-        for service, definition in config['services'].items():
+        for service, definition in rendered['services'].items():
             images[service] = json.loads(docker('image', 'inspect', definition['image'], capture=True))[0]['Id']
         state.write_text(json.dumps({'project': args.project, 'volumes': list(config['volumes']),
-                                     'images': images, 'initial_volumes': []}, indent=2))
+                                     'images': images, 'image_references': {k: v['image'] for k, v in rendered['services'].items()},
+                                     'issuer_build': 'explicit-image-override' if args.issuer_image else 'stock-release',
+                                     'initial_volumes': []}, indent=2))
         docker(*prefix, 'config', '--quiet')
         docker(*prefix, 'up', '-d', '--no-build', '--pull', 'never')
         print(json.dumps({'project': args.project, 'volumes': owned_volumes(args.project, config['volumes']),

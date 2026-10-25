@@ -1,6 +1,6 @@
 # Local setup and execution
 
-The local synthetic issuer, authentication provider, database, signing keys, verifier, suite and MinIO are configured automatically. No external issuer registry, personal data, account or GitHub token is required. Current compatibility limits are listed in LOCAL_STATUS.md. The native issuer gate passes; verifier/combined gates currently fail on six REVIEW results. This setup does not claim certification.
+The local synthetic issuer, authentication provider, database, signing keys, verifier, suite and MinIO are configured automatically. No external issuer registry, personal data, account or GitHub token is required. Current compatibility limits are listed in the README scope section. Recorded patched issuer evidence passes; it does not describe the stock default. Verifier/combined reference gates fail on six REVIEW results. This setup does not claim certification.
 
 ## Requirements
 
@@ -36,7 +36,7 @@ To validate the complete reporting entrypoint without creating official plans, u
 ```sh
 bash run-conformance.sh --combined --skip-docker --insecure \
   --existing-run /absolute/path/to/original-run \
-  --run-id 141a3630f7874e98ae4964653f953899 \
+  --run-id ACTUAL_ORIGINAL_RUN_ID \
   --reports-dir /absolute/path/to/empty-validation-output \
   --max-report-age-seconds 86400
 ```
@@ -114,7 +114,7 @@ See integration/README.md. The component api-test modules moved from mosip-funct
 
 ## GitHub Actions
 
-.github/workflows/full-stack-conformance.yml contains harness checks, both existing-module compile jobs, both pinned native product test jobs, and a live release/manual job on a runner labelled inji-conformance. It retains reports on failure. Hosted CI run 39716320075 passed all five jobs. Release workflow 39717011976, attempt 2, executed the real combined stack; reporting, storage, artifact upload and cleanup succeeded while six REVIEW outcomes failed the strict gate.
+The code CI workflow contains harness, native-product and real module integration checks. The separate full-stack-conformance.yml authorizes a production-release or default-branch manual run, then selects hosted Linux by default or an explicitly enabled dedicated inji-conformance runner. Both stock and patched diagnostics retain strict gates and artifacts on failure. This candidate passed ordinary CI 40165694278 and verified managed hosted B2 in scratch run 40165722639, both at 9c8d94ad9da42ac458ea304192118266577469f9. The strict product gate remains FAILED; see docs/VALIDATION.md for the retained evidence and limits.
 
 For another live run, register an approved ephemeral runner that can reach the real services; follow RUNNER_OPERATIONS.md. Configure the endpoint/client/profile/key-file/browser-file variables above as repository variables. Store runtime passwords, optional OIDF token and AWS access keys using the referenced GitHub secrets, never in a committed file. Key-file/browser-file variables must reference files available on that runner; generated private JWKS are excluded from source. Set S3_ENDPOINT, S3_BUCKET and AWS_REGION for MinIO/S3. Use protected environment controls for shared environments.
 
@@ -125,13 +125,12 @@ reports/ holds the summary, component reports, badges, official ZIP exports, raw
 Stop services without deleting their data:
 
 ```sh
-docker compose --env-file docker/.env -f docker/certify-final.compose.yml stop
-docker compose --env-file docker/.env -f docker/verify-final.compose.yml stop
-docker compose --env-file docker/.env -f docker/storage.compose.yml stop
-docker compose --env-file docker/.env -f docker/docker-compose.yml stop
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage stop
 ```
 
-Setup preserves generated passwords/keys and existing realm/data volumes. To update an already imported local realm, stop course-auth, run its official offline import with the new generated JSON, then restart it and reload course-httpd. Ordinary start-up imports skip existing realms. See https://www.keycloak.org/server/importExport for the supported procedure. Do not delete or overwrite another deployment's data.
+Do not migrate historical volumes automatically. Use a fresh extraction for acceptance tests and retain old evidence separately.
+
+Setup preserves generated passwords/keys and existing realm/data volumes. To update an already imported local realm, stop course-auth, run its official offline import with the new generated JSON, then restart it and reload conformance-httpd. Ordinary start-up imports skip existing realms. See https://www.keycloak.org/server/importExport for the supported procedure. Do not delete or overwrite another deployment's data.
 
 For local workflow lint outside a Git checkout, supply the bundled label configuration explicitly:
 
@@ -148,10 +147,13 @@ Prepare the pinned images once from the normal source checkout:
 
 ```sh
 python runner/setup.py
-python runner/build_native_certify.py --positive-serial
 docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
-docker compose --env-file docker/.env -f docker/storage.compose.yml build minio
-for image in mongo:6.0.13 postgres:15 nginx:1.28-alpine quay.io/keycloak/keycloak:26.4.0 injistack/inji-verify-service:1.0.0-alpha.1 injistack/inji-verify-ui:1.0.0-alpha.1; do docker pull "$image"; done
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile storage build minio
+while IFS= read -r image; do
+  if ! docker image inspect "$image" >/dev/null 2>&1; then
+    docker pull "$image" || exit
+  fi
+done < <(docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --images | sort -u)
 mkdir ../mosip-clean-run
 git archive HEAD | tar -x -C ../mosip-clean-run
 cd ../mosip-clean-run
@@ -160,9 +162,9 @@ bash run-clean-conformance.sh --combined --parallel 2 --reports-dir reports/fres
 
 For the submission ZIP, extract its source directory again into a new directory instead of git archive. Do not copy docker/.env, docker/local, generated certificates or previous reports. Build/image and Maven/Python caches may be reused; the clean wrapper explicitly refuses old source-local state and existing project volumes. The ordinary one-command scripts remain available for component selection; the clean wrapper forwards --component certify, --component verify or --combined to the same runner.
 
-The wrapper creates a unique inji-clean-* project, twelve real services, five new volumes and fresh signing/development credentials. It initializes only the loopback MinIO bucket, configures real course issuance, executes the normal runner/TestNG/Extent/S3 lifecycle and returns the genuine gate status. An EXIT trap verifies ownership and cleans only its isolated volumes, including on failures. The ownership/image record remains in docker/isolated-state.json; keep it as local evidence, never copy generated keys into submissions. No historical project is removed. An interrupted hard kill can be recovered with `python runner/isolated_stack.py down --project <project-recorded-in-isolated-state.json>` from the same extraction. Cleanup rejects an inconsistent project or volume label.
+The wrapper creates a unique inji-clean-* project, ten real services, five new volumes and fresh signing/development credentials. It initializes only the loopback MinIO bucket, configures real course issuance, executes the normal runner/TestNG/Extent/S3 lifecycle and returns the genuine gate status. An EXIT trap verifies ownership and cleans only its isolated volumes, including on failures. The ownership/image record remains in docker/isolated-state.json; keep it as local evidence, never copy generated keys into submissions. No historical project is removed. An interrupted hard kill can be recovered with `python runner/isolated_stack.py down --project <project-recorded-in-isolated-state.json>` from the same extraction. Cleanup rejects an inconsistent project or volume label.
 
-Expected acceptance: Certify may pass with three optional skips; six verifier screenshot REVIEW outcomes produce a failed Verify/combined gate and exit 1. A storage error, empty result set, missing TestNG XML, missing Extent HTML or absent upload verification is an implementation/infrastructure failure, not evidence of an expected benchmark failure. Inspect conformance-summary.json, reporter-exit-statuses.json and artifact-storage-validation.json before interpreting exit 1. Real status counts from the current clean validation are recorded in the final evidence, independently of historical results.
+Expected acceptance: stock Certify keeps its actual interruption failures. The explicit patched diagnostic may pass its issuer gate with three optional skips. Six verifier screenshot REVIEW outcomes keep Verify/combined gates failed with exit 1. A storage error, empty result set, missing TestNG XML, missing Extent HTML or absent upload verification is an implementation/infrastructure failure, not evidence of an expected benchmark failure. Inspect conformance-summary.json, reporter-exit-statuses.json and artifact-storage-validation.json before interpreting exit 1. Real status counts from the current clean validation are recorded in the final evidence, independently of historical results.
 
 ## Reproduce independent module and combined reporting
 
@@ -176,4 +178,22 @@ bash run-conformance.sh --combined --native-positive --parallel 2 --insecure
 
 Use distinct `--reports-dir` paths to preserve each run. Managed clean-volume execution uses `run-clean-conformance.sh` with the same component/combined selection after preparing the pinned images. A standalone Certify run passes when its own conformance and regression benchmarks pass; Verify and combined remain failures while the official REVIEWs persist. A combined report now preserves those independent gates inside both native TestNG suites. TestNG includes an additional harness gate assertion; it is not an official test module. For an existing deployment, use `--skip-docker` and configure its real plan/authentication/storage inputs. For retained online validation use `--existing-run DIR --run-id ID --reports-dir EMPTY_DIR` with the original suite database still available. Removed isolated suite volumes cannot supply live checks for old IDs; offline archived-result re-reporting must say so explicitly.
 
-See [RUNNER_OPERATIONS.md](RUNNER_OPERATIONS.md) for approved one-job startup/recovery and [COLD_START_VALIDATION.md](COLD_START_VALIDATION.md) for isolated empty-cache deployment.
+See [RUNNER_OPERATIONS.md](RUNNER_OPERATIONS.md) for approved one-job startup/recovery and [SETUP.md](SETUP.md#isolated-reproduction) for isolated empty-cache deployment.
+
+## Isolated reproduction
+
+Use fresh source with no docker/.env, generated keys or reports. Prepare pinned images first, then run the clean wrapper. Stock is the default. Select the patched image explicitly for separate diagnostics. It starts ten services and five owned volumes, retains reports and cleans only its deployment.
+
+Caches may be reused. Empty-cache reproduction requires a separate compatible disposable machine and a record that caches were empty before setup. Do not prune this machine or historical volumes to simulate it.
+
+## Versions and Java
+
+The four version settings in docker/.env come from docker/versions.env. Alpha pins remain explicit because stable 1.0.x release tags were not found in official inventories checked on 24 October 2026. New SDK versions require adapter validation.
+
+The standalone bridge targets Java 11 APIs. Its JDK 11 runtime check is separate from pinned mosip-functional-tests commons and Inji api-test modules, whose actual POMs target Java 21. Do not lower dependencies or claim native Java 11 execution without evidence.
+
+## Linux connectivity
+
+The TLS ingress owns the Docker network alias host.docker.internal on ports 8443, 8445 and 8446. Containers use Docker DNS. The runner/browser use CONFORMANCE_RESOLVE_LOCAL=true for loopback. Published host ports remain 127.0.0.1. This connectivity was verified in GitHub-hosted ubuntu-24.04 scratch run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9. Arbitrary Linux environments and the separate B4 procedure remain not verified.
+
+The verifier fixture does not establish status-list interoperability. Request URI POST coverage remains unestablished. These limits remain visible after removing the status journals.

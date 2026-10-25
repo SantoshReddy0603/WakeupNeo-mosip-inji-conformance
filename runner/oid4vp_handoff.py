@@ -6,6 +6,7 @@ import json
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlsplit, urlencode
 import requests
+from release_versions import verifier_sdk_version
 
 
 def generate_signing_jwk(include_certificate=False):
@@ -54,7 +55,8 @@ class PostForm(HTMLParser):
 
 
 class OID4VPHandoffClient:
-    def __init__(self, oidf_base_url, verify_url, request_body, verify_ssl=True, sdk_version='1.0.0-alpha.1'):
+    def __init__(self, oidf_base_url, verify_url, request_body, verify_ssl=True, sdk_version=None):
+        sdk_version = sdk_version or verifier_sdk_version()
         if sdk_version not in {'0.17.0', '1.0.0-alpha.1'}:
             raise ValueError('Unsupported Verify SDK version; validate its URL construction first')
         self.sdk_version = sdk_version
