@@ -20,7 +20,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-/** Real subprocess/report bridge. External reports require explicit run identity. */
+/**
+ * Bridges official conformance outcomes into TestNG with explicit run identity.
+ * PASSED and WARNING complete normally; SKIPPED and validated EXPECTED_FAILURE
+ * raise SkipException. Other outcomes fail assertions, including REVIEW because
+ * evidence awaiting official review cannot establish a passing result.
+ * The separate gate assertion also rejects incomplete reporting or runner failure.
+ */
 public class OpenIDConformanceTest {
     protected static final ObjectMapper mapper = new ObjectMapper();
     protected static ExtentReports extent;

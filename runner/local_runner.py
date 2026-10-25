@@ -1,9 +1,7 @@
-"""Linux operator tool for one approved GitHub runner job; never publishes releases.
+"""Linux operator tool for one ephemeral GitHub runner job; never publishes releases.
 
-Registration uses a short-lived local token file. No long-lived GitHub token is
-needed. The runner stays ephemeral; supervision must provision a new token for
-each subsequent registration rather than silently retaining privileged access.
-"""
+Registration uses a short-lived local token file with owner-only permissions.
+Each subsequent registration needs a new token instead of retained access."""
 import argparse
 import fcntl
 import json
@@ -22,6 +20,7 @@ PORTS = (8443, 8445, 8446, 9000, 9001)
 
 
 def repository_url(value=None):
+    """Restrict runner registration to an explicit HTTPS GitHub repository URL."""
     value = value or os.getenv('INJI_GITHUB_REPOSITORY', '')
     if not re.fullmatch(r'https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+/?', value):
         raise ValueError('Set --repository or INJI_GITHUB_REPOSITORY to an HTTPS GitHub repository URL')
@@ -29,11 +28,13 @@ def repository_url(value=None):
 
 
 def command(args, cwd=None, env=None, timeout=30):
+    """Capture bounded dependency checks and propagate failed subprocesses."""
     return subprocess.run(args, cwd=cwd, env=env, text=True, capture_output=True,
                           timeout=timeout, check=True).stdout.strip()
 
 
 def registration(directory, repository=None):
+    """Check that an existing runner registration belongs to the selected repository."""
     repository = repository_url(repository)
     marker = directory / '.runner'
     if not marker.exists():
@@ -51,6 +52,7 @@ def registration(directory, repository=None):
 
 
 def busy_ports():
+    """Detect listeners that would conflict with the isolated development stack."""
     occupied = []
     for port in PORTS:
         with socket.socket() as sock:
@@ -62,6 +64,7 @@ def busy_ports():
 
 
 def preflight(directory, require_registration=True, repository=None):
+    """Check dependencies, resources, networking and registration before privileged execution."""
     repository = repository_url(repository)
     checks = {}
     errors = []
@@ -132,6 +135,7 @@ def preflight(directory, require_registration=True, repository=None):
 
 
 def read_token(path):
+    """Read a short-lived registration token only from an owner-only regular file."""
     if path.is_symlink() or not path.is_file() or path.stat().st_uid != os.getuid() or path.stat().st_mode & 0o077:
         raise ValueError('Token must be an owner-only regular file (chmod 600)')
     token = path.read_text().strip()
@@ -141,6 +145,7 @@ def read_token(path):
 
 
 def register(directory, token_file, repository=None):
+    """Create a nonpersistent runner registration without retaining its token file."""
     repository = repository_url(repository)
     if registration(directory, repository) is not None:
         raise ValueError('Already registered; refusing duplicate registration')
@@ -157,6 +162,7 @@ def register(directory, token_file, repository=None):
 
 
 def main(argv=None):
+    """Run one explicitly approved ephemeral listener and leave service cleanup to its workflow."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['preflight', 'status', 'start'])
     parser.add_argument('--runner-dir', required=True, type=Path)

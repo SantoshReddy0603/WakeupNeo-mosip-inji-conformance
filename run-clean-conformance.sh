@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# Execute a fresh owned development stack, then clean only that deployment.
+# Flags: --component certify|verify or --combined; forwards --parallel, --reports-dir
+# and other main-wrapper options. Each execution requires a fresh source extraction.
+# Prerequisites: cached pinned images, Docker Compose, Python dependencies, browser,
+# Java 21/Maven and native API-rig configuration; isolated setup generates local keys.
+# Exit: preserves the run failure; cleanup failure sets 2. Exit 0 requires both
+# accepted reporting/gates and successful owned-resource cleanup.
+#
 # Fresh source extraction and cached pinned images; no historical keys or volumes.
 set -euo pipefail
 cd "$(dirname "$0")"

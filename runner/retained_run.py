@@ -1,4 +1,7 @@
-"""Read-only validation/replay of existing official results; never creates a plan."""
+"""Read-only validation of existing official results; never creates a plan.
+
+Derived reporting remains separate from the preserved source bytes and is never
+presented as a fresh official execution or an approval of REVIEW outcomes."""
 import argparse
 import hashlib
 import json
@@ -14,11 +17,13 @@ from gate_policy import apply_component_gates
 
 
 def hashes(root):
+    """Fingerprint retained source files so replay can prove that originals stayed unchanged."""
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in root.rglob('*') if p.is_file()}
 
 
 def validate_and_copy(source, destination, components, expected_id, client, baseline=None):
+    """Recheck retained run identity, official outcomes and gates before deriving separate reports."""
     source, destination = Path(source).resolve(), Path(destination).resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError('Retained run and validation output must be separate')
@@ -144,6 +149,7 @@ def validate_and_copy(source, destination, components, expected_id, client, base
 
 
 def main():
+    """Validate selected retained components and return their effective gate exit status."""
     configure()
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)

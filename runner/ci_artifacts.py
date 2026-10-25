@@ -1,4 +1,7 @@
-"""Export allowlisted CI results; raw credential evidence stays in private storage."""
+"""Export allowlisted CI results; raw credential evidence stays in private storage.
+
+Public summaries retain result and provenance fields only. Gate consistency is
+checked before export so publishing cannot hide a rejected component."""
 import argparse
 import hashlib
 import html
@@ -11,6 +14,7 @@ FIELDS={'component','plan_name','plan_id','status','total','passed','failed','wa
 
 
 def export(reports,output):
+    """Create a restricted CI summary without copying plan configuration or private credential evidence."""
     reports,output=Path(reports).resolve(),Path(output).resolve()
     if reports==output or reports in output.parents or output in reports.parents:
         raise ValueError('CI export must be separate from private source reports')
@@ -68,6 +72,7 @@ def export(reports,output):
 
 
 def main():
+    """Export allowlisted reporting artifacts and reject malformed or inconsistent summaries."""
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reports-dir',type=Path,required=True)
     parser.add_argument('--output-dir',type=Path,required=True)

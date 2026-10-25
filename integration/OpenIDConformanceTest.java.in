@@ -16,7 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/** Uses the module's existing TestNG reporter and S3 lifecycle; creates no second reporter. */
+/**
+ * Bridges official conformance outcomes into TestNG with explicit run identity.
+ * PASSED and WARNING complete normally; SKIPPED and validated EXPECTED_FAILURE
+ * raise SkipException. Other outcomes fail assertions, including REVIEW because
+ * evidence awaiting official review cannot establish a passing result.
+ * Uses the module's existing reporter and S3 lifecycle without a second reporter.
+ * The separate gate assertion also rejects incomplete reporting or runner failure.
+ */
 public class OpenIDConformanceTest implements ITest {
     private static final String COMPONENT = "@COMPONENT@";
     private JsonNode report;
