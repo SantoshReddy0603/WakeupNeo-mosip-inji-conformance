@@ -16,7 +16,7 @@ This is a draft submission aid, not a certification claim. `EVIDENCE_ROOT` means
 | Java 11 fresh standalone bridge compilation and seven scenarios | JDK 11 local check | implementation-triage/jdk11-checks.json; jdk11-scenarios.log | verified |
 | Upstream modules target 21; JDK 11 reports invalid target release: 21 | Pinned upstream sources, not a conformance run | implementation-completion/jdk11-certify-real-metadata.log; jdk11-verify-real-metadata.log; docs/VALIDATION.md cites upstream POM lines | verified |
 | Organizer acceptance of integrated JDK 21 | No response obtained | docs/VALIDATION.md organizer question; not sent | external pending |
-| Python harness contracts, including expected failures, diff and parallel execution | Local regression | closeout/python-tests.xml; earlier implementation-triage/triage-tests.xml has 196 passes | verified |
+| Python harness contracts, including expected failures, diff and parallel execution | Local regression | closeout/python-tests.xml; earlier implementation-completion/triage-tests.xml has 196 passes | verified |
 | Historical hosted implementation CI on its own revision | 39772274219; head 2594b3d6f9590caa9d28c6fa2048249ac300f274 | github-source-publication/hosted-ci.json; final-status.json | verified |
 | Initial candidate hosted CI patch portability failure | 40163129216; head 6f1e31b5ffe60740ab9db6bc1ffa5463708e0c0f | closeout/hosted-keymanager-failure.log; patch-line-ending-reproduction.json | verified |
 | Original patch bytes restored; actual native keymanager build passed | Pinned 7c53fc9d3c972347a603fd66e9ab0812db60ccec | closeout/native-keymanager-build/build-provenance.json exit_status=0 and test-results | verified |
@@ -41,7 +41,8 @@ This is a draft submission aid, not a certification claim. `EVIDENCE_ROOT` means
 | B2: native/consolidated reports and storage receipts uploaded | Same run | managed-reporting-evidence artifact 12587788827; live-conformance-results artifact 12587654719; download-receipts.json and assessment.json | verified |
 | B2: storage read-back and cleanup | Same run | 114 verified storage objects; 23 downloaded report files match storage hashes; original cleanup log removes five volumes, zero remain; final state reflects second idempotent cleanup | verified |
 | Hosted raw official export offline reinspection | Same run | Export ZIP objects were uploaded/verified in ephemeral MinIO, but their raw bytes were not retained in GitHub artifacts | not verified |
-| B3 merge; further scratch rerun/deletion | No action | PR #7 remains unmerged; one retry used; fresh owner approval required | external pending |
+| B3 merge of PR #7 | fd89d1f4d8e960e5ad3f0fdb7b2fb975f70d41be; head 8ef076aa3eec784dee8c32a97cd9a9bd5eb01355 | b3-closeout/merge-verification.json; CI 40177192785, all five jobs passed | verified |
+| Further scratch rerun/deletion | No action | One retry used; scratch retained; fresh approval required | external pending |
 
 ## Retained B2 evidence for B3
 
@@ -54,3 +55,24 @@ B2 is verified only for private scratch repository `SantoshReddy0603/inji-confor
 | b3-closeout/evidence/artifact-12587788827.zip | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
 
 The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these artifacts. B3 approval covers final documentation publication and a merge only after all CI jobs pass on the final PR head; B4, further live runs and scratch deletion remain unperformed.
+
+## Evidence package audit
+
+The private handoff folder is `EVIDENCE_ROOT/final-sync/evidence/`. Its copied files retain their original relative paths. Every one of the 25 verified claims audited before this update has at least one existing retained evidence file; the B3 merge receipt is also retained. See [evidence/README.md](../evidence/README.md) for the complete claim-to-file mapping and exclusions. The original index pointed to implementation-triage/triage-tests.xml, which does not exist; the correct retained file is implementation-completion/triage-tests.xml. No other required primary evidence file was missing in this audit. Raw stock, patched, verifier and mTLS export ZIPs exist only at the original private evidence paths and are intentionally excluded from the clean handoff. Hosted B2 raw export bytes remain unavailable: offline reinspection is not verified.
+
+## B2 coverage of the final code
+
+Scratch repository `SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, tested commit `9c8d94ad9da42ac458ea304192118266577469f9`. Final PR #7 head `8ef076aa3eec784dee8c32a97cd9a9bd5eb01355` differs only in the documentation files listed below: all are DOCS_ONLY, with no runtime or workflow changes. Command: `git diff 9c8d94ad9da42ac458ea304192118266577469f9..8ef076aa3eec784dee8c32a97cd9a9bd5eb01355 --stat`; output: 8 files changed, 94 insertions(+), 15 deletions(-).
+
+- `CI_CD_SETUP.md`
+- `README.md`
+- `REQUIREMENTS_STATUS.md`
+- `SETUP.md`
+- `docs/VALIDATION.md`
+- `submission/DEMO_SCRIPT.md`
+- `submission/EVIDENCE_INDEX.md`
+- `submission/LIMITATIONS.md`
+
+Original repository main was confirmed at PR #7 merge commit `fd89d1f4d8e960e5ad3f0fdb7b2fb975f70d41be`. All five pre-merge CI jobs passed on the exact final head in run `40177192785`. The project ZIP SHA256 `5182d5ad87cc0e46e96cdd7b0604294ec3c13f4ebab814ba69add528d7b14091` differs from main only in docs/VALIDATION.md, REQUIREMENTS_STATUS.md and submission/EVIDENCE_INDEX.md; the ZIP copies predate the newer retained-evidence records on main and were not used to overwrite them. This follow-up changes documentation only and does not constitute another live B2 run. Source comparison output: private EVIDENCE_ROOT/final-sync/source-comparison.json.
+
+The clean handoff also excludes historical stock/patched conformance-summary.json files because they embed development private JWKs. Unmodified stock-results.json and patched-results.json receipts are retained instead; original summaries remain private and unchanged. No private key or raw export is staged.
