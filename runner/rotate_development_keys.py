@@ -21,8 +21,8 @@ from local_network import configure
 
 ROOT = Path(__file__).resolve().parents[1]
 APPS = "('ROOT','CERTIFY_VC_SIGN_EC_R1')"
-COMPOSE = ['docker', 'compose', '--env-file', 'docker/.env', '-f', 'docker/certify-final.compose.yml',
-           '-f', 'docker/certify-native.compose.yml']
+COMPOSE = ['docker', 'compose', '--env-file', 'docker/.env', '-f', 'docker/docker-compose.yml',
+           '-f', 'docker/certify-native.compose.yml', '--profile', 'certify']
 
 def command(arguments, **kwargs):
     return subprocess.run(arguments, cwd=ROOT, check=True, **kwargs)
@@ -52,7 +52,10 @@ def main():
     os.environ['CERTIFY_NATIVE_IMAGE'] = 'inji-harness/certify-positive:local'
     expected = subprocess.check_output(['docker', 'image', 'inspect', 'inji-harness/certify-positive:local',
                                        '--format', '{{.Id}}'], text=True).strip()
-    running = subprocess.check_output(['docker', 'inspect', 'inji-certify-final-course-certify-1',
+    container = subprocess.check_output(COMPOSE + ['ps', '-q', 'course-certify'], text=True, cwd=ROOT).strip()
+    if not container or '\n' in container:
+        raise ValueError('Expected exactly one course issuer in this Compose project')
+    running = subprocess.check_output(['docker', 'inspect', container,
                                       '--format', '{{.Image}}'], text=True).strip()
     if running != expected:
         raise ValueError('Rotation requires the tested positive-serial image in the isolated course stack')

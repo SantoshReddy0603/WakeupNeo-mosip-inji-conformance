@@ -12,4 +12,19 @@ All six actual responses requested `skipStatusChecks=false` with the Revocation 
 
 SDK correlation is cookie-bound: the real `/vp-session-results` request uses an HttpOnly transaction cookie, not a JSON transactionId. We retain the returned transaction ID, native creation IDs, request URL, observation time, suite/image identifiers and QR hash without exposing cookies. Identical generic success/failure screens across some transactions are expected; screenshots alone are insufficient to distinguish them. The backend windows correlate native request and transaction IDs but may contain interleaved threads; specific negative codes are established by SDK responses, not by those backend windows.
 
-Detailed cases and citations: [REVIEW_FINDINGS.md](REVIEW_FINDINGS.md). Fresh review plan `tSq9qkf5JI4G6`; historical reference `141a3630f7874e98ae4964653f953899` preserved. Images are already submitted; no local approval endpoint or legitimate automatic transition has been established. No credentials are currently required. Sensitive evidence must be shared only through an authorized channel.
+Evidence remains outside the source distribution. Preserve original images, transaction correlations and official results. No documented local review-disposition endpoint has been established. README contains the single reference-run identity.
+
+## Self-certification submission procedure
+
+This is an operator procedure, not a submission performed by the harness. The failed verifier gate is not certification-ready. The selected general plan is distinct from eligible profiles in the [official verifier guidance](https://openid.net/certification/conformance-testing-for-openid-for-verifiable-presentations/). Keep this project's target unchanged.
+
+Follow the [official submission instructions](https://openid.net/certification/how-to-submit-your-certification-request/) when eligible:
+
+1. Confirm the certification profile and software version. Complete required tests and resolve outstanding outcomes through the applicable review process.
+2. Use Publish for certification in the suite to obtain each profile ZIP. Ordinary harness exports are not automatically certification packages.
+3. Include required implementation evidence with test-specific filenames demonstrating the required acceptance or rejection.
+4. Consult the official fee page and obtain the payment code through the implementer's approved payment/invoice process.
+5. Open https://submissions.openid.net/ and supply the requested implementation identity, contact details, payment code and exported packages.
+6. Have the authorized representative complete the declaration/signature process. Retain correspondence and wait for official acceptance before claiming certification.
+
+The implementer performs payment, signatures and submission. This project performs no contact, fee, legal declaration, approval or profile switch.

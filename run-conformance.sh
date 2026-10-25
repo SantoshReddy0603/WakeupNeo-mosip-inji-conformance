@@ -55,15 +55,17 @@ python_cmd="${PYTHON:-python3}"
 command -v "$python_cmd" >/dev/null
 if ! $runner_only; then command -v mvn >/dev/null; fi
 if ! $skip_docker; then
+  if ! $native_certify; then unset CERTIFY_NATIVE_IMAGE; fi
   "$python_cmd" runner/setup.py
   "$python_cmd" runner/preflight.py
-  docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
+  compose_files=(-f docker/docker-compose.yml)
+  profiles=(--profile storage)
   if [[ "$component" != certify ]]; then
-    docker compose --env-file docker/.env -f docker/verify-final.compose.yml up -d
+    profiles+=(--profile verify)
     export VERIFY_UI_URL="${VERIFY_UI_URL:-https://host.docker.internal:8445/verify}"
   fi
   if [[ "$component" != verify ]]; then
-    issuer_compose=(-f docker/certify-final.compose.yml)
+    profiles+=(--profile certify)
     if $native_certify; then
       native_args=()
       export CERTIFY_NATIVE_IMAGE=inji-harness/certify-native:local
@@ -88,16 +90,15 @@ if ! $skip_docker; then
         export CERTIFY_NATIVE_IMAGE=inji-harness/certify-positive:local
       fi
       "$python_cmd" runner/build_native_certify.py "${native_args[@]}"
-      issuer_compose+=(-f docker/certify-native.compose.yml)
-    fi
-    docker compose --env-file docker/.env "${issuer_compose[@]}" up -d
-    if $native_dpop; then
-      docker compose --env-file docker/.env "${issuer_compose[@]}" exec -T course-database \
-        psql -v ON_ERROR_STOP=1 -U postgres -d inji_certify -f /docker-entrypoint-initdb.d/03-dpop-replay.sql
+      compose_files+=(-f docker/certify-native.compose.yml)
     fi
   fi
+  docker compose --env-file docker/.env "${compose_files[@]}" "${profiles[@]}" up -d --build
+  if $native_dpop; then
+    docker compose --env-file docker/.env "${compose_files[@]}" "${profiles[@]}" exec -T course-database \
+      psql -v ON_ERROR_STOP=1 -U postgres -d inji_certify -f /docker-entrypoint-initdb.d/03-dpop-replay.sql
+  fi
   "$python_cmd" runner/wait_ready.py "${mode[@]}" "${runner_args[@]}"
-  docker compose --env-file docker/.env -f docker/storage.compose.yml up -d --build
   "$python_cmd" runner/init_local_storage.py
   if [[ "$component" != verify ]]; then
     issuer_args=()

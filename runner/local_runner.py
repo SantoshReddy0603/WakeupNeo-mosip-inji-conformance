@@ -9,6 +9,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import socket
@@ -16,9 +17,15 @@ import subprocess
 import sys
 import urllib.request
 
-REPOSITORY = 'https://github.com/SantoshReddy0603/mosip-inji-conformance'
 NODE_OPTIONS = '--no-network-family-autoselection --dns-result-order=ipv4first'
 PORTS = (8443, 8445, 8446, 9000, 9001)
+
+
+def repository_url(value=None):
+    value = value or os.getenv('INJI_GITHUB_REPOSITORY', '')
+    if not re.fullmatch(r'https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+/?', value):
+        raise ValueError('Set --repository or INJI_GITHUB_REPOSITORY to an HTTPS GitHub repository URL')
+    return value.rstrip('/')
 
 
 def command(args, cwd=None, env=None, timeout=30):
@@ -26,7 +33,8 @@ def command(args, cwd=None, env=None, timeout=30):
                           timeout=timeout, check=True).stdout.strip()
 
 
-def registration(directory, repository=REPOSITORY):
+def registration(directory, repository=None):
+    repository = repository_url(repository)
     marker = directory / '.runner'
     if not marker.exists():
         if (directory / '.credentials').exists():
@@ -53,7 +61,8 @@ def busy_ports():
     return occupied
 
 
-def preflight(directory, require_registration=True):
+def preflight(directory, require_registration=True, repository=None):
+    repository = repository_url(repository)
     checks = {}
     errors = []
     def check(name, callback):
@@ -75,9 +84,9 @@ def preflight(directory, require_registration=True):
         command(['docker', 'compose', 'version'])
         return required
     def docker():
-        value = command(['docker', 'info', '--format', '{{.OperatingSystem}}'])
-        if 'docker desktop' not in value.lower():
-            raise ValueError('Managed stack requires the validated Docker Desktop topology')
+        value = command(['docker', 'info', '--format', '{{.OSType}}'])
+        if value.strip() != 'linux':
+            raise ValueError('Managed stack requires a Linux Docker engine')
         return value
     def resources():
         memory = int(Path('/proc/meminfo').read_text().split('MemTotal:')[1].split()[0]) // 1024
@@ -108,10 +117,10 @@ def preflight(directory, require_registration=True):
                     raise ValueError('Dependency endpoint unavailable')
         return 'TLS, official suite Git transport and scoped Node IPv4 configuration verified'
     def registered():
-        value = registration(directory)
+        value = registration(directory, repository)
         if value is None and require_registration:
             raise ValueError('Not registered')
-        return {'registered': value is not None, 'repository': REPOSITORY,
+        return {'registered': value is not None, 'repository': repository,
                 'repository_access': 'Verified by runner connection when started; metadata alone is insufficient'}
     check('dependencies', dependencies)
     check('docker', docker)
@@ -131,11 +140,12 @@ def read_token(path):
     return token
 
 
-def register(directory, token_file):
-    if registration(directory) is not None:
+def register(directory, token_file, repository=None):
+    repository = repository_url(repository)
+    if registration(directory, repository) is not None:
         raise ValueError('Already registered; refusing duplicate registration')
     token = read_token(token_file)
-    result = subprocess.run([str(directory / 'config.sh'), '--url', REPOSITORY,
+    result = subprocess.run([str(directory / 'config.sh'), '--url', repository,
         '--token', token, '--name', 'mosip-inji-approved-local', '--labels', 'inji-conformance',
         '--work', '_work', '--unattended', '--ephemeral'], cwd=directory,
         text=True, capture_output=True, timeout=120)
@@ -143,16 +153,21 @@ def register(directory, token_file):
     if result.returncode:
         raise RuntimeError('Registration failed (exit ' + str(result.returncode) + '); inspect GitHub settings')
     token_file.unlink()
-    return registration(directory)
+    return registration(directory, repository)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['preflight', 'status', 'start'])
     parser.add_argument('--runner-dir', required=True, type=Path)
+    parser.add_argument('--repository', help='HTTPS GitHub repository URL; defaults to INJI_GITHUB_REPOSITORY')
     parser.add_argument('--registration-token-file', type=Path)
     parser.add_argument('--owner-approved', action='store_true', help='Operator attests approval for this single job')
     args = parser.parse_args(argv)
+    try:
+        repository = repository_url(args.repository)
+    except ValueError as exc:
+        parser.error(str(exc))
     directory = args.runner_dir.resolve(strict=True)
     if not (directory / 'run.sh').is_file() or not (directory / 'config.sh').is_file():
         parser.error('Expected an extracted official Linux runner directory')
@@ -168,21 +183,21 @@ def main(argv=None):
             print('An existing Runner.Listener uses this directory; no duplicate started')
             return 2
         if args.action == 'status':
-            print(json.dumps({'registered': registration(directory) is not None,
+            print(json.dumps({'registered': registration(directory, repository) is not None,
                               'running': False, 'service_installed_by_this_tool': False}))
             return 0
-        result = preflight(directory, require_registration=args.action != 'start')
+        result = preflight(directory, require_registration=args.action != 'start', repository=repository)
         print(json.dumps(result, indent=2))
         if not result['ready']:
             return 2
         if args.action == 'preflight':
-            return 0 if registration(directory) is not None else 2
+            return 0 if registration(directory, repository) is not None else 2
         if not args.owner_approved:
             parser.error('Start requires explicit owner approval for this job (--owner-approved)')
-        if registration(directory) is None:
+        if registration(directory, repository) is None:
             if args.registration_token_file is None:
                 parser.error('Unregistered: supply a short-lived owner-only registration token file')
-            register(directory, args.registration_token_file)
+            register(directory, args.registration_token_file, repository)
         elif args.registration_token_file is not None:
             parser.error('Already registered; do not supply another token')
         env = dict(os.environ, NODE_OPTIONS=NODE_OPTIONS)

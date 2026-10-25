@@ -6,7 +6,36 @@ import pytest
 
 pytestmark = pytest.mark.skipif(os.name != 'posix', reason='WSL/Linux operator tool')
 if os.name == 'posix':
-    from local_runner import REPOSITORY, registration, read_token, register, NODE_OPTIONS
+    from local_runner import registration, read_token, register, NODE_OPTIONS
+
+REPOSITORY = 'https://github.com/example/conformance-tests'
+
+
+@pytest.fixture(autouse=True)
+def configured_repository(monkeypatch):
+    monkeypatch.setenv('INJI_GITHUB_REPOSITORY', REPOSITORY)
+
+
+def test_repository_is_configurable_and_explicit_argument_takes_precedence(monkeypatch):
+    from local_runner import repository_url
+    assert repository_url() == REPOSITORY
+    assert repository_url('https://github.com/another/project/') == 'https://github.com/another/project'
+    monkeypatch.delenv('INJI_GITHUB_REPOSITORY')
+    with pytest.raises(ValueError, match='Set --repository'):
+        repository_url()
+
+
+@pytest.mark.parametrize('url', [
+    'http://github.com/example/project',
+    'https://github.com.evil.invalid/example/project',
+    'https://user:password@github.com/example/project',
+    'https://github.com/example/project?token=secret',
+    'https://github.com/example/project/extra',
+])
+def test_repository_rejects_credentials_and_unexpected_destinations(url):
+    from local_runner import repository_url
+    with pytest.raises(ValueError):
+        repository_url(url)
 
 
 def test_registration_is_repository_bound_and_ephemeral(tmp_path):
@@ -113,7 +142,7 @@ def test_preflight_uses_actual_git_transport_instead_of_gitlab_homepage(tmp_path
             return 'javac 21.0.1'
         if args[:2] == ['mvn', '-version']:
             return 'Apache Maven 3.8.7'
-        return 'Docker Desktop'
+        return 'linux'
     def http(url, **kwargs):
         assert url != 'https://gitlab.com'
         return contextlib.nullcontext(SimpleNamespace(status=200))

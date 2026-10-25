@@ -22,3 +22,18 @@ The tested `inji-harness/certify-positive:local` image ID is `sha256:5aa0ba5750b
 Native key-manager source is v1.4.0 commit `7c53fc9d3c972347a603fd66e9ab0812db60ccec`; docker/native-keymanager/positive-serial.patch fixes both X.509 certificate constructors. The actual rebuilt library replaces the same Spring Boot nested library with ZIP integrity/storage checks. 49 Certify and three key-manager tests passed through the delivered build entry point.
 
 The actual Verify UI image digest is `sha256:e30b69ca51ab98cafd2ccf24f9c8c7da3c56cbb1b266d4e222f772a8fca82167`. Its browser/SDK transactions produced the genuine official evidence. No protocol proxy or stand-in UI was used.
+
+## Unmodified stock baseline
+
+The unified-stack stock run used exactly the unmodified Certify image ID listed in the table. It returned 2 PASS, 10 INTERRUPTED and 3 optional SKIP. Verify returned 4 PASS and 6 REVIEW. All gates failed, and native/consolidated reporters preserved those outcomes. README identifies the single reference run; raw official exports remain outside source.
+
+Observed official interruption conditions include:
+- Signed issuer metadata: missing expected application/jwt response and absent signed metadata body.
+- Happy-flow and repeated/multiple-client issuance: resource endpoint HTTP status differed from the official requirement.
+- Invalid nonce/proof and selector tests: actual invalid_token or unknown_error responses did not satisfy the expected credential error behavior.
+
+These are observations under the selected private_key_jwt/DPoP profile. They do not establish that every untested product feature is defective. Native fixes remain separately identified: request extensions, DPoP/replay validation, holder binding, signed metadata, credential selector/errors and positive certificate serials. No stock result was replaced by a patched result.
+
+## Available 1.0 versions
+
+Official GitHub release/tag inventories and all published Docker Hub tags for Certify-with-plugins, Verify service and Verify UI were checked on 24 October 2026. Each image repository published 1.0.0-alpha.1 and no stable 1.0.x tag. Keep the alpha label. CERTIFY_VERSION, VERIFY_VERSION, VERIFY_UI_VERSION and VERIFY_SDK_VERSION are generated into docker/.env from docker/versions.env. The native patch source/artifact names remain deliberately pinned; changing a stock version requires a separate compatibility validation.

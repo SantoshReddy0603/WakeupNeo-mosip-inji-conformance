@@ -1,0 +1,168 @@
+# Validation limits and approval-only commands
+
+## Java compatibility
+
+The standalone bridge retains `maven.compiler.release=11` and compiler `<release>11</release>` in `testrig/pom.xml`. Preserved output `implementation-completion/fresh-jdk11-validation.json` records fresh compile exit 0; `fresh-jdk11-testng.log` records seven successful scenario checks (expected assertion-failure scenarios return 1). The 25 October local rerun also passed fresh compilation and all seven scenarios on Temurin 11.0.18: `implementation-triage/jdk11-checks.json` and `jdk11-scenarios.log`, both checks exit 0.
+
+Upstream Certify pin `8fdf71656979a72fa8263766d4dec3cc25127b76`, `api-test/pom.xml:57`, and Verify pin `4c4289026968beb535d3dbdd500947152c43f708`, `api-test/pom.xml:79`, both set `<maven.compiler.target>21</maven.compiler.target>`. Their compiler configurations consume that property at lines 139 and 129 respectively. Actual JDK 11 compiler attempts failed with `Fatal error compiling: error: invalid target release: 21` (`implementation-completion/jdk11-certify-real-metadata.log` and `jdk11-verify-real-metadata.log`, both exit 1). Upstream POMs were not modified; actual integrated reporting used Java 21 in stock run `019bf015dcef47029010faa06a2cf788` and diagnostic run `d39d9f65b0f04db79eb3d25501c9f26c`.
+
+Organizer question (draft only, not sent):
+
+> Our standalone OpenIDConformanceTest bridge compiles with --release 11 and passes seven actual JDK 11 TestNG scenarios.  
+> The pinned upstream inji-certify and inji-verify api-test modules declare maven.compiler.target=21.  
+> On JDK 11 both fail compilation with “error: invalid target release: 21”.  
+> We have retained those upstream POMs and run the integrated modules on JDK 21.  
+> Is JDK 21 acceptable for these integrated modules while the standalone bridge remains Java 11 compatible?
+
+## Verifier coverage
+
+The preserved stock verifier export `plan-fnLpdorj2jZAD-export.zip`, run `019bf015dcef47029010faa06a2cf788`, records request-URI-POST instance `49xL7f98HbXNJZr` as REVIEW and happy-flow instance `qyHOyhAz17GKHWo` as REVIEW. The exact screenshot condition is `ExpectVerifierSuccessfulVerificationPage`: “Upload a screenshot showing that the verifier successfully verified the presented credential (for example, a page displaying the credential contents).” These are not observed POST or status-list failures.
+
+At suite pin `11999aad62ec292f36101410d9d5b761d44903ff`, `AbstractVP1FinalVerifierTest.extractAuthorizationEndpointRequestParameters()` calls `fetchAndProcessRequestUri()` only for REQUEST_URI_SIGNED. With the retained `request_method=url_query`, `VP1FinalVerifierRequestUriMethodPost` neither invokes `CreateWalletNonce`, `PostToRequestUriAndExtractRequestObject`, `EnsureWalletNonceClaimMatchesPostedValue`, nor its own not-applicable SKIP. This is the suite applicability gap. The pinned Verify request service supplies a request URI only for its decentralized_identifier branch; that is not proof that the selected redirect_uri variant supports POST. Native POST interoperability is **not verified**, and the plan/variant was not switched.
+
+The selected suite's SD-JWT PID fixture has no credential status reference. The actual native happy-flow result has `statusCheck: []`; cryptographic negative tests can short-circuit before status processing. There is no status-list-specific failure message or failing instance in this plan export to reproduce. Status-list interoperability is **not verified**; assigning a product defect from an empty status array would be unsupported. The local evidence inspection is recorded in `implementation-triage/verifier-coverage.json`.
+
+Fresh local reproduction on 25 October: run `0d9b58120a964f628a34dd0c658d6c8f`, official export `plan-IpxODLyKkxZNN-export.zip`, again records 4 PASSED and 6 REVIEW with a failed verifier gate. POST-named instance `E1FPVnumrtRlZHU` again reaches `ExpectVerifierSuccessfulVerificationPage` with the exact screenshot message above and none of the three POST conditions; its native transaction is `txn_ae0cbbba-6271-4568-ba2d-6e5ef5d64606`. Happy-flow instance `oTZgMqIEscOyRW9`, transaction `txn_76109d07-1936-4aa0-955d-40b476e70804`, again has no status reference and `statusCheck: []`. The observations reproduce the coverage gaps, not actual POST/status-list failures. The first local deployment attempt exited 1 before creating a plan because Docker was unavailable; the retry's stack and readiness exited 0 (`implementation-triage/verify-4935661f/commands.json` and `verify-d11d275d/commands.json`). Original runs and screenshots were not altered.
+
+That reproduction completed with conformance command exit 1, native Verify reporter exit 1 and consolidated Extent reporter exit 1. Both actual TestNG XML reports contain 11 checks, 4 passed and 7 failed: six REVIEW assertions and one release-gate assertion. The storage lifecycle verified 65 artifacts by read-back; owned cleanup exited 0 and removed all five owned volumes, leaving none (`verify-d11d275d/reports/reporter-exit-statuses.json`, `artifact-storage-validation.json`, both `testng-results.xml` files, `commands.json` and `deployment-state.json`). No failure was hidden or converted to success.
+
+## Hosted Linux preparation: not verified
+
+No hosted workflow was dispatched for this candidate. Source inspection of `.github/workflows/full-stack-conformance.yml` shows `ubuntu-24.04` for authorization and as the default live runner; `INJI_USE_SELF_HOSTED_RUNNER=true` is an explicit override. The managed path uses normal Linux Docker, Python and Java commands, RUNNER_TEMP, git archive and relative paths, with no WSL commands or /mnt/c paths. This is source inspection, not a verified native Linux deployment.
+
+`host-gateway` extra_hosts is **absent**, so that requested property cannot be confirmed. `docker/docker-compose.yml` instead assigns `host.docker.internal` to the shared TLS ingress on the internal Docker network, and the runner resolves that hostname to loopback for host-side clients. Docker-internal traffic goes directly to ingress; host listeners bind to loopback. Overriding that same hostname with host-gateway would redirect container calls away from the validated ingress alias to host ports which may not listen on the bridge address. No untested networking change was made merely to match that setting. Stock run `019bf015dcef47029010faa06a2cf788` verifies the current design on Docker Desktop, not native hosted Linux.
+
+After separate approval, the managed hosted run would:
+
+1. Validate an authorized default-branch/manual or eligible release revision and its ancestry.
+2. Check out the exact harness SHA and pinned commons, Certify and Verify API rigs without persisted checkout credentials.
+3. Install Python 3.12, Java 21, checksum-verified Maven 3.8.7, Python dependencies and Chromium with OS dependencies.
+4. Build commons and compile both native reporting integrations and classpaths.
+5. Generate development keys/configuration, build the pinned suite and MinIO images, and pull stock product/dependency images; patched issuer build is excluded from the stock path.
+6. Extract git archive into RUNNER_TEMP and start ten services with five freshly owned volumes; configure synthetic local issuance and native handoffs.
+7. Execute the selected official issuer/verifier plans, retrieve exports/screenshots, run native and consolidated TestNG/Extent reporting, upload artifacts to local MinIO and verify read-back.
+8. Enforce the existing gates without exemptions, clean only owned resources, sanitize CI artifacts and upload them for seven-day retention, including on failure.
+
+Required dispatch settings would be `INJI_MANAGED_LOCAL_STACK=true`, no true self-hosted override, `component=combined`, `issuer_build=stock`, and the existing protected environment approval. Both gates may fail on the documented product/REVIEW outcomes; workflow success is not promised. Capacity, cold downloads and native Linux networking are **not verified**. No push, merge, publication, release, repository setting change or live workflow was performed in this task.
+
+## Empty-cache Linux run: prepare only, not verified
+
+Run only after approval, on a disposable dedicated Ubuntu 24.04 machine with Docker Engine/Compose, Git, Python 3.12/venv and JDK 21 installed. The prune removes unused Docker resources on that machine; never use it on a shared development host. A fresh machine also needs an empty Maven cache and the approved candidate available as a commit; the currently unpublished working tree is not included in an existing remote HEAD.
+
+```bash
+set -euo pipefail
+docker system prune --all --volumes --force
+REVISION='<approved full commit SHA containing this candidate>'
+ROOT_DIR="$(mktemp -d "$HOME/inji-cold-XXXXXXXX")"
+git clone https://github.com/SantoshReddy0603/mosip-inji-conformance.git "$ROOT_DIR/repository"
+git -C "$ROOT_DIR/repository" checkout --detach "$REVISION"
+test "$(git -C "$ROOT_DIR/repository" rev-parse HEAD)" = "$REVISION"
+mkdir "$ROOT_DIR/build" "$ROOT_DIR/run"
+git -C "$ROOT_DIR/repository" archive HEAD | tar -x -C "$ROOT_DIR/build"
+git -C "$ROOT_DIR/repository" archive HEAD | tar -x -C "$ROOT_DIR/run"
+python3 -m venv "$ROOT_DIR/venv"
+source "$ROOT_DIR/venv/bin/activate"
+cd "$ROOT_DIR/build"
+python -m pip install -r runner/requirements-dev.txt
+python -m playwright install --with-deps chromium
+python runner/install_maven.py --directory "$ROOT_DIR/tools"
+export PATH="$ROOT_DIR/tools/apache-maven-3.8.7/bin:$PATH"
+java -version
+mvn -version
+export PYTHON="$(command -v python)"
+python runner/setup.py
+docker compose --env-file docker/.env -f docker/docker-compose.yml build conformance-server
+docker compose --env-file docker/.env -f docker/docker-compose.yml --profile storage build minio
+while IFS= read -r image; do
+  if ! docker image inspect "$image" >/dev/null 2>&1; then docker pull "$image"; fi
+done < <(docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --images | sort -u)
+unset CERTIFY_NATIVE_IMAGE
+cd "$ROOT_DIR/run"
+set +e
+bash run-clean-conformance.sh --combined --parallel 2 --reports-dir "$ROOT_DIR/reports"
+RUN_EXIT=$?
+set -e
+printf 'Conformance command exit: %s\n' "$RUN_EXIT"
+test -s "$ROOT_DIR/reports/conformance-summary.json"
+cat "$ROOT_DIR/reports/reporter-exit-statuses.json"
+exit "$RUN_EXIT"
+```
+
+This sequence is prepared, not executed. Exit 1 must be diagnosed from official results and reporting/storage receipts; it must not be converted to success. The clean wrapper handles owned deployment cleanup. A private repository may require interactive Git authentication; no token is needed in chat.
+
+
+## Hosted inputs and gated action commands
+
+Readiness is source-verified by `.github/workflows/full-stack-conformance.yml`, not verified by a new hosted full-stack execution. Its authorization job uses ubuntu-24.04 and its live job defaults to ubuntu-24.04 unless INJI_USE_SELF_HOSTED_RUNNER=true. No WSL command, Windows drive path or /mnt/c path occurs in the workflow. Results are sanitized by runner/ci_artifacts.py and uploaded with actions/upload-artifact under live-conformance-results on success or failure, with seven-day retention. Source/flags and local syntax checks are recorded in closeout/runbook-checks.json and static-checks.json.
+
+For managed stock execution, set INJI_MANAGED_LOCAL_STACK=true and keep INJI_USE_SELF_HOSTED_RUNNER unset or false. The clean wrapper generates development issuer/storage/login keys and credentials and exports its native client IDs, JWKS file paths, scope, configuration ID, authorization-server URL, private_key_jwt and the selected sender-constraining default. No external issuer account or chat-provided secret is required. Nonempty version defaults come from docker/.env; unknown SDK versions are rejected. The external deployment mode instead needs reachable endpoint URLs, the real registered issuer clients and browser steps, available files named by configuration paths, trusted CA material and writable S3 credentials. OIDF_TOKEN is needed only for an authenticated suite; VCI_CLIENT_SECRET only for a client authentication method using it. File-path variables must point to real files available on that runner; setting a path string does not provision a file.
+
+The exact job environment mapping is:
+
+| Environment name | Workflow source |
+|---|---|
+| `ISSUER_BUILD` | `${{ github.event_name == 'workflow_dispatch' && inputs.issuer_build \|\| 'stock' }}` |
+| `OIDF_URL` | `${{ vars.OIDF_URL }}` |
+| `CERTIFY_ISSUER_URL` | `${{ vars.CERTIFY_ISSUER_URL }}` |
+| `VERIFY_API_URL` | `${{ vars.VERIFY_API_URL }}` |
+| `VERIFY_UI_URL` | `${{ vars.VERIFY_UI_URL }}` |
+| `VERIFY_SDK_VERSION` | `${{ vars.VERIFY_SDK_VERSION }}` |
+| `S3_ENDPOINT` | `${{ vars.S3_ENDPOINT }}` |
+| `S3_BUCKET` | `${{ vars.S3_BUCKET \|\| 'automationtests' }}` |
+| `AWS_REGION` | `${{ vars.AWS_REGION \|\| 'us-east-1' }}` |
+| `AWS_ACCESS_KEY_ID` | `${{ secrets.AWS_ACCESS_KEY_ID }}` |
+| `AWS_SECRET_ACCESS_KEY` | `${{ secrets.AWS_SECRET_ACCESS_KEY }}` |
+| `CA_BUNDLE` | `${{ vars.CA_BUNDLE }}` |
+| `OIDF_TOKEN` | `${{ secrets.OIDF_TOKEN }}` |
+| `CERTIFY_PLAN_CONFIG` | `${{ vars.CERTIFY_PLAN_CONFIG }}` |
+| `VERIFY_PLAN_CONFIG` | `${{ vars.VERIFY_PLAN_CONFIG }}` |
+| `VERIFY_REQUEST_FILE` | `${{ vars.VERIFY_REQUEST_FILE }}` |
+| `ISSUER_BROWSER_STEPS_FILE` | `${{ vars.ISSUER_BROWSER_STEPS_FILE }}` |
+| `VCI_CLIENT_ID` | `${{ vars.VCI_CLIENT_ID }}` |
+| `VCI_CLIENT2_ID` | `${{ vars.VCI_CLIENT2_ID }}` |
+| `VCI_AUTHORIZATION_SERVER` | `${{ vars.VCI_AUTHORIZATION_SERVER }}` |
+| `VCI_WALLET_JWKS_FILE` | `${{ vars.VCI_WALLET_JWKS_FILE }}` |
+| `VCI_WALLET2_JWKS_FILE` | `${{ vars.VCI_WALLET2_JWKS_FILE }}` |
+| `VCI_CLIENT_SECRET` | `${{ secrets.VCI_CLIENT_SECRET }}` |
+| `VCI_SCOPE` | `${{ vars.VCI_SCOPE }}` |
+| `VCI_CREDENTIAL_FORMAT` | `${{ vars.VCI_CREDENTIAL_FORMAT }}` |
+| `VCI_CREDENTIAL_CONFIGURATION_ID` | `${{ vars.VCI_CREDENTIAL_CONFIGURATION_ID }}` |
+| `VCI_CLIENT_AUTH_TYPE` | `${{ vars.VCI_CLIENT_AUTH_TYPE }}` |
+| `VCI_SENDER_CONSTRAIN` | `${{ vars.VCI_SENDER_CONSTRAIN }}` |
+| `ISSUER_LOGIN_USERNAME` | `${{ secrets.ISSUER_LOGIN_USERNAME }}` |
+| `ISSUER_LOGIN_PASSWORD` | `${{ secrets.ISSUER_LOGIN_PASSWORD }}` |
+
+VCI_SENDER_CONSTRAIN is explicitly mapped from vars in external mode. Managed mode exports its locally validated selection in run-clean-conformance.sh, together with VCI_CLIENT_ID, VCI_CLIENT2_ID, VCI_WALLET_JWKS_FILE, VCI_WALLET2_JWKS_FILE, VCI_AUTHORIZATION_SERVER, VCI_SCOPE, VCI_CREDENTIAL_CONFIGURATION_ID, VCI_CREDENTIAL_FORMAT and VCI_CLIENT_AUTH_TYPE. Managed mode intentionally does not inherit unrelated external issuer secrets. Configure no stock expected-failure waiver or patched-image override.
+
+B1 was explicitly authorized in this conversation after the local scope was clarified: publish only a candidate branch and draft PR, which triggers ordinary hosted CI. No main-branch push, merge, release or managed workflow was included. Equivalent commands after the exact source is tested are:
+
+```bash
+git switch -c fix/stock-validation-closeout
+git add -A
+git commit -m "Complete stock validation and submission drafts"
+git push -u origin fix/stock-validation-closeout
+gh pr create --draft --base main --head fix/stock-validation-closeout --title "Complete stock validation and submission drafts" --body-file /path/to/reviewed-pr-body.md
+gh pr checks --watch
+```
+
+The actual execution may use the connected GitHub API instead of gh; GitHub CLI installation/authentication is not verified. Estimated B1 time is 15–45 minutes, not verified: repository/workflow write permission, dependency downloads, stale base or hosted checks can fail. No fixed duration is promised. Use an immutable tested candidate SHA when evaluating checks.
+
+B2 remains approval-gated. After authorization and a legally runnable default-branch candidate, the equivalent commands would be:
+
+```bash
+gh workflow run full-stack-conformance.yml --repo SantoshReddy0603/mosip-inji-conformance --ref main -f component=combined -f issuer_build=stock
+gh run list --repo SantoshReddy0603/mosip-inji-conformance --workflow full-stack-conformance.yml --limit 5
+gh run watch ACTUAL_RUN_ID --repo SantoshReddy0603/mosip-inji-conformance --exit-status
+```
+
+Estimated B2 time is 30–180 minutes, not verified; timeout is 180 minutes in the workflow. Cold image/Maven/browser downloads, disk/memory capacity, native Linux ingress, environment approval and actual stock/REVIEW gate failures can prevent success. The existing workflow is restricted to default-branch dispatch or eligible published releases and validates ancestry. Therefore it cannot test the unmerged candidate branch as requested before B3. Do not publish a release, merge early or weaken that authorization to bypass this circular dependency. A separately authorized design decision is needed before candidate B2 can run.
+
+B3 remains approval-gated and blocked unless both B1 and B2 genuinely pass. If that condition is met, the equivalent guarded command is:
+
+```bash
+gh pr merge ACTUAL_PR_NUMBER --repo SantoshReddy0603/mosip-inji-conformance --squash --match-head-commit ACTUAL_TESTED_CANDIDATE_SHA --delete-branch
+```
+
+Estimated merge time is 1–5 minutes, not verified; protected-branch requirements, a changed head, conflicts or a failed live gate must stop it. Known failed stock and REVIEW gates are not B2 success. No merge is authorized by B1.
+
+B4 remains approval-gated: use the exact empty-cache sequence above only after naming and approving a disposable clean machine. Estimated time is 1–3 hours, not verified; prune removes unused Docker resources, downloads may fail and hardware capacity may be insufficient. No docker system prune command was executed. The prepared source revision placeholder must be replaced by the actual approved candidate commit; remote main currently need not contain this unpublished candidate.

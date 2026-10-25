@@ -5,18 +5,19 @@ cd "$(dirname "$0")"
 source_root="$(pwd -P)"
 python_cmd="${PYTHON:-python3}"
 project="${INJI_CLEAN_PROJECT:-inji-clean-$(date +%s)-$$}"
-image="${CERTIFY_NATIVE_IMAGE:-inji-harness/certify-positive:local}"
+issuer_args=()
+if [[ -n "${CERTIFY_NATIVE_IMAGE:-}" ]]; then issuer_args=(--issuer-image "$CERTIFY_NATIVE_IMAGE"); fi
 cleanup() {
   local result=$?
   trap - EXIT
   cd "$source_root" || exit 2
   if [[ -f docker/isolated-state.json ]]; then
-    "$python_cmd" runner/isolated_stack.py down --project "$project" --issuer-image "$image" || result=2
+    "$python_cmd" runner/isolated_stack.py down --project "$project" "${issuer_args[@]}" || result=2
   fi
   exit "$result"
 }
 trap cleanup EXIT
-"$python_cmd" runner/isolated_stack.py up --project "$project" --issuer-image "$image"
+"$python_cmd" runner/isolated_stack.py up --project "$project" "${issuer_args[@]}"
 # Docker Desktop can refresh a Windows bind mount while Compose initializes it.
 # Re-enter by absolute path instead of retaining a stale WSL directory handle.
 cd "$source_root"

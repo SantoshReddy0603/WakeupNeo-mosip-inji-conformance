@@ -48,19 +48,19 @@ if ($Endpoint) {
 if (-not (Get-Command $Python -ErrorAction SilentlyContinue)) { throw 'Python is required; see SETUP.md' }
 if (-not $RunnerOnly -and -not (Get-Command $Maven -ErrorAction SilentlyContinue)) { throw 'Maven is required for TestNG reporting; use -RunnerOnly to explicitly run Python alone' }
 if (-not $SkipDocker) {
+    if (-not ($NativeCertify -or $NativeDpop)) { $env:CERTIFY_NATIVE_IMAGE = $null }
     & $Python runner/setup.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python runner/preflight.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    $composeFiles = @('-f','docker/docker-compose.yml')
+    $profiles = @('--profile','storage')
     if ($Component -ne 'certify') {
-        docker compose --env-file docker/.env -f docker/verify-final.compose.yml up -d
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        $profiles += '--profile','verify'
         if (-not $env:VERIFY_UI_URL) { $env:VERIFY_UI_URL = 'https://host.docker.internal:8445/verify' }
     }
     if ($Component -ne 'verify') {
-        $issuerCompose = @('-f','docker/certify-final.compose.yml')
+        $profiles += '--profile','certify'
         if ($NativeCertify -or $NativeDpop) {
             $nativeArgs = @()
             $env:CERTIFY_NATIVE_IMAGE = 'inji-harness/certify-native:local'
@@ -71,23 +71,21 @@ if (-not $SkipDocker) {
             if ($NativePositive) { $nativeArgs += '--positive-serial'; $env:CERTIFY_NATIVE_IMAGE = 'inji-harness/certify-positive:local' }
             & $Python runner/build_native_certify.py @nativeArgs
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            $issuerCompose += '-f','docker/certify-native.compose.yml'
-        }
-        docker compose --env-file docker/.env @issuerCompose up -d
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        if ($NativeDpop) {
-            docker compose --env-file docker/.env @issuerCompose exec -T course-database psql -v ON_ERROR_STOP=1 -U postgres -d inji_certify -f /docker-entrypoint-initdb.d/03-dpop-replay.sql
+            $composeFiles += '-f','docker/certify-native.compose.yml'
         }
     }
+    docker compose --env-file docker/.env @composeFiles @profiles up -d --build
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if ($NativeDpop) {
+        docker compose --env-file docker/.env @composeFiles @profiles exec -T course-database psql -v ON_ERROR_STOP=1 -U postgres -d inji_certify -f /docker-entrypoint-initdb.d/03-dpop-replay.sql
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
     $readyArgs = if ($Combined) { @('--combined') } else { @('--component', $Component) }
     if ($Insecure) { $readyArgs += '--insecure' }
     if ($VerifyUrl) { $readyArgs += '--verify-url', $VerifyUrl }
     if ($CertifyUrl) { $readyArgs += '--certify-url', $CertifyUrl }
     if ($OidfUrl) { $readyArgs += '--oidf-url', $OidfUrl }
     & $Python runner/wait_ready.py @readyArgs
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    docker compose --env-file docker/.env -f docker/storage.compose.yml up -d --build
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python runner/init_local_storage.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

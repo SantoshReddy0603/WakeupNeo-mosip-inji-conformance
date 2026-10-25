@@ -1,15 +1,22 @@
+# Canonical stack. TLS ingress retains advertised identities on Docker Desktop and Linux.
 name: inji-conformance-harness
 services:
   mongodb:
     image: mongo:6.0.13
-    volumes: [mongodb-data:/data/db]
-    networks: [conformance]
+    volumes:
+    - mongodb-data:/data/db
+    networks:
+    - conformance
     healthcheck:
-      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping')"]
+      test:
+      - CMD
+      - mongosh
+      - --quiet
+      - --eval
+      - db.adminCommand('ping')
       interval: 5s
       timeout: 5s
       retries: 30
-
   conformance-server:
     build:
       context: ./oidf
@@ -21,23 +28,180 @@ services:
       FINTECHLABS_BASE_URL: ${OIDF_PUBLIC_URL:-https://host.docker.internal:8443}
       FINTECHLABS_DEVMODE: 'true'
     volumes:
-      - ./nginx/certs/server.crt:/local-trust/server.crt:ro
+    - ./nginx/certs/server.crt:/local-trust/server.crt:ro
     depends_on:
-      mongodb: {condition: service_healthy}
-    networks: [conformance]
-
+      mongodb:
+        condition: service_healthy
+    networks:
+    - conformance
   conformance-httpd:
     image: nginx:1.28-alpine
-    ports: ['127.0.0.1:8443:8443']
-    extra_hosts: ['host.docker.internal:host-gateway']
+    ports:
+    - 127.0.0.1:8443:8443
+    - 127.0.0.1:8445:8445
+    - 127.0.0.1:8446:8446
     volumes:
-      - ./nginx/suite.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-    depends_on: [conformance-server]
-    networks: [conformance]
-
+    - ./nginx/suite.conf:/etc/nginx/conf.d/default.conf:ro
+    - ./nginx/certs:/etc/nginx/certs:ro
+    - ./nginx/course.conf:/etc/nginx/conf.d/course.conf:ro
+    - ./nginx/verify-only.conf:/etc/nginx/conf.d/verify.conf:ro
+    - ./local/public-wallet-keys:/public-wallet-keys:ro
+    - ./assets:/assets:ro
+    depends_on:
+    - conformance-server
+    networks:
+      conformance:
+        aliases:
+        - host.docker.internal
+        - course-httpd
+  course-database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run runner/setup.py}
+    volumes:
+    - course-data:/var/lib/postgresql/data
+    - ./certify-final-init:/docker-entrypoint-initdb.d:ro
+    networks:
+    - conformance
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres -d inji_certify
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    profiles:
+    - certify
+  course-auth:
+    image: quay.io/keycloak/keycloak:26.4.0
+    command:
+    - start-dev
+    - --import-realm
+    environment:
+      KC_HOSTNAME: https://host.docker.internal:8446/auth
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_FEATURES: dpop
+    volumes:
+    - ./local/keycloak:/opt/keycloak/data/import:ro
+    - course-auth-data:/opt/keycloak/data
+    networks:
+    - conformance
+    profiles:
+    - certify
+  course-certify:
+    image: injistack/inji-certify-with-plugins:${CERTIFY_VERSION:?Run runner/setup.py}
+    user: root
+    environment:
+      container_user: inji
+      active_profile_env: default,course
+      SPRING_CONFIG_NAME: certify
+      SPRING_CONFIG_LOCATION: /home/inji/config/
+      enable_certify_artifactory: 'false'
+      download_hsm_client: 'false'
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE_PASS: ${CERTIFY_KEYSTORE_PASSWORD:?Run
+        runner/setup.py}
+      VERIFY_KEYSTORE_PASSWORD: ${VERIFY_KEYSTORE_PASSWORD}
+      CERTIFY_KEYSTORE_PASSWORD: ${CERTIFY_KEYSTORE_PASSWORD}
+    volumes:
+    - ./certify-config:/home/inji/config:ro
+    - ./local/certify-keys:/home/inji/CERTIFY_PKCS12
+    - ./local/verify-keys:/keys:ro
+    depends_on:
+      course-database:
+        condition: service_healthy
+    networks:
+    - conformance
+    profiles:
+    - certify
+  final-database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run runner/setup.py}
+      POSTGRES_DB: inji_verify
+    volumes:
+    - verify-final-data:/var/lib/postgresql/data
+    - ./verify-final-init:/docker-entrypoint-initdb.d:ro
+    networks:
+    - conformance
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres -d inji_verify
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    profiles:
+    - verify
+  final-verify:
+    image: injistack/inji-verify-service:${VERIFY_VERSION:?Run runner/setup.py}
+    environment:
+      active_profile_env: default
+      VERIFY_CONTEXT_PATH: /v1/verify
+      DATABASE_HOST: final-database
+      DATABASE_PORT: '5432'
+      DATABASE_NAME: inji_verify
+      DATABASE_SCHEMA: verify
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      INJI_VP_SUBMISSION_BASE_URL: https://host.docker.internal:8445/v1/verify
+      INJI_DID_VERIFY_URI: did:web:host.docker.internal%3A8445:v1:verify
+      INJI_DID_VERIFY_PUBLIC_KEY_URI: did:web:host.docker.internal%3A8445:v1:verify#key-0
+      INJI_KEYSTORE_FILE_PATH: file:/keys/verify.p12
+      INJI_KEYSTORE_FILE_PASS: ${VERIFY_KEYSTORE_PASSWORD:?Run runner/setup.py}
+      INJI_VERIFY_REDIRECT_URI: https://host.docker.internal:8445/v1/verify
+    volumes:
+    - ./local/verify-keys:/keys:ro
+    depends_on:
+      final-database:
+        condition: service_healthy
+    networks:
+    - conformance
+    profiles:
+    - verify
+  final-ui:
+    image: injistack/inji-verify-ui:${VERIFY_UI_VERSION:?Run runner/setup.py}
+    environment:
+      VERIFY_SERVICE_API_URL: /v1/verify
+      VERIFIABLE_CLAIMS_CONFIG_URL: /assets/config.json
+      VP_SUBMISSION_SUPPORTED: 'true'
+      CLIENT_ID: redirect_uri:https://host.docker.internal:8445/v1/verify/v2/vp-submission/direct-post
+      CLIENT_ID_DID: redirect_uri:https://host.docker.internal:8445/v1/verify/v2/vp-submission/direct-post
+      INTERNET_CONNECTIVITY_CHECK_ENDPOINT: https://host.docker.internal:8445/env.config.js
+    volumes:
+    - ./nginx/verify-ui.conf:/etc/nginx/conf.d/default.conf:ro
+    - ./verify-ui/config.json:/usr/share/nginx/html/assets/config.json:ro
+    depends_on:
+    - final-verify
+    networks:
+    - conformance
+    profiles:
+    - verify
+  minio:
+    build:
+      context: ./minio
+    image: inji-harness/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:?Run runner/setup.py}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:?Run runner/setup.py}
+    ports:
+    - 127.0.0.1:9000:9000
+    - 127.0.0.1:9001:9001
+    volumes:
+    - storage-data:/data
+    profiles:
+    - storage
+    networks:
+    - conformance
 networks:
-  conformance:
+  conformance: null
 volumes:
-  mongodb-data:
-
+  mongodb-data: null
+  course-data: null
+  course-auth-data: null
+  verify-final-data: null
+  storage-data: null

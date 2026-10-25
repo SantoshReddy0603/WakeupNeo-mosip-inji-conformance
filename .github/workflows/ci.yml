@@ -35,9 +35,7 @@ jobs:
     - run: python runner/setup.py
     - name: Validate all Compose configurations without starting services
       run: |-
-        for file in docker/docker-compose.yml docker/verify-final.compose.yml docker/certify-final.compose.yml docker/storage.compose.yml; do
-          docker compose --env-file docker/.env -f "$file" config --quiet
-        done
+        docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage config --quiet
     - run: python -m pytest tests -q --junitxml=reports/harness-tests.xml
     - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
       with:

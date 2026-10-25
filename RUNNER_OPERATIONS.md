@@ -1,17 +1,20 @@
-# Approved local runner operation
+# Optional approved self-hosted runner
 
-The managed development topology requires Linux x64 with Docker Desktop integration. The verified deployment used Ubuntu on WSL, Java 21, Maven 3.8.7 and an official ephemeral GitHub runner. That runner unregistered after its job. No always-on service is assumed or installed. Native Linux Docker networking and a completely uncached deployment remain separate validation targets.
+Managed CI defaults to disposable hosted Linux. Select this optional dedicated runner only with INJI_USE_SELF_HOSTED_RUNNER=true. It requires a Linux Docker engine. The verified deployment used Ubuntu on WSL, Java 21, Maven 3.8.7 and an official ephemeral GitHub runner. That runner unregistered after its job. No always-on service is assumed or installed. Native Linux Docker networking and a completely uncached deployment remain separate validation targets.
 
 ## Preflight and one approved job
 
 Use an extracted official GitHub runner in the Linux filesystem, installed using the repository's Settings > Actions > Runners > New self-hosted runner > Linux instructions. Verify the download against the official release checksum. Run from the harness root in the configured Python environment:
 
+Set INJI_GITHUB_REPOSITORY to your actual HTTPS repository URL before using the tool. An explicit --repository takes precedence. The tool rejects missing configuration, credentials in URLs, and unexpected hosts; registration remains bound to that repository.
+
 ```bash
+export INJI_GITHUB_REPOSITORY=https://github.com/your-owner/your-repository
 python runner/local_runner.py status --runner-dir /absolute/linux/runner
 python runner/local_runner.py preflight --runner-dir /absolute/linux/runner
 ```
 
-Preflight checks Java 21, javac, Maven 3.8.7, Git, OpenSSL, Docker Compose and Docker Desktop connectivity; Linux memory and disk; managed service ports; TLS connectivity to dependency endpoints; the actual runner Node24 connection using `--no-network-family-autoselection --dns-result-order=ipv4first`; and repository-bound ephemeral registration. Exit 2 means not ready, including an unregistered runner. Repository access is finally proven by a successful authenticated runner connection/job, not by local registration metadata. TLS verification remains enabled. The resource floor is a preflight threshold, not proof of peak build capacity; 8 GiB or more is recommended.
+Preflight checks Java 21, javac, Maven 3.8.7, Git, OpenSSL, Docker Compose and Linux Docker connectivity; Linux memory and disk; managed service ports; TLS connectivity to dependency endpoints; the actual runner Node24 connection using `--no-network-family-autoselection --dns-result-order=ipv4first`; and repository-bound ephemeral registration. Exit 2 means not ready, including an unregistered runner. Repository access is finally proven by a successful authenticated runner connection/job, not by local registration metadata. TLS verification remains enabled. The resource floor is a preflight threshold, not proof of peak build capacity; 8 GiB or more is recommended.
 
 For an approved run, obtain a short-lived registration token from that same repository's GitHub settings. Put it in an owner-only regular file on the Linux filesystem, outside this repository (`chmod 600`). Never paste it in chat, commit it, or put it in shell history. Then:
 
@@ -38,7 +41,7 @@ journalctl --user -u inji-approved-job -f
 systemctl --user stop inji-approved-job
 ```
 
-This is a documented option, not an installed service. It requires WSL and Docker Desktop to remain running. It deliberately does not auto-register again or silently turn one approval into indefinite access. Provision and approve each subsequent runner job. A reusable service or automatic token provisioning is a separate infrastructure decision. An owner approval flag is an operator attestation; it is not GitHub-enforced reviewer protection.
+This is a documented option, not an installed service. It requires the selected Linux host and Docker engine to remain running. It deliberately does not auto-register again or silently turn one approval into indefinite access. Provision and approve each subsequent runner job. A reusable service or automatic token provisioning is a separate infrastructure decision. An owner approval flag is an operator attestation; it is not GitHub-enforced reviewer protection.
 
 If interrupted before completion, inspect GitHub runner settings and the local status. Remove a stale runner through GitHub's supported removal procedure, using its fresh removal token locally, before clearing local registration. Do not delete `.runner`/`.credentials` merely to bypass a conflicting registration. If managed services survive cancellation, locate that job's `INJI_CLEAN_ROOT` and ownership state, and run its `runner/isolated_stack.py down --project <exact-owned-project>`. Never prune the shared Docker daemon or historical volumes. The workflow's existing trap and always-run cleanup handle normal success and failure.
 
