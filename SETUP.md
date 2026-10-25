@@ -114,7 +114,7 @@ See integration/README.md. The component api-test modules moved from mosip-funct
 
 ## GitHub Actions
 
-The code CI workflow contains harness, native-product and real module integration checks. The separate full-stack-conformance.yml authorizes a production-release or default-branch manual run, then selects hosted Linux by default or an explicitly enabled dedicated inji-conformance runner. Both stock and patched diagnostics retain strict gates and artifacts on failure. Historical CI success does not validate this updated remote workflow.
+The code CI workflow contains harness, native-product and real module integration checks. The separate full-stack-conformance.yml authorizes a production-release or default-branch manual run, then selects hosted Linux by default or an explicitly enabled dedicated inji-conformance runner. Both stock and patched diagnostics retain strict gates and artifacts on failure. This candidate passed ordinary CI 40165694278 and verified managed hosted B2 in scratch run 40165722639, both at 9c8d94ad9da42ac458ea304192118266577469f9. The strict product gate remains FAILED; see docs/VALIDATION.md for the retained evidence and limits.
 
 For another live run, register an approved ephemeral runner that can reach the real services; follow RUNNER_OPERATIONS.md. Configure the endpoint/client/profile/key-file/browser-file variables above as repository variables. Store runtime passwords, optional OIDF token and AWS access keys using the referenced GitHub secrets, never in a committed file. Key-file/browser-file variables must reference files available on that runner; generated private JWKS are excluded from source. Set S3_ENDPOINT, S3_BUCKET and AWS_REGION for MinIO/S3. Use protected environment controls for shared environments.
 
@@ -194,6 +194,6 @@ The standalone bridge targets Java 11 APIs. Its JDK 11 runtime check is separate
 
 ## Linux connectivity
 
-The TLS ingress owns the Docker network alias host.docker.internal on ports 8443, 8445 and 8446. Containers use Docker DNS. The runner/browser use CONFORMANCE_RESOLVE_LOCAL=true for loopback. Published host ports remain 127.0.0.1. A separate native Linux/hosted end-to-end run remains unverified until recorded.
+The TLS ingress owns the Docker network alias host.docker.internal on ports 8443, 8445 and 8446. Containers use Docker DNS. The runner/browser use CONFORMANCE_RESOLVE_LOCAL=true for loopback. Published host ports remain 127.0.0.1. This connectivity was verified in GitHub-hosted ubuntu-24.04 scratch run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9. Arbitrary Linux environments and the separate B4 procedure remain not verified.
 
 The verifier fixture does not establish status-list interoperability. Request URI POST coverage remains unestablished. These limits remain visible after removing the status journals.

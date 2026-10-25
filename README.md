@@ -63,7 +63,7 @@ The live variant cross-check found `dpop` and `mtls`, with no unconstrained Bear
 
 The validated environment is Windows with Ubuntu/WSL, Docker Desktop Linux containers and Ubuntu integration, Python 3.12, Java 21 and Maven 3.8.7. Use at least 6 GiB of Linux memory; the tested environment had about 7.6 GiB. Keep ports `8443`, `8445`, `8446`, `9000` and `9001` available.
 
-Internet access is required for upstream source, images, Maven dependencies and the matching Playwright browser. No external issuer account, real personal records or GitHub token is needed for local synthetic issuance. Native hosted Linux networking has not been validated for these manifests.
+Internet access is required for upstream source, images, Maven dependencies and the matching Playwright browser. No external issuer account, real personal records or GitHub token is needed for local synthetic issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the separate B4 empty-cache procedure.
 
 ## Prepare the environment and images
 
@@ -145,6 +145,8 @@ On Windows/WSL, open reports with `explorer.exe "$(wslpath -w "$REPORT_DIR")"`. 
 
 ## CI and validation
 
+The updated candidate passed [ordinary CI 40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114 storage objects were verified; and five owned volumes were removed with none remaining. Official run `2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2 implementation success is not stock conformance or certification. See [validation evidence and limits](docs/VALIDATION.md#b2-verified-scratch-retry--25-october-2026).
+
 - Recorded hosted implementation checks passed all five jobs on their tested revision. Inspect the repository Actions tab for the exact revision you intend to run.
 - A recorded release-triggered full-stack run completed reporting, storage, artifact upload and cleanup; six REVIEW outcomes failed the strict gate. Historical evidence is retained separately.
 
@@ -179,7 +181,7 @@ runner/setup.py copies non-secret defaults from docker/versions.env into generat
 
 Native patches and Maven artifact names remain pinned to their audited alpha source. Changing a stock tag does not make patches compatible with another release.
 
-All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or result translation is added. Native hosted Linux execution remains pending validation.
+All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or result translation is added. Native hosted execution is verified for [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`, with the strict conformance gate still FAILED.
 
 ```bash
 python runner/setup.py

@@ -1,5 +1,7 @@
 # Validation limits and approval-only commands
 
+> Current B2 status: **verified for scratch run 40165722639 at commit 9c8d94ad9da42ac458ea304192118266577469f9**. The strict conformance gate remains FAILED. Earlier pending/failure sections below describe historical attempts; see the verified retry section.
+
 ## Java compatibility
 
 The standalone bridge retains `maven.compiler.release=11` and compiler `<release>11</release>` in `testrig/pom.xml`. Preserved output `implementation-completion/fresh-jdk11-validation.json` records fresh compile exit 0; `fresh-jdk11-testng.log` records seven successful scenario checks (expected assertion-failure scenarios return 1). The 25 October local rerun also passed fresh compilation and all seven scenarios on Temurin 11.0.18: `implementation-triage/jdk11-checks.json` and `jdk11-scenarios.log`, both checks exit 0.
@@ -188,3 +190,40 @@ The scratch repository is preserved pending the owner's deletion decision. B3 me
 ## Approved B2 retry preparation
 
 The owner approved both proposed fixes, publication to PR #7 and exactly one scratch retry, requiring a cross-step AWS audit. The final correction removes AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY from job env entirely; an external-mode-only step validates nonempty secret inputs and writes them to GITHUB_ENV. Managed image preparation, execution and cleanup therefore inherit no empty workflow-exported AWS credential variables. Image preparation reads generated docker/.env directly; isolated_stack.py merges owned .env for execution/cleanup, and run-clean-conformance.sh loads generated storage credentials before reporting. The original single-step unset proposal is superseded. The approved report-retention action preserves native/consolidated HTML/XML reports and storage/cleanup receipts without raw key/config exports. Exact diff and validation: b2-scratch/retry1/final-workflow.diff and local-checks.json. Workflow/actionlint and shell checks passed; guards, permissions, timeout, stock behavior, REVIEW handling and gates are unchanged. Retry outcome is not verified until its actual run completes. No further retry or scratch deletion is authorized.
+
+
+## B2 verified scratch retry — 25 October 2026
+
+All five owner-defined B2 implementation criteria are verified in private scratch repository [SantoshReddy0603/inji-conformance-b2-scratch](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch), default branch main, exact unmerged PR #7 candidate `9c8d94ad9da42ac458ea304192118266577469f9`. Hosted [run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) was the single approved retry. Ordinary PR CI also passed for that candidate ([40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278)). No merge, release, main-repository setting/policy change, copied secret, further retry or scratch deletion occurred.
+
+| B2 success criterion | Result | Evidence |
+|---|---|---|
+| Ten-service stack starts on ubuntu-24.04 | PASS | run-state.json hosted runner labels; execution log has Started for all ten services; isolated-stack-state.json records ten images and five owned volumes |
+| Official issuer and selected verifier plans execute | PASS | issuer plan vir0sD8It1IDI; verifier plan UZtgjxUuLpdPj; official run 2583bed425d64f5abb0c86993d402116; runner REST calls and module outcomes in logs and ci-summary.json |
+| Native/consolidated reports and storage evidence produced/uploaded | PASS | managed-reporting-evidence artifact 12587788827 and live-conformance-results artifact 12587654719; both downloaded and CRC checked |
+| Storage verification and owned cleanup succeed | PASS | artifact-storage-validation.json verifies 114 objects; execution log reports all five owned volumes removed with zero remaining; cleanup step success |
+| Expected stock and verifier counts match local reference | PASS | ci-summary.json: Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED; Verify 4 PASSED / 6 REVIEW |
+
+Evidence paths in this section are under private outputs/b2-scratch/retry1/. Structured assessment: assessment.json. Download manifests: download-receipts.json. Full logs: run-40165722639-logs.zip, SHA256 `b1d256636d9b1b27afc2f8cce6ccb580955e747189c9b46074820f23948d6ff2`. Restricted results artifact 12587654719 contains ci-summary.json and ci-report.html. Reporting artifact 12587788827 contains both real API-rig reports, consolidated extent-report.html/testng-results.xml, reporter exit codes, storage receipt and final owned deployment state. Twenty-three downloaded report files matched their recorded storage SHA256 and byte counts.
+
+Per-job results: authorize-revision SUCCESS; Stock release conformance gate FAILURE. The sole failed step was Execute and gate live plans, exit 1, supported by actual nonpassing official outcomes; native/consolidated reporter exits were certify=1, verify=1, combined=1. Image preparation, restricted summary export, both artifact uploads and the explicit cleanup step succeeded. Combined official counts are 6 PASSED, 10 INTERRUPTED, 6 REVIEW and 3 SKIPPED. Both product gates and the combined release gate remain FAILED. TestNG includes its extra gate assertion: combined 26 checks / 6 passed / 17 failed / 3 skipped; native Certify 16 / 2 / 11 / 3; native Verify 11 / 4 / 7 / 0. B2 verification is implementation validation under the owner's stated criteria, not stock conformance, REVIEW approval or certification.
+
+The execution wrapper's first cleanup log records removal of five volumes. The workflow's second idempotent cleanup records zero removed/zero remaining and overwrites the final state file's removed list. Therefore the final state alone proves absence, while original log lines 16592 and 16643 prove both cleanup calls; no evidence was edited to hide that distinction. No deployment/data leak was inferred from the overwritten list.
+
+Stock image reference was injistack/inji-certify-with-plugins:1.0.0-alpha.1, observed image ID `sha256:75170c3bb5ccb13869637e7450c16994f496104529bb4ce56f336d19475d1f46`. This differs from the earlier local image ID; claim scope is this recorded hosted image, not byte-identical release reproducibility. Actual official export ZIPs were uploaded to ephemeral MinIO and verified by storage receipt/logs (plan-vir0sD8It1IDI-export.zip and plan-UZtgjxUuLpdPj-export.zip). Their raw bytes were not retained as GitHub artifacts, so offline reinspection of those raw export ZIPs is not verified; original local exports remain preserved separately. This does not imply that raw credentials/private keys were published.
+
+Applied code change remains only .github/workflows/full-stack-conformance.yml: job-level AWS credential exports removed; external-mode-only nonempty credential loader added; managed reporting artifact upload added. Authorization guard, immutable revision/ancestry checks, stock path, REVIEW mapping, strict gates, permissions and 180-minute timeout were preserved. Final diff: final-workflow.diff; local policy/actionlint/loader checks: local-checks.json; full Python regression: python-tests.xml, 196 passed / 31 warnings / exit 0. No shell source changed and all .sh files remain LF.
+
+The scratch repository remains private and retained for the owner's deletion decision. Further retry requires fresh approval. B3 merge is still unperformed and requires its own authorization; the owner-defined B2 harness success does not convert the conformance gate into PASS. B4 separate clean-machine validation, the organizer's Java 21 answer and final submission/demo materials remain external pending or not verified as described in the checklist.
+
+## Retained B2 evidence for B3
+
+B2 is verified only for private scratch repository `SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, commit `9c8d94ad9da42ac458ea304192118266577469f9`; it was not a main-repository run. The previously downloaded logs and both artifacts were copied into private `EVIDENCE_ROOT/b3-closeout/evidence/` and rechecked against their download SHA256 receipts and ZIP CRCs. `manifest.json` records their hashes and source run; `assessment.json` records the five verified B2 implementation criteria. This evidence folder is separate from the source repository and must accompany a controlled evidence handoff.
+
+| Retained file | Evidence |
+|---|---|
+| b3-closeout/evidence/run-40165722639-logs.zip | Complete hosted workflow logs |
+| b3-closeout/evidence/artifact-12587654719.zip | live-conformance-results: summary and report |
+| b3-closeout/evidence/artifact-12587788827.zip | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
+
+The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these artifacts. B3 approval covers final documentation publication and a merge only after all CI jobs pass on the final PR head; B4, further live runs and scratch deletion remain unperformed.

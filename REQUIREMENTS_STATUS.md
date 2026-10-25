@@ -6,13 +6,13 @@ Local test outputs are retained under `implementation-triage/` outside this sour
 
 | ID | Requirement | Status and exact evidence | Unverified or external portion |
 |---|---|---|---|
-| M1 / D1 | One Compose file for suite, Certify, Verify and storage | verified: S and P, commands.json, deployment-state.json; ten services and five fresh owned volumes | not verified: native hosted Linux |
+| M1 / D1 | One Compose file for suite, Certify, Verify and storage | verified: S and P, commands.json, deployment-state.json; ten services and five fresh owned volumes | verified: scratch hosted run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; ten services started |
 | M2 | Official REST create/configure/execute/poll/retrieve | verified: S/P official exports named above; actual component reports and conformance-summary.json | not verified: arbitrary other profiles |
 | M3 | OpenIDConformanceTest in both actual API rigs | verified: S/P reports/existing-certify and reports/existing-verify, reporter-exit-statuses.json on Java 21 | external pending: organizer acceptance of current upstream module locations and Java 21 |
 | M4 | Correct TestNG result mapping, Extent and strict gates | verified: S/P native/consolidated XML and HTML; triage-tests.xml plus actual JDK 11 seven-scenario output | not verified: any official REVIEW approval; no waiver added |
 | M5 | Combined cross-module reports | verified: S/P reports/extent-report.html, testng-results.xml and failed combined gate | not verified: course-to-PID interoperability, which combined execution does not establish |
 | M6 | One-command certify, verify and combined modes | verified: S/P full-stack combined commands.json; triage-tests.xml CLI checks and shell syntax outputs | not verified: fresh individual Certify live rerun in this task or PowerShell end-to-end runtime |
-| G1 / D4 | CI/CD workflow implementation | verified: workflow-policy.log and actionlint.log, both exit 0 | external pending: approval before publication/merge and managed hosted execution; candidate remotely not verified |
+| G1 / D4 | CI/CD workflow implementation | verified: workflow-policy.log and actionlint.log, both exit 0 | verified: ordinary CI 40165694278 and scratch B2 40165722639; external pending: B3 merge approval; conformance gate still FAILED |
 | G2 | Selective component and plan configuration | verified: triage-tests.xml runner contracts; S/P actual selected plans | not verified: other profiles, which were not substituted |
 | G3 | Expected-failure handling | verified: triage-tests.xml contract cases; empty config/expected-failures.json retained | not verified: real exemptions; none applied |
 | G4 | Cross-run regression diff | verified: triage-tests.xml diff contract cases | not verified: a new live regression scenario in this task |
@@ -37,4 +37,23 @@ Fresh local verifier execution is verified by run `0d9b58120a964f628a34dd0c658d6
 
 Sender-constraining inspection is verified by closeout/a1-decision.json and official selected-case plan `45vEXNrkMzWtm`, export `plan-45vEXNrkMzWtm-export.zip`: allowed dpop/mtls, no unconstrained Bearer; mTLS-labelled probe 2 PASSED, 4 FAILED, 1 INTERRUPTED. End-to-end mTLS binding remains not verified because issued tokens lacked cnf. No default/profile/gate change was made.
 
-B2 hosted full-stack qualification: **not verified**. Scratch run `40164823727` at commit `ce7a50e81cdea4081fa1061573e24c8d76094d68` passed authorization and built integrations on ubuntu-24.04, but image preparation failed before startup because empty inherited AWS variables overrode docker/.env. Zero official plans executed and zero artifacts uploaded; stack/reports/storage/cleanup and expected result counts remain not verified. See docs/VALIDATION.md and b2-scratch/run-state.json/log ZIP. Two proposed diffs remain unapplied; no rerun or merge occurred.
+Initial B2 attempt 40164823727: **not verified at that point**, superseded by the successful implementation retry below. Scratch run `40164823727` at commit `ce7a50e81cdea4081fa1061573e24c8d76094d68` passed authorization and built integrations on ubuntu-24.04, but image preparation failed before startup because empty inherited AWS variables overrode docker/.env. Zero official plans executed and zero artifacts uploaded; stack/reports/storage/cleanup and expected result counts remain not verified. See docs/VALIDATION.md and b2-scratch/run-state.json/log ZIP. Two proposed diffs remain unapplied; no rerun or merge occurred.
+
+
+## Verified B2 scratch implementation run
+
+B2 is **verified** under the owner's implementation criteria: scratch run `40165722639`, candidate `9c8d94ad9da42ac458ea304192118266577469f9`, official run `2583bed425d64f5abb0c86993d402116`. All ten services started on ubuntu-24.04; issuer plan `vir0sD8It1IDI` and verifier plan `UZtgjxUuLpdPj` executed; Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW match the reference. Native and consolidated reports were uploaded in two GitHub artifacts, storage verified 114 objects, and five owned volumes were removed with none remaining. Evidence: b2-scratch/retry1/assessment.json, ci-summary.json inside artifact-12587654719, reports/receipts inside artifact-12587788827, and original run log ZIP. Twenty-three downloaded report files matched storage hashes. Authorization job passed; gate job failed solely on the expected strict result rejection; all three reporters exit 1. These are actual FAILED conformance gates, not waivers.
+
+Ordinary PR CI `40165694278` passed on the same candidate. The single authorized retry is complete; no further retry, merge, release or scratch deletion occurred. Raw hosted official export bytes were verified in ephemeral MinIO but not retained as GitHub artifacts; later offline raw-export inspection is not verified. The observed hosted issuer image ID differs from the earlier local ID, so byte-identical release reproducibility is not verified. B3 merge, B4 independent empty-cache run, organizer acceptance of JDK 21 and final submission materials remain pending. See docs/VALIDATION.md for per-criterion evidence and cleanup-log/state distinctions.
+
+## Retained B2 evidence for B3
+
+B2 is verified only for private scratch repository `SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, commit `9c8d94ad9da42ac458ea304192118266577469f9`; it was not a main-repository run. The previously downloaded logs and both artifacts were copied into private `EVIDENCE_ROOT/b3-closeout/evidence/` and rechecked against their download SHA256 receipts and ZIP CRCs. `manifest.json` records their hashes and source run; `assessment.json` records the five verified B2 implementation criteria. This evidence folder is separate from the source repository and must accompany a controlled evidence handoff.
+
+| Retained file | Evidence |
+|---|---|
+| b3-closeout/evidence/run-40165722639-logs.zip | Complete hosted workflow logs |
+| b3-closeout/evidence/artifact-12587654719.zip | live-conformance-results: summary and report |
+| b3-closeout/evidence/artifact-12587788827.zip | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
+
+The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these artifacts. B3 approval covers final documentation publication and a merge only after all CI jobs pass on the final PR head; B4, further live runs and scratch deletion remain unperformed.

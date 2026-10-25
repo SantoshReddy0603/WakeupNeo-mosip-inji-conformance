@@ -14,7 +14,7 @@ Existing reachable deployment (default): the live job uses disposable GitHub-hos
 
 Managed synthetic stack: set repository Actions variable INJI_MANAGED_LOCAL_STACK=true. The default runner is disposable ubuntu-24.04. Set INJI_USE_SELF_HOSTED_RUNNER=true only when explicitly selecting an approved Linux x64 runner labelled inji-conformance. Repository variables must select runs-on before protected-environment variables become available.
 
-The unified ingress uses a Docker DNS alias and loopback host ports, rather than Docker Desktop host-gateway routing. Hosted execution remains unverified until the actual workflow runs. Plan for at least 8 GiB memory and sufficient image/Maven/browser disk space; inspect actual capacity before starting. A local success does not prove hosted resource capacity.
+The unified ingress uses a Docker DNS alias and loopback host ports, rather than Docker Desktop host-gateway routing. Managed execution was verified on GitHub-hosted ubuntu-24.04 in [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services, both official plans, retained reports, 114 storage objects verified and five owned volumes removed. The conformance gate remains FAILED; other configurations remain not verified. Plan for at least 8 GiB memory and sufficient image/Maven/browser disk space; inspect actual capacity before starting. A local success does not prove hosted resource capacity.
 
 The job uses a fresh source extraction, generated development secrets/keys and five fresh owned volumes. Stock is the production-release default. Image/dependency caches may be reused. Cleanup verifies ownership and never prunes the shared daemon. No external issuer registry or personal data is required.
 
@@ -38,4 +38,4 @@ Runner operation: [RUNNER_OPERATIONS.md](RUNNER_OPERATIONS.md). Empty-cache vali
 
 Managed production-release jobs use the configured unmodified Certify image. Patched builds are an explicit manual diagnostic choice and remain separately labelled in conformance provenance. Their PASS counts never qualify stock releases. REVIEW stays a strict failure for both.
 
-The unified ingress removes the host-gateway dependency. A workflow file alone does not prove hosted execution. Provisioning privileged runners, publication and merges retain the owner-approval boundary. Validate the actual hosted managed stack before broadening the supported-environment claim.
+The unified ingress removes the host-gateway dependency. A workflow file alone does not prove hosted execution. Provisioning privileged runners, publication and merges retain the owner-approval boundary. The scope of the verified hosted managed stack is scratch run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; other hosts, profiles and B4 empty-cache execution remain not verified.

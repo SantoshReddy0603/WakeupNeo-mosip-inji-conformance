@@ -84,7 +84,7 @@ cat .github/workflows/ci.yml
 cat .github/workflows/full-stack-conformance.yml
 ```
 
-View https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/39772274219 in an authenticated browser. This is historical hosted CI for 2594b3d6f9590caa9d28c6fa2048249ac300f274, supported by github-source-publication/hosted-ci.json; it is not current candidate validation. Show a new candidate CI run only after its exact SHA and conclusion are checked. Do not dispatch the managed workflow for the video without separate approval.
+View https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278 for the passed ordinary CI and https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639 for the verified hosted B2 execution. Both used commit 9c8d94ad9da42ac458ea304192118266577469f9. Explain that the full-stack gate job is red because the official stock interruptions and six REVIEWs correctly reject release; all five agreed B2 implementation criteria passed. Downloaded evidence is indexed in b2-scratch/retry1/assessment.json and its two artifact ZIPs. Show retained evidence as a recorded run, not a newly executed demo. Do not dispatch another managed workflow for the video without fresh approval.
 
 ## 6. Finish and stop the dedicated demo stack
 
