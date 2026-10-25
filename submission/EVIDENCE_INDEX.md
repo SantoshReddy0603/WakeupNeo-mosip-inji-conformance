@@ -18,7 +18,9 @@ This is a draft submission aid, not a certification claim. `EVIDENCE_ROOT` means
 | Organizer acceptance of integrated JDK 21 | No response obtained | docs/VALIDATION.md organizer question; not sent | external pending |
 | Python harness contracts, including expected failures, diff and parallel execution | Local regression | closeout/python-tests.xml; earlier implementation-triage/triage-tests.xml has 196 passes | verified |
 | Historical hosted implementation CI on its own revision | 39772274219; head 2594b3d6f9590caa9d28c6fa2048249ac300f274 | github-source-publication/hosted-ci.json; final-status.json | verified |
-| Current candidate hosted CI | Not run when draft prepared | B1 authorized separately; completion must be checked against the published candidate SHA | not verified |
+| Initial candidate hosted CI patch portability failure | 40163129216; head 6f1e31b5ffe60740ab9db6bc1ffa5463708e0c0f | closeout/hosted-keymanager-failure.log; patch-line-ending-reproduction.json | verified |
+| Original patch bytes restored; actual native keymanager build passed | Pinned 7c53fc9d3c972347a603fd66e9ab0812db60ccec | closeout/native-keymanager-build/build-provenance.json exit_status=0 and test-results | verified |
+| Updated candidate hosted CI | Retry pending when draft prepared | B1 authorized separately; completion must be checked against current candidate SHA | not verified |
 | Managed native GitHub-hosted Linux execution of this candidate | No run | docs/VALIDATION.md; .github/workflows/full-stack-conformance.yml | not verified |
 | Request URI POST interoperability | 0d9b58120a964f628a34dd0c658d6c8f | implementation-triage/verifier-coverage.json: E1FPVnumrtRlZHU bypasses POST conditions; REVIEW screenshot branch | not verified |
 | Status-list interoperability | 0d9b58120a964f628a34dd0c658d6c8f | implementation-triage/verifier-coverage.json: oTZgMqIEscOyRW9 has no status reference and statusCheck=[] | not verified |
