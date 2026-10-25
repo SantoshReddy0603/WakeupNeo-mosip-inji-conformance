@@ -227,3 +227,18 @@ B2 is verified only for private scratch repository `SantoshReddy0603/inji-confor
 | b3-closeout/evidence/artifact-12587788827.zip | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
 
 The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these artifacts. B3 approval covers final documentation publication and a merge only after all CI jobs pass on the final PR head; B4, further live runs and scratch deletion remain unperformed.
+
+## B2 coverage of the final code
+
+Scratch repository `SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, tested commit `9c8d94ad9da42ac458ea304192118266577469f9`. Final PR #7 head `8ef076aa3eec784dee8c32a97cd9a9bd5eb01355` differs only in the documentation files listed below: all are DOCS_ONLY, with no runtime or workflow changes. Command: `git diff 9c8d94ad9da42ac458ea304192118266577469f9..8ef076aa3eec784dee8c32a97cd9a9bd5eb01355 --stat`; output: 8 files changed, 94 insertions(+), 15 deletions(-).
+
+- `CI_CD_SETUP.md`
+- `README.md`
+- `REQUIREMENTS_STATUS.md`
+- `SETUP.md`
+- `docs/VALIDATION.md`
+- `submission/DEMO_SCRIPT.md`
+- `submission/EVIDENCE_INDEX.md`
+- `submission/LIMITATIONS.md`
+
+Original repository main was confirmed at PR #7 merge commit `fd89d1f4d8e960e5ad3f0fdb7b2fb975f70d41be`. All five pre-merge CI jobs passed on the exact final head in run `40177192785`. The project ZIP SHA256 `5182d5ad87cc0e46e96cdd7b0604294ec3c13f4ebab814ba69add528d7b14091` differs from main only in docs/VALIDATION.md, REQUIREMENTS_STATUS.md and submission/EVIDENCE_INDEX.md; the ZIP copies predate the newer retained-evidence records on main and were not used to overwrite them. This follow-up changes documentation only and does not constitute another live B2 run. Source comparison output: private EVIDENCE_ROOT/final-sync/source-comparison.json.
