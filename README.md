@@ -4,6 +4,50 @@ Run the OpenID Foundation conformance suite against real Inji services, feed off
 
 ![Architecture: official suite, real issuer and verifier, native reporting, storage and gates](docs/images/architecture.svg)
 
+## Quick start
+
+Prerequisites: Linux or Ubuntu/WSL with Docker Compose, Python 3.12 and the
+installed Python requirements. Full reporting also needs Java 21, Maven 3.8.7,
+the installed native API rigs and Chromium. The standalone bridge targets Java 11.
+Follow [environment preparation](#prepare-the-environment-and-images) for image
+builds and browser installation before starting the services.
+
+Run setup **before the tests or deployment**. It generates development keys and
+the TLS certificate required by the Compose mount checks. Generated files are
+local configuration and must not be committed.
+
+```bash
+python -m pip install -r runner/requirements-dev.txt
+python runner/setup.py
+```
+
+Choose one live execution mode after environment preparation:
+
+```bash
+bash run-conformance.sh --component certify --insecure
+bash run-conformance.sh --component verify --insecure
+bash run-conformance.sh --combined --parallel 2 --insecure
+```
+
+Run the Python harness tests after setup:
+
+```bash
+python -m pytest tests -q
+```
+
+The stock release conformance gates fail by design when the recorded product
+outcomes recur: Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify
+4 PASSED / 6 REVIEW. The patched build is diagnostic only. Hosted full-stack
+validation ran in the scratch repository at commit
+`9c8d94ad9da42ac458ea304192118266577469f9`, run `40165722639`.
+The selected official verifier plan and strict REVIEW handling remain unchanged.
+
+## Test data
+
+[docs/TEST_DATA.md](docs/TEST_DATA.md) lists the synthetic course record,
+credential configuration, development clients, endpoints and selected plan variants.
+Secrets are generated locally by `runner/setup.py`; no real personal data is needed.
+
 ## What the project provides
 
 - Docker Compose orchestration for the official suite, Inji Certify, Inji Verify, Keycloak, PostgreSQL, MongoDB and MinIO.
@@ -28,42 +72,72 @@ Recorded stock reference run: `019bf015dcef47029010faa06a2cf788`. This used the 
 | Verify | 4 PASS, 6 REVIEW; FAILED | 4 PASS, 6 REVIEW; FAILED |
 | Combined | 6 PASS, 10 INTERRUPTED, 6 REVIEW, 3 SKIP; FAILED | 16 PASS, 6 REVIEW, 3 SKIP; FAILED |
 
-Stock reporting returned Certify 1, Verify 1 and combined 1. The lifecycle verified 114 stored artifacts, an independent read-back checked 71 core objects, and cleanup removed the five owned volumes. Official signed-metadata and issuance/error-response checks interrupted on the unmodified image. Exact conditions and original logs remain with the private run evidence.
+Stock reporting returned Certify 1, Verify 1 and combined 1. The lifecycle verified 114 stored artifacts, an
+independent read-back checked 71 core objects, and cleanup removed the five owned volumes. Official
+signed-metadata and issuance/error-response checks interrupted on the unmodified image. Exact conditions and
+original logs remain with the private run evidence.
 
-The 25 October local verifier reproduction, run `0d9b58120a964f628a34dd0c658d6c8f`, again returned 4 PASSED and 6 REVIEW with a failed gate (`plan-IpxODLyKkxZNN-export.zip`); [validation limits](docs/VALIDATION.md) identify the actual POST-named and happy-flow instances and their missing coverage.
+The 25 October local verifier reproduction, run `0d9b58120a964f628a34dd0c658d6c8f`, again returned 4 PASSED
+and 6 REVIEW with a failed gate (`plan-IpxODLyKkxZNN-export.zip`); [validation limits](docs/VALIDATION.md)
+identify the actual POST-named and happy-flow instances and their missing coverage.
 
 The patched diagnostic uses the audited native fixes described in [docker/RELEASES.md](docker/RELEASES.md). Its issuer PASS does not qualify the stock release. The following illustration summarizes recorded patched results only:
 
 ![Historical patched outcomes, not stock results](docs/images/recorded-results.svg)
 
-The standalone bridge compiled from fresh source and passed its seven TestNG mapping scenarios on actual JDK 11. The pinned native API-test modules require Java 21 and failed JDK 11 compilation with `error: invalid target release: 21`; exact upstream POM lines and compiler logs are cited in [validation limits](docs/VALIDATION.md). Their actual Java 21 integration/reporting is separate. Harness, syntax and workflow checks are listed in [the requirement checklist](REQUIREMENTS_STATUS.md).
+The standalone bridge compiled from fresh source and passed its seven TestNG mapping scenarios on actual JDK
+11. The pinned native API-test modules require Java 21 and failed JDK 11 compilation with `error: invalid
+target release: 21`; exact upstream POM lines and compiler logs are cited in [validation
+limits](docs/VALIDATION.md). Their actual Java 21 integration/reporting is separate. Harness, syntax and
+workflow checks are listed in [the requirement checklist](REQUIREMENTS_STATUS.md).
 
-**REVIEW remains REVIEW.** The harness maps it to a failed TestNG assertion and rejects the release gate. It does not manufacture PASS results. TestNG includes an extra gate assertion, so its counts differ from the official module counts. These results establish working automation, not complete OpenID conformance or certification. The diagrams summarize recorded results; official outputs remain authoritative. This source-only package omits raw execution artifacts. A new installation or changed source needs its own validation.
+**REVIEW remains REVIEW.** The harness maps it to a failed TestNG assertion and rejects the release gate. It
+does not manufacture PASS results. TestNG includes an extra gate assertion, so its counts differ from the
+official module counts. These results establish working automation, not complete OpenID conformance or
+certification. The diagrams summarize recorded results; official outputs remain authoritative. This
+source-only package omits raw execution artifacts. A new installation or changed source needs its own
+validation.
 
 ### Stock interruption triage
 
-The ten stock interruptions are PRODUCT_GAP findings from issuer export `plan-UYoPyoeGriNRN-export.zip` (run `019bf015dcef47029010faa06a2cf788`); matched diagnostic results are from `plan-yfOPDtRoNo2xZ-export.zip` (run `d39d9f65b0f04db79eb3d25501c9f26c`). No harness correction was justified; exact messages, last successful steps, requests/responses and matched patched instance IDs are in [the triage](docs/STOCK_CERTIFY_TRIAGE.md). Names share prefix `oid4vci-1_0-issuer-`; patch paths share `docker/native-certify/`; isolated patch attribution is not verified.
+The ten stock interruptions are PRODUCT_GAP findings from issuer export `plan-UYoPyoeGriNRN-export.zip` (run
+`019bf015dcef47029010faa06a2cf788`); matched diagnostic results are from `plan-yfOPDtRoNo2xZ-export.zip` (run
+`d39d9f65b0f04db79eb3d25501c9f26c`). No harness correction was justified; exact messages, last successful
+steps, requests/responses and matched patched instance IDs are in [the triage](docs/STOCK_CERTIFY_TRIAGE.md).
+Names share prefix `oid4vci-1_0-issuer-`; patch paths share `docker/native-certify/`; isolated patch
+attribution is not verified.
 
 | Test name | Status | Class | Evidence | Patch that fixes it | Action taken |
 |---|---|---|---|---|---|
-| `metadata-test-signed` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `B61Vqr31wC8p2Rk`: 200 OK, empty body | `signed-metadata.patch` | Retain stock failure |
-| `happy-flow` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `iqk1VhClUfgzhkl`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized extension field | `extensions.patch`, `dpop.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-additional-requests` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `0LUs3j7U97cH1vZ`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-multiple-clients` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `zoskf1s65ZJqWV6`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-skip-notification` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `H3hsOeWhUSaZn5x`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `fail-invalid-nonce` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `QoyggTSnn6w5sAo`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
-| `fail-invalid-jwt-proof-signature` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `s8WWjo8wtU8MEpq`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
-| `fail-unknown-credential-configuration` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `dJqxkp28p6TKPud`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `credential-errors.patch` | Retain stock failure |
-| `fail-unknown-credential-identifier` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `wZUaQwM0lQnFZDW`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized credential_identifier | `credential-errors.patch` | Retain stock failure |
-| `fail-on-access-token-in-query` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `O2E2YHPFYOnxRY4`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `metadata-test-signed` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 200 OK, empty body | `signed-metadata.patch` | Retain stock failure |
+| `happy-flow` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized extension field | `extensions.patch`, `dpop.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-additional-requests` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-multiple-clients` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-skip-notification` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `fail-invalid-nonce` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
+| `fail-invalid-jwt-proof-signature` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
+| `fail-unknown-credential-configuration` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `credential-errors.patch` | Retain stock failure |
+| `fail-unknown-credential-identifier` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized credential_identifier | `credential-errors.patch` | Retain stock failure |
+| `fail-on-access-token-in-query` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
 
-The live variant cross-check found `dpop` and `mtls`, with no unconstrained Bearer option. Seven stock mTLS-labelled cases produced 2 PASSED, 4 FAILED and 1 INTERRUPTED (official plan `45vEXNrkMzWtm`, `plan-45vEXNrkMzWtm-export.zip`); token responses were unbound Bearer, so end-to-end mTLS binding is **not verified**. The three entry-point defaults remain unchanged; [the triage](docs/STOCK_CERTIFY_TRIAGE.md) records all before/after outcomes and the decision.
+The live variant cross-check found `dpop` and `mtls`, with no unconstrained Bearer option. Seven stock
+mTLS-labelled cases produced 2 PASSED, 4 FAILED and 1 INTERRUPTED (official plan `45vEXNrkMzWtm`,
+`plan-45vEXNrkMzWtm-export.zip`); token responses were unbound Bearer, so end-to-end mTLS binding is **not
+verified**. The three entry-point defaults remain unchanged; [the triage](docs/STOCK_CERTIFY_TRIAGE.md)
+records all before/after outcomes and the decision.
 
 ## Requirements
 
-The validated environment is Windows with Ubuntu/WSL, Docker Desktop Linux containers and Ubuntu integration, Python 3.12, Java 21 and Maven 3.8.7. Use at least 6 GiB of Linux memory; the tested environment had about 7.6 GiB. Keep ports `8443`, `8445`, `8446`, `9000` and `9001` available.
+The validated environment is Windows with Ubuntu/WSL, Docker Desktop Linux containers and Ubuntu integration,
+Python 3.12, Java 21 and Maven 3.8.7. Use at least 6 GiB of Linux memory; the tested environment had about 7.6
+GiB. Keep ports `8443`, `8445`, `8446`, `9000` and `9001` available.
 
-Internet access is required for upstream source, images, Maven dependencies and the matching Playwright browser. No external issuer account, real personal records or GitHub token is needed for local synthetic issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the separate B4 empty-cache procedure.
+Internet access is required for upstream source, images, Maven dependencies and the matching Playwright
+browser. No external issuer account, real personal records or GitHub token is needed for local synthetic
+issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in [scratch run
+40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at
+`9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the
+separate B4 empty-cache procedure.
 
 ## Prepare the environment and images
 
@@ -116,7 +190,11 @@ echo "Execution exit code: $RUN_EXIT"
 cat "$REPORT_DIR/reporter-exit-statuses.json"
 ```
 
-The unified stack starts ten real services with fresh keys and five owned volumes, runs the normal reporting lifecycle, and cleans up only its owned deployment on exit. It expects the images prepared above. Stock execution exits **1** when its recorded interruptions and REVIEWs recur. Explicit patched diagnostics also exit **1** while REVIEW remains. Inspect reports to distinguish that benchmark failure from startup, browser, reporting or storage errors. Each run needs a fresh extraction.
+The unified stack starts ten real services with fresh keys and five owned volumes, runs the normal reporting
+lifecycle, and cleans up only its owned deployment on exit. It expects the images prepared above. Stock
+execution exits **1** when its recorded interruptions and REVIEWs recur. Explicit patched diagnostics also
+exit **1** while REVIEW remains. Inspect reports to distinguish that benchmark failure from startup, browser,
+reporting or storage errors. Each run needs a fresh extraction.
 
 ### Component and persistent development modes
 
@@ -128,7 +206,11 @@ bash run-conformance.sh --component verify --insecure
 bash run-conformance.sh --combined --parallel 2 --insecure
 ```
 
-Choose one command at a time. Add `--native-positive` only for a separately labelled patched diagnostic. Use distinct `--reports-dir` paths to preserve runs. `--skip-docker` targets an already configured deployment and requires its actual environment settings. `--insecure` is explicitly for local self-signed TLS; use a trusted CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See [SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
+Choose one command at a time. Add `--native-positive` only for a separately labelled patched diagnostic. Use
+distinct `--reports-dir` paths to preserve runs. `--skip-docker` targets an already configured deployment and
+requires its actual environment settings. `--insecure` is explicitly for local self-signed TLS; use a trusted
+CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See
+[SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
 
 ## Reports and interfaces
 
@@ -141,16 +223,33 @@ Choose one command at a time. Add `--native-positive` only for a separately labe
 | `plan-*-export.zip` | Official plan exports |
 | `artifact-storage-validation.json` | Verified storage object hashes and keys |
 
-On Windows/WSL, open reports with `explorer.exe "$(wslpath -w "$REPORT_DIR")"`. While the services are running, the suite is at `https://localhost:8443`, Verify UI at `https://localhost:8445/verify`, and MinIO console at `http://localhost:9001`. The clean wrapper tears them down at completion. Raw exports, credentials, keys and runtime evidence stay outside committed source.
+On Windows/WSL, open reports with `explorer.exe "$(wslpath -w "$REPORT_DIR")"`. While the services are
+running, the suite is at `https://localhost:8443`, Verify UI at `https://localhost:8445/verify`, and MinIO
+console at `http://localhost:9001`. The clean wrapper tears them down at completion. Raw exports, credentials,
+keys and runtime evidence stay outside committed source.
 
 ## CI and validation
 
-The updated candidate passed [ordinary CI 40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114 storage objects were verified; and five owned volumes were removed with none remaining. Official run `2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2 implementation success is not stock conformance or certification. See [validation evidence and limits](docs/VALIDATION.md#b2-verified-scratch-retry--25-october-2026).
+The updated candidate passed [ordinary CI
+40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its
+[scratch run
+40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639)
+verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services
+started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114
+storage objects were verified; and five owned volumes were removed with none remaining. Official run
+`2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4
+PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2
+implementation success is not stock conformance or certification. See [validation evidence and
+limits](docs/VALIDATION.md#b2-verified-scratch-retry--25-october-2026).
 
 - Recorded hosted implementation checks passed all five jobs on their tested revision. Inspect the repository Actions tab for the exact revision you intend to run.
 - A recorded release-triggered full-stack run completed reporting, storage, artifact upload and cleanup; six REVIEW outcomes failed the strict gate. Historical evidence is retained separately.
 
-Pull requests run harness checks, both API test-rig integrations and native product tests. Privileged live release/manual jobs require an approved environment and either the default disposable ubuntu-24.04 managed deployment or a reachable external deployment; a dedicated self-hosted runner is an explicit opt-in. No live conformance claim follows from unit tests alone. See [CI/CD setup](CI_CD_SETUP.md) and [runner operations](RUNNER_OPERATIONS.md).
+Pull requests run harness checks, both API test-rig integrations and native product tests. Privileged live
+release/manual jobs require an approved environment and either the default disposable ubuntu-24.04 managed
+deployment or a reachable external deployment; a dedicated self-hosted runner is an explicit opt-in. No live
+conformance claim follows from unit tests alone. See [CI/CD setup](CI_CD_SETUP.md) and [runner
+operations](RUNNER_OPERATIONS.md).
 
 Local checks after environment/image preparation:
 
@@ -164,8 +263,19 @@ mvn -f testrig/pom.xml test-compile
 
 - Official verifier target: **`oid4vp-1final-verifier-test-plan`**. No alternative profile or protocol-translation proxy is substituted.
 - Six official verifier REVIEW outcomes remain unresolved; neither diagnostic issuer PASS nor screenshot capture changes their status (stock verifier export `plan-fnLpdorj2jZAD-export.zip`).
-- Request URI POST: instance `49xL7f98HbXNJZr` in stock run `019bf015dcef47029010faa06a2cf788` ends REVIEW with “Upload a screenshot showing that the verifier successfully verified the presented credential (for example, a page displaying the credential contents).” Its `url_query` variant never runs the three POST/wallet_nonce conditions; pinned suite source only calls that override for signed request URIs, establishing a suite applicability/coverage gap rather than a POST failure attributable to the harness or Verify. Actual native POST interoperability is **not verified**; see [validation limits](docs/VALIDATION.md) for the local reproduction evidence.
-- Status lists: stock happy-flow instance `qyHOyhAz17GKHWo` has native `statusCheck: []` and a suite credential without a status reference, while its official message requests a verification screenshot (same verifier export). This is missing coverage in the suite fixture, not evidence of successful status-list handling or an observed product rejection; no failing status-list test exists in this selected export to reproduce. Actual status-list interoperability is **not verified**, and no workaround or fixture substitution was introduced.
+- Request URI POST: instance `49xL7f98HbXNJZr` in stock run `019bf015dcef47029010faa06a2cf788` ends REVIEW
+with “Upload a screenshot showing that the verifier successfully verified the presented credential (for
+example, a page displaying the credential contents).” Its `url_query` variant never runs the three
+POST/wallet_nonce conditions; pinned suite source only calls that override for signed request URIs,
+establishing a suite applicability/coverage gap rather than a POST failure attributable to the harness or
+Verify. Actual native POST interoperability is **not verified**; see [validation limits](docs/VALIDATION.md)
+for the local reproduction evidence.
+- Status lists: stock happy-flow instance `qyHOyhAz17GKHWo` has native `statusCheck: []` and a suite
+credential without a status reference, while its official message requests a verification screenshot (same
+verifier export). This is missing coverage in the suite fixture, not evidence of successful status-list
+handling or an observed product rejection; no failing status-list test exists in this selected export to
+reproduce. Actual status-list interoperability is **not verified**, and no workaround or fixture substitution
+was introduced.
 - Fresh keys, volumes and source extraction were tested; a separate machine with completely empty Docker/Maven caches remains unverified.
 - Required-reviewer enforcement is unavailable on the current private repository plan; explicit operator approval is used.
 - Course issuance and the verifier plan's PID fixture are independent plans; combined execution does not prove course-to-PID credential interoperability.
@@ -177,11 +287,21 @@ mvn -f testrig/pom.xml test-compile
 
 ## Versions and deployment selection
 
-runner/setup.py copies non-secret defaults from docker/versions.env into generated docker/.env. Edit CERTIFY_VERSION, VERIFY_VERSION, VERIFY_UI_VERSION and VERIFY_SDK_VERSION there. Existing values are preserved. No stable v1.0.x image tag was found on 24 October 2026 by enumerating every Docker Hub tags API page for injistack/inji-certify-with-plugins, injistack/inji-verify-service and injistack/inji-verify-ui and checking the official GitHub release/tag inventories (records: registry-version-inventory.json and upstream-release-inventory.json). This inventory was not refreshed on 25 October; retain the alpha label. Unknown SDK versions fail closed until their native URL construction is validated.
+runner/setup.py copies non-secret defaults from docker/versions.env into generated docker/.env. Edit
+CERTIFY_VERSION, VERIFY_VERSION, VERIFY_UI_VERSION and VERIFY_SDK_VERSION there. Existing values are
+preserved. No stable v1.0.x image tag was found on 24 October 2026 by enumerating every Docker Hub tags API
+page for injistack/inji-certify-with-plugins, injistack/inji-verify-service and injistack/inji-verify-ui and
+checking the official GitHub release/tag inventories (records: registry-version-inventory.json and
+upstream-release-inventory.json). This inventory was not refreshed on 25 October; retain the alpha label.
+Unknown SDK versions fail closed until their native URL construction is validated.
 
 Native patches and Maven artifact names remain pinned to their audited alpha source. Changing a stock tag does not make patches compatible with another release.
 
-All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or result translation is added. Native hosted execution is verified for [scratch run 40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at `9c8d94ad9da42ac458ea304192118266577469f9`, with the strict conformance gate still FAILED.
+All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS
+alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or
+result translation is added. Native hosted execution is verified for [scratch run
+40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at
+`9c8d94ad9da42ac458ea304192118266577469f9`, with the strict conformance gate still FAILED.
 
 ```bash
 python runner/setup.py
@@ -189,6 +309,8 @@ docker compose --env-file docker/.env -f docker/docker-compose.yml --profile cer
 docker compose --env-file docker/.env -f docker/docker-compose.yml --profile certify --profile verify --profile storage up -d --build
 ```
 
-run-clean-conformance.sh defaults to stock Certify. For a separate diagnostic, explicitly export CERTIFY_NATIVE_IMAGE=inji-harness/certify-positive:local before running a fresh extraction. Summaries identify the managed image and image ID. Patched diagnostics never establish stock-release conformance.
+run-clean-conformance.sh defaults to stock Certify. For a separate diagnostic, explicitly export
+CERTIFY_NATIVE_IMAGE=inji-harness/certify-positive:local before running a fresh extraction. Summaries identify
+the managed image and image ID. Patched diagnostics never establish stock-release conformance.
 
 See [API reference](API_REFERENCE.md) for used routes, authentication, formats and examples.

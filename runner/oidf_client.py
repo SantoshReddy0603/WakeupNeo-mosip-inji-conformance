@@ -1,4 +1,7 @@
-"""Synchronous orchestration adapter over the pinned official OIDF Python library."""
+"""Synchronous orchestration adapter over the pinned official OIDF Python library.
+
+Each runner owns its HTTP session and async client. Polling retains terminal
+outcomes and distinguishes an elapsed deadline from an official completion."""
 import asyncio
 import base64
 import io
@@ -36,6 +39,7 @@ class OIDFClient:
             getattr(self._upstream, method)(*args), timeout=self.timeout))
 
     def close(self):
+        """Release both client transports, including the runner-local async event loop."""
         try:
             if self._loop is not None:
                 self._loop.run_until_complete(self._upstream.close_client())
@@ -46,6 +50,7 @@ class OIDFClient:
             self.session.close()
 
     def request(self, method, path, **kwargs):
+        """Keep suite errors visible while using bounded requests to supplemental REST routes."""
         response = self.session.request(method, self.base_url + path, timeout=self.timeout, **kwargs)
         if not response.ok:
             try:
@@ -60,12 +65,14 @@ class OIDFClient:
         return response
 
     def check_health(self):
+        """Check for the suite module catalogue rather than treating any HTTP response as readiness."""
         try:
             return isinstance(self.request('GET', '/api/runner/available').json(), list)
         except (requests.RequestException, ValueError):
             return False
 
     def wait_for_ready(self, max_wait_sec=60, interval_sec=2):
+        """Wait within a monotonic deadline for the actual suite API to become usable."""
         deadline = time.monotonic() + max_wait_sec
         while time.monotonic() < deadline:
             if self.check_health():
@@ -74,24 +81,31 @@ class OIDFClient:
         return False
 
     def create_test_plan(self, plan_name, config, variant=None):
+        """Create the selected official plan with its explicit configuration and variants."""
         return self._official('create_test_plan', plan_name, json.dumps(config), variant or {})
 
     def get_test_plan(self, plan_id):
+        """Retrieve the suite-selected module list for the newly created plan."""
         return self.request('GET', f'/api/plan/{quote(plan_id, safe="")}').json()
 
     def create_test_from_plan(self, plan_id, test_name, variant=None):
+        """Create one module instance under its official plan and variant."""
         return self._official('create_test_from_plan_with_variant', plan_id, test_name, variant)
 
     def start_test(self, test_id):
+        """Start a configured instance using the pinned official client."""
         return self._official('start_test', quote(test_id, safe=''))
 
     def get_test_status(self, test_id):
+        """Read the official instance state and result without interpreting them as a gate."""
         return self._official('get_module_info', quote(test_id, safe=''))
 
     def get_test_runtime(self, test_id):
+        """Retrieve live interaction URLs needed to complete a WAITING handoff."""
         return self.request('GET', f'/api/runner/{quote(test_id, safe="")}').json()
 
     def poll_test_completion(self, test_id, poll_interval_sec=1, max_timeout_sec=300, on_waiting=None):
+        """Handle each distinct WAITING interaction once and preserve deadline exhaustion as TIMEOUT."""
         deadline = time.monotonic() + max_timeout_sec
         started = False
         handled = set()
@@ -123,12 +137,15 @@ class OIDFClient:
                 'last_observed_result': last.get('result'), 'status': 'TIMEOUT', 'result': 'TIMEOUT'}
 
     def get_test_log(self, test_id):
+        """Fetch the official log tied to the instance identifier."""
         return self._official('get_test_log', quote(test_id, safe=''))
 
     def get_test_images(self, test_id):
+        """Read screenshot placeholders and attachments from the official evidence log."""
         return self.request('GET', f'/api/log/{quote(test_id, safe="")}/images').json()
 
     def upload_test_image(self, test_id, placeholder, path):
+        """Attach a real image only after type, size and suite-acknowledgement checks."""
         path = Path(path)
         data = path.read_bytes()
         if len(data) > 500 * 1024:
@@ -149,6 +166,7 @@ class OIDFClient:
         return {'placeholder': placeholder, 'log_entry_id': response.get('_id')}
 
     def export_plan_results(self, plan_id, save_to_dir='reports'):
+        """Retain the official ZIP only after checking it contains valid result artifacts."""
         data = self.request('GET', f'/api/plan/export/{quote(plan_id, safe="")}',
                             headers={'Accept': 'application/zip'}).content
         with zipfile.ZipFile(io.BytesIO(data)) as archive:

@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+# Run official issuer/verifier plans and the native reporting lifecycle.
+# Mode: --component certify|verify or --combined; --parallel controls component concurrency.
+# Options: --reports-dir, --skip-docker and --runner-only; retained runs require
+# --existing-run plus --run-id. Optional diagnostics are never the stock default.
+# Prerequisites: Python dependencies and runner/setup.py; Docker Compose for startup;
+# Java 21/Maven and installed API rigs for native reporting; browser for UI evidence.
+# Exit 0 requires accepted gates and reporting; 1 includes gate rejection;
+# 2 includes invalid configuration; subprocess failures may retain their own status.
+#
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 mode=()

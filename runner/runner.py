@@ -1,4 +1,7 @@
-"""Live OpenID conformance orchestration with fail-closed release gating."""
+"""Live OpenID conformance orchestration with fail-closed release gating.
+
+Official module outcomes and export retrieval both contribute to qualification;
+reporting a completed request alone cannot establish conformance."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timezone
@@ -26,11 +29,13 @@ LOG = logging.getLogger('conformance')
 
 
 def resolve_path(path):
+    """Resolve user-supplied paths without requiring execution from the repository root."""
     path = Path(path)
     return path if path.is_absolute() or path.exists() else ROOT / path
 
 
 def render_template(path, variables):
+    """Render JSON safely and reject unset variables before creating an official plan."""
     text = resolve_path(path).read_text(encoding='utf-8-sig')
     # Replace inside JSON strings by escaped JSON string contents, not raw text.
     for key, value in variables.items():
@@ -49,6 +54,7 @@ def render_template(path, variables):
 
 
 def is_entry_valid(entry):
+    """Accept only documented, unexpired FAILED baselines; incomplete runs are ineligible."""
     try:
         return (isinstance(entry, dict)
             and all(isinstance(entry.get(k), str) and entry[k].strip() for k in ('reason', 'jira_id', 'expiry_date'))
@@ -59,6 +65,7 @@ def is_entry_valid(entry):
 
 
 def load_expected_failures(path):
+    """Validate component-scoped baselines before they can affect result classification."""
     data = json.loads(resolve_path(path).read_text(encoding='utf-8-sig'))
     if not isinstance(data, dict) or not isinstance(data.get('expected_failures'), dict):
         raise ValueError('Expected-failure configuration must contain an expected_failures object')
@@ -76,6 +83,7 @@ def load_expected_failures(path):
 
 
 def classify(status, entry=None):
+    """Preserve official outcomes except eligible, explicitly configured FAILED baselines."""
     if status in {'PASSED', 'WARNING', 'SKIPPED'}:
         return status
     # Operational errors and incomplete runs must never be waived.
@@ -85,6 +93,7 @@ def classify(status, entry=None):
 
 
 def atomic_json(path, value):
+    """Replace a complete JSON file so readers cannot observe a partially written report."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix(path.suffix + '.tmp')
@@ -93,6 +102,7 @@ def atomic_json(path, value):
 
 
 def instance_id(info):
+    """Require an official instance identifier before associating evidence with a test."""
     value = info.get('id') or info.get('_id')
     if not isinstance(value, str) or not value:
         raise ValueError('Suite returned no instance ID')
@@ -100,6 +110,7 @@ def instance_id(info):
 
 
 def module_key(module):
+    """Keep different variants of the same module distinct in reports and comparisons."""
     variant = module.get('variant') or {}
     return module['testModule'] + (' [' + json.dumps(variant, sort_keys=True) + ']' if variant else '')
 
@@ -118,6 +129,7 @@ class ConformanceRunner:
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
     def execute_test_module(self, plan_id, module, component):
+        """Drive one official instance and retain its outcome, native handoff and log identity."""
         key = module_key(module)
         result = {'test_name': key, 'module_name': module['testModule'], 'variant': module.get('variant', {}),
                   'status': 'ERROR', 'evidence_uploaded': False}
@@ -165,6 +177,7 @@ class ConformanceRunner:
         return result
 
     def run_plan(self, component, config_template_path, env_vars, expected_failures):
+        """Execute an isolated plan and require passing results plus a retrievable official export."""
         config = render_template(config_template_path, env_vars)
         if (not isinstance(config,dict) or not isinstance(config.get('plan_name'),str) or not config['plan_name'].strip()
                 or not isinstance(config.get('configuration'),dict) or not isinstance(config.get('variant',{}),dict)):
@@ -200,6 +213,7 @@ class ConformanceRunner:
         except Exception as exc:
             artifact_error = str(exc)
         passed = counts['PASSED'] + counts['WARNING']
+        # Skips alone do not qualify a release; missing official exports also reject it.
         gate = failures == 0 and passed > 0 and artifact_error is None
         summary = {'component': component, 'plan_name': config['plan_name'], 'plan_id': plan_id,
                    'status': ('BASELINE_ACCEPTED' if counts['EXPECTED_FAILURE'] else 'PASSED') if gate else 'FAILED',
@@ -215,11 +229,13 @@ class ConformanceRunner:
 
 
 def save_badge(path, label, status):
+    """Render the effective gate outcome without changing the underlying report."""
     color = '#4c1' if status == 'PASSED' else '#dfb317' if status == 'BASELINE_ACCEPTED' else '#e05d44'
     path.write_text(BadgeGenerator.generate_svg(label, status, color), encoding='utf-8')
 
 
 def main(argv=None):
+    """Run the selected components and return failure if any required gate rejects the run."""
     configure_network()
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
