@@ -31,3 +31,7 @@ This is a draft submission aid, not a certification claim. `EVIDENCE_ROOT` means
 
 | Allowed variants, actual metadata and selected mTLS probe: 2 PASSED, 4 FAILED, 1 INTERRUPTED | Official partial plan 45vEXNrkMzWtm | closeout/a1-decision.json; closeout/variant-a3037a5d/issuer-plan-available.json, issuer-metadata.json, authorization-server-metadata.json and mtls-reports/plan-45vEXNrkMzWtm-export.zip | verified |
 | Certificate-bound mTLS end-to-end qualification | Same partial plan | Observed token_type=Bearer, missing token cnf; no complete plan qualification | not verified |
+
+| Scratch hosted attempt: authorization and ubuntu-24.04 selection | 40164823727; ce7a50e81cdea4081fa1061573e24c8d76094d68 | b2-scratch/run-state.json; run-40164823727-logs.zip | verified |
+| B2 full-stack criteria | Same scratch run | WORKFLOW_BUG: empty AWS variables override generated .env; image preparation exit 1 before stack startup; zero official plans and zero uploaded artifacts | not verified |
+| First B2 rerun and proposed startup/report-retention diffs | No rerun | b2-scratch/proposed-startup-fix.diff and proposed-report-retention.diff; neither applied | external pending |
