@@ -84,3 +84,17 @@ Two historical conformance-summary.json files contain embedded development priva
 Detail 1: `a1-decision.json` (not included in the repository); `issuer-plan-available.json` (not included in
 the repository); `issuer-metadata.json` (not included in the repository); `authorization-server-metadata.json`
 (not included in the repository)
+
+## Reviewer access
+
+Google Drive upload is deferred. A destination has not been supplied, and no
+Drive folder or upload is claimed here. Upload and reviewer access are
+**not verified**. The retained reports and logs remain in the separate local
+evidence handoff; they are not included in this repository.
+
+The eventual handoff must include the indexed JDK 11 logs, result receipts,
+triage evidence, and the downloaded logs and artifacts from hosted scratch run
+`40165722639` at `9c8d94ad9da42ac458ea304192118266577469f9`.
+Raw credential exports, private keys and generated configuration remain excluded.
+The hosted run's raw official export ZIP bytes were not retained and cannot be
+represented as present in that handoff.
