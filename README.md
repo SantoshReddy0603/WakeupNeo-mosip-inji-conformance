@@ -134,8 +134,7 @@ GiB. Keep ports `8443`, `8445`, `8446`, `9000` and `9001` available.
 
 Internet access is required for upstream source, images, Maven dependencies and the matching Playwright
 browser. No external issuer account, real personal records or GitHub token is needed for local synthetic
-issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in [scratch run
-40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at
+issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in private scratch run `40165722639` at
 `9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the
 separate B4 empty-cache procedure.
 
@@ -212,6 +211,14 @@ requires its actual environment settings. `--insecure` is explicitly for local s
 CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See
 [SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
 
+## Evidence access
+
+Hosted full-stack evidence comes from private scratch run `40165722639` at
+`9c8d94ad9da42ac458ea304192118266577469f9`. The scratch repository is not a
+reviewer-accessible evidence link. See [the evidence index](evidence/README.md).
+The Google Drive evidence handoff is deferred; upload and reviewer access are
+**not verified**. No Drive destination is claimed until one is supplied.
+
 ## Reports and interfaces
 
 | Artifact | Purpose |
@@ -232,15 +239,14 @@ keys and runtime evidence stay outside committed source.
 
 The updated candidate passed [ordinary CI
 40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its
-[scratch run
-40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639)
+private scratch run `40165722639`
 verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services
 started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114
 storage objects were verified; and five owned volumes were removed with none remaining. Official run
 `2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4
 PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2
 implementation success is not stock conformance or certification. See [validation evidence and
-limits](docs/VALIDATION.md#b2-verified-scratch-retry--25-october-2026).
+limits](docs/VALIDATION.md#hosted-validation-verified-scratch-retry--25-october-2026).
 
 - Recorded hosted implementation checks passed all five jobs on their tested revision. Inspect the repository Actions tab for the exact revision you intend to run.
 - A recorded release-triggered full-stack run completed reporting, storage, artifact upload and cleanup; six REVIEW outcomes failed the strict gate. Historical evidence is retained separately.
@@ -263,23 +269,26 @@ mvn -f testrig/pom.xml test-compile
 
 - Official verifier target: **`oid4vp-1final-verifier-test-plan`**. No alternative profile or protocol-translation proxy is substituted.
 - Six official verifier REVIEW outcomes remain unresolved; neither diagnostic issuer PASS nor screenshot capture changes their status (stock verifier export `plan-fnLpdorj2jZAD-export.zip`).
-- Request URI POST: instance `49xL7f98HbXNJZr` in stock run `019bf015dcef47029010faa06a2cf788` ends REVIEW
-with “Upload a screenshot showing that the verifier successfully verified the presented credential (for
-example, a page displaying the credential contents).” Its `url_query` variant never runs the three
-POST/wallet_nonce conditions; pinned suite source only calls that override for signed request URIs,
-establishing a suite applicability/coverage gap rather than a POST failure attributable to the harness or
-Verify. Actual native POST interoperability is **not verified**; see [validation limits](docs/VALIDATION.md)
-for the local reproduction evidence.
-- Status lists: stock happy-flow instance `qyHOyhAz17GKHWo` has native `statusCheck: []` and a suite
-credential without a status reference, while its official message requests a verification screenshot (same
-verifier export). This is missing coverage in the suite fixture, not evidence of successful status-list
-handling or an observed product rejection; no failing status-list test exists in this selected export to
-reproduce. Actual status-list interoperability is **not verified**, and no workaround or fixture substitution
-was introduced.
+- Request URI POST interoperability is **not verified**. The selected `url_query`
+  variant bypasses the relevant POST conditions. See the
+  [verifier coverage details](docs/STOCK_CERTIFY_TRIAGE.md#verifier-coverage-details).
+- Status-list interoperability is **not verified**. The suite credential has no
+  status reference, so the recorded result does not establish status-list handling.
 - Fresh keys, volumes and source extraction were tested; a separate machine with completely empty Docker/Maven caches remains unverified.
-- Required-reviewer enforcement is unavailable on the current private repository plan; explicit operator approval is used.
+- Live execution requires explicit authorization. Environment reviewer enforcement
+  is **not verified** for the current public repository configuration.
 - Course issuance and the verifier plan's PID fixture are independent plans; combined execution does not prove course-to-PID credential interoperability.
 - Unrelated complete master functional suites were not executed. Formal certification is not claimed.
+
+## Repository collaborators
+
+- [SantoshReddy (@SantoshReddy0603)](https://github.com/SantoshReddy0603)
+- [Cheruku Sri Charan Reddy (@sricharanreddycheruku)](https://github.com/sricharanreddycheruku)
+- [Varun576253](https://github.com/Varun576253)
+- [car-ui](https://github.com/car-ui)
+
+These accounts have repository access. Contribution attribution remains in the
+existing commit history; no contribution roles or authorship have been inferred.
 
 ## Documentation
 
@@ -299,8 +308,7 @@ Native patches and Maven artifact names remain pinned to their audited alpha sou
 
 All services are defined in docker/docker-compose.yml. Existing TLS routes share one ingress with a Docker DNS
 alias for the unchanged advertised hostname. Host listeners remain on loopback. No credential, request or
-result translation is added. Native hosted execution is verified for [scratch run
-40165722639](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch/actions/runs/40165722639) at
+result translation is added. Native hosted execution is verified for private scratch run `40165722639` at
 `9c8d94ad9da42ac458ea304192118266577469f9`, with the strict conformance gate still FAILED.
 
 ```bash
