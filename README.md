@@ -134,6 +134,31 @@ mTLS-labelled cases produced 2 PASSED, 4 FAILED and 1 INTERRUPTED (official plan
 verified**. The three entry-point defaults remain unchanged; [the triage](docs/STOCK_CERTIFY_TRIAGE.md)
 records all before/after outcomes and the decision.
 
+## Recorded report screenshots
+
+These are browser captures of unmodified retained reports from stock run
+`019bf015dcef47029010faa06a2cf788`, not a new execution. The combined TestNG
+view includes one gate assertion: 6 passed, 17 failed and 3 skipped checks.
+Original official outcomes remain 6 PASSED, 10 INTERRUPTED, 6 REVIEW and 3 SKIPPED.
+
+![Recorded combined Extent report with the failed conformance gate](docs/images/recorded-combined-report.png)
+
+<details>
+<summary>Per-module TestNG reports</summary>
+
+Certify: 2 passed, 11 failed and 3 skipped checks, including its gate assertion.
+
+![Recorded Certify TestNG report preserving interruptions](docs/images/recorded-certify-report.png)
+
+Verify: 4 passed and 7 failed checks, including six REVIEW assertions and its gate assertion.
+
+![Recorded Verify TestNG report preserving REVIEW outcomes](docs/images/recorded-verify-report.png)
+
+</details>
+
+[Capture sources and hashes](docs/SCREENSHOTS.md) identify the retained report pages.
+These report screenshots do not establish new service execution or product conformance.
+
 ## Requirements
 
 The validated environment is Windows with Ubuntu/WSL, Docker Desktop Linux containers and Ubuntu integration,

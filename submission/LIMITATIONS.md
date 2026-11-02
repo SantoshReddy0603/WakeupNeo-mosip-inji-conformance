@@ -5,9 +5,9 @@ The harness is implemented, but the identified stock release is not fully confor
 The separately labelled patched diagnostic `d39d9f65b0f04db79eb3d25501c9f26c` has 12 issuer PASSED and 3
 SKIPPED and does not qualify stock. Evidence: respective official issuer exports listed in EVIDENCE_INDEX.md.
 
-Three directly observed non-DPoP stock product gaps are: signed metadata returns an empty HTTP 200 response
-; a legitimate unknown extension field causes HTTP 500 ; and the
-standard credential_identifier field causes HTTP 500 . Exact response bodies and native
+Three directly observed non-DPoP stock product gaps are: signed metadata returns
+an empty HTTP 200 response; a legitimate unknown extension field causes HTTP 500;
+and the standard credential_identifier field causes HTTP 500. Exact response bodies and native
 patch associations are in [stock triage](../docs/STOCK_CERTIFY_TRIAGE.md). The separate sender-constraining check must not be
 mistaken for a fix to these three failures. Additional stock holder-binding/error behavior appeared in the
 mTLS-labelled partial plan 45vEXNrkMzWtm (2 PASSED, 4 FAILED, 1 INTERRUPTED): token cnf was absent, issued
