@@ -106,5 +106,5 @@ bridge scenarios. Run setup before `python -m pytest tests -q`.
 Recorded official outcomes and their run IDs are in the
 [README](../README.md#recorded-stock-and-patched-results),
 [stock triage](STOCK_CERTIFY_TRIAGE.md) and
-[evidence index](../submission/EVIDENCE_INDEX.md).
+[evidence index](../evidence/README.md).
 This document lists inputs only; no new live plan was executed for it.

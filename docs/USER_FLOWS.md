@@ -56,4 +56,4 @@ Patched issuer diagnostics are labelled separately and cannot qualify stock.
 Use a readable terminal font and browser zoom. Show status names as text as well
 as color, and state the difference between official module counts and TestNG's
 extra gate assertion. Keep credentials, generated configuration and raw credential
-contents off screen. Follow [the demo commands](../submission/DEMO_SCRIPT.md).
+contents off screen. Follow [the manual run commands](../README.md#run-both-components-and-inspect-reports).

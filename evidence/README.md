@@ -74,4 +74,4 @@ locally for the future handoff. They must not be described as raw official expor
 Independent empty-cache execution, POST/status-list interoperability and organizer
 acceptance of integrated Java 21 remain outside the verified scope. See
 [validation limits](../docs/VALIDATION.md) and the
-[submission evidence index](../submission/EVIDENCE_INDEX.md).
+[requirement checklist](../REQUIREMENTS_STATUS.md).

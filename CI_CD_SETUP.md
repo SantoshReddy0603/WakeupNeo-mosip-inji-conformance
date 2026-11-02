@@ -38,4 +38,4 @@ Runner operation: [RUNNER_OPERATIONS.md](RUNNER_OPERATIONS.md). Empty-cache vali
 
 Managed production-release jobs use the configured unmodified Certify image. Patched builds are an explicit manual diagnostic choice and remain separately labelled in conformance provenance. Their PASS counts never qualify stock releases. REVIEW stays a strict failure for both.
 
-The unified ingress removes the host-gateway dependency. A workflow file alone does not prove hosted execution. Provisioning privileged runners, publication and merges retain the owner-approval boundary. The scope of the verified hosted managed stack is scratch run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; other hosts, profiles and B4 empty-cache execution remain not verified.
+The unified ingress removes the host-gateway dependency. A workflow file alone does not prove hosted execution. Provisioning privileged runners, publication and merges retain the owner-approval boundary. The scope of the verified hosted managed stack is scratch run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; other hosts, profiles and independent empty-cache execution remain not verified.

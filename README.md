@@ -244,6 +244,226 @@ requires its actual environment settings. `--insecure` is explicitly for local s
 CA for other environments. PowerShell equivalents are available in `run-conformance.ps1`. See
 [SETUP.md](SETUP.md) before reusing existing database volumes or credentials.
 
+## Run both components and inspect reports
+
+Use this persistent workflow to run both components and keep the official suite
+and MinIO available while inspecting the results. Complete
+[environment preparation](#prepare-the-environment-and-images) first.
+The clean-run workflow above removes its owned deployment at completion.
+
+### 1. Prepare the terminal
+
+Run in Ubuntu/WSL Bash. Adjust the checkout path if needed. Activating the
+prepared virtual environment selects the installed Python dependencies; the
+exports select that interpreter and enable local hostname resolution.
+
+```bash
+cd ~/WakeupNeo-mosip-inji-conformance
+source ~/inji-conformance-venv/bin/activate
+export PYTHON="$(command -v python)"
+export CONFORMANCE_RESOLVE_LOCAL=true
+python runner/setup.py
+```
+
+### 2. Start and check services
+
+Start the prepared Certify, Verify and storage profiles without rebuilding images,
+then check all containers.
+Confirm all ten services are running; investigate exited or restarting services
+before proceeding. The execution wrapper also waits for service readiness.
+
+```bash
+docker compose --env-file docker/.env \
+  -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage up -d --no-build
+
+docker compose --env-file docker/.env \
+  -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage ps -a
+```
+
+### 3. Execute with a separate report folder and log
+
+A unique directory preserves each execution's reports. The combined wrapper
+creates and runs both official plans, generates native and consolidated reports,
+and uploads artifacts to MinIO. A fresh report directory does not reset existing
+database volumes.
+
+Copy the complete block so the conformance exit status is captured immediately
+after the pipeline. The saved `PIPESTATUS` array retains both the runner's status
+and the log writer's status when output is piped through `tee`. `--insecure` is for local self-signed TLS.
+
+```bash
+export REPORT_DIR="$(mktemp -d "$HOME/inji-reports-XXXXXXXX")"
+export RUN_LOG="${REPORT_DIR}.log"
+printf 'Report folder: %s\n' "$REPORT_DIR"
+
+set +e
+bash run-full-stack-conformance.sh \
+  --insecure --parallel 2 --reports-dir "$REPORT_DIR" \
+  2>&1 | tee "$RUN_LOG"
+RUN_STATUSES=("${PIPESTATUS[@]}")
+RUN_EXIT=${RUN_STATUSES[0]}
+LOG_EXIT=${RUN_STATUSES[1]}
+printf 'Actual conformance exit: %s\n' "$RUN_EXIT"
+printf 'Log write exit: %s\n' "$LOG_EXIT"
+printf 'Console log: %s\n' "$RUN_LOG"
+```
+
+A nonzero exit can indicate a rejected release gate or an operational failure.
+The recorded stock results produce exit 1 because the gate rejects the build.
+Do not assume that every exit 1 has that cause. The log writer should return 0.
+Inspect current reports and reporter/storage statuses before interpreting it.
+Missing reports, startup errors and storage failures require investigation.
+
+### 4. Identify the run and its reports
+
+Use the current summary to obtain the run ID, official plan IDs and complete
+browser report URLs. Keep using this terminal so `REPORT_DIR` remains available.
+
+```bash
+python - <<'PY'
+import json
+import os
+from pathlib import Path
+
+folder = Path(os.environ["REPORT_DIR"])
+summary = folder / "conformance-summary.json"
+if not summary.is_file():
+    raise SystemExit("No summary was produced. Inspect the console log before continuing.")
+report = json.loads(summary.read_text())
+run_id = report["run_id"]
+required = [folder / "extent-report.html", folder / "reporter-exit-statuses.json"]
+plans = {}
+for component in ("certify", "verify"):
+    plan_id = report.get("runs", {}).get(component, {}).get("summary", {}).get("plan_id")
+    if not plan_id:
+        raise SystemExit(f"No {component} plan ID. Inspect startup and runner errors.")
+    plans[component] = plan_id
+    required.append(folder / f"existing-{component}" / run_id / "index.html")
+missing = [str(path) for path in required if not path.is_file()]
+if missing:
+    raise SystemExit("Missing current reports: " + ", ".join(missing))
+
+print("\nRUN ID:", run_id)
+print("REPORT FOLDER:", folder)
+for component, plan_id in plans.items():
+    print(component.upper(), "PLAN ID:", plan_id)
+
+print("\nREPORT LINKS:")
+print("http://localhost:8765/extent-report.html")
+print(f"http://localhost:8765/existing-certify/{run_id}/index.html")
+print(f"http://localhost:8765/existing-verify/{run_id}/index.html")
+PY
+
+cat "$REPORT_DIR/reporter-exit-statuses.json"
+```
+
+If the summary, reporter-status file or HTML reports are missing, investigate
+before continuing. Use the new run's IDs and results.
+
+### 5. Serve and open the HTML reports
+
+Serve the report directory on loopback to open the native and combined reports
+in a browser. Port `8765` must be available. Stop any previous report server in
+its terminal with Ctrl+C before starting another.
+
+```bash
+python -m http.server 8765 --bind 127.0.0.1 \
+  --directory "$REPORT_DIR"
+```
+
+Leave this terminal running and open the URLs printed in step 4.
+
+| Report | Purpose |
+|---|---|
+| Certify native report | Inspect issuer outcomes in the existing Certify API test rig |
+| Verify native report | Inspect verifier outcomes and unresolved REVIEW results |
+| Combined `extent-report.html` | Inspect consolidated outcomes and release gates |
+
+Official interruptions and REVIEW results remain visible. TestNG maps them to
+failed assertions and adds a gate assertion, so its method counts can differ
+from the official module counts. Interpret the current run rather than assuming
+historical counts.
+
+### 6. Inspect official plans and stored artifacts
+
+Open the local interfaces while Docker services remain running:
+
+| Interface | What to inspect |
+|---|---|
+| [Official suite](https://localhost:8443) | Select **Test Plans** and find both plan IDs printed in step 4 |
+| [MinIO console](http://localhost:9001) | Open `automationtests` → `openid-conformance` → the run ID printed in step 4 |
+
+For local development, accept the generated certificate warning if prompted.
+Sign into MinIO with the generated local credentials in `docker/.env`:
+`AWS_ACCESS_KEY_ID` is the username and `AWS_SECRET_ACCESS_KEY` is the password.
+Read those two values privately before recording; do not display the file, keys
+or raw credentials. The credentials are preserved across runs unless explicitly
+changed; each execution gets a new run ID and artifact prefix. If `S3_BUCKET` was
+overridden, open that configured bucket instead of `automationtests`.
+
+The local `artifact-storage-validation.json` records the upload and read-back.
+It is not an object to look for in the MinIO console. To perform another read-only
+integrity check, stop the report server with Ctrl+C and run this in the same
+terminal, where `REPORT_DIR` and the virtual environment are still available:
+
+```bash
+python runner/verify_storage.py "$REPORT_DIR" --env-file docker/.env \
+  --output "$REPORT_DIR/storage-readback.json"
+```
+
+This reads the current run's actual stored objects and writes a local receipt.
+No new official conformance test is started. Keep private keys and raw credential
+contents private.
+
+### 7. Inspect expected-failure configuration
+
+In another terminal, activate the prepared environment and inspect the
+configured exemptions. You can also reuse the first terminal after stopping
+the report server:
+
+```bash
+cd ~/WakeupNeo-mosip-inji-conformance
+source ~/inji-conformance-venv/bin/activate
+cat config/expected-failures.json
+```
+
+The submitted default is empty, so it applies no exemptions. Check the actual
+file if using a modified configuration.
+
+### 8. Inspect implementation CI and optional regression checks
+
+Open the repository's [Actions page](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions)
+and choose the run for the revision being shown. Recorded implementation CI
+[41447614435](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions/runs/41447614435)
+passed all five jobs at `f28d53004b20b5f88c911668152634f3389a10d9`.
+It is a separate execution from the local conformance run. Green implementation
+CI does not override stock interruptions, REVIEW outcomes or failed release gates.
+
+These optional commands inspect workflow definitions and run labelled harness
+contract tests for exception/diff handling; the tests are not official evidence:
+
+```bash
+cat .github/workflows/ci.yml
+cat .github/workflows/full-stack-conformance.yml
+python -m pytest tests/test_optional_features.py -q -k 'exception_file or expected_failure or diff_records'
+```
+
+No GitHub workflow is dispatched by these commands.
+
+### 9. Stop the report server and services
+
+Press Ctrl+C in the report-server terminal when finished. This stops only the
+HTTP server. To stop the persistent deployment without deleting its volumes,
+run from the same checkout:
+
+```bash
+docker compose --env-file docker/.env \
+  -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage stop
+```
+
 ## Evidence access
 
 Hosted full-stack evidence comes from private scratch run `40165722639` at
@@ -253,6 +473,9 @@ The Google Drive evidence handoff is deferred; upload and reviewer access are
 **not verified**. No Drive destination is claimed until one is supplied.
 
 ## Reports and interfaces
+
+For the complete manual run and report-viewing sequence, see
+[Run both components and inspect reports](#run-both-components-and-inspect-reports).
 
 | Artifact | Purpose |
 |---|---|
@@ -294,7 +517,9 @@ Local checks after environment/image preparation:
 
 ```bash
 python -m pytest tests -q
-bash -n run-conformance.sh run-clean-conformance.sh run-full-stack-conformance.sh
+for script in run-conformance.sh run-clean-conformance.sh run-full-stack-conformance.sh docker/oidf/start.sh; do
+  bash -n "$script"
+done
 mvn -f testrig/pom.xml test-compile
 ```
 
