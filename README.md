@@ -6,30 +6,47 @@ Run the OpenID Foundation conformance suite against real Inji services, feed off
 
 ## Quick start
 
-Prerequisites: Linux or Ubuntu/WSL with Docker Compose, Python 3.12 and the
-installed Python requirements. Full reporting also needs Java 21, Maven 3.8.7,
-the installed native API rigs and Chromium. The standalone bridge targets Java 11.
+Prerequisites: Linux or Ubuntu/WSL with Git, Docker Compose and Python 3.12.
+Full reporting also needs Java 21, Maven 3.8.7 and Chromium. The reporting lifecycle
+fetches the pinned native API-test sources when needed. The standalone bridge targets Java 11.
 Follow [environment preparation](#prepare-the-environment-and-images) for image
 builds and browser installation before starting the services.
 
-Clone the private submission repository with an account that has accepted its
-invitation, then work from its root directory:
+For a new checkout, clone with an account that has access to the private
+repository. This places it at the same absolute path used by the commands below:
 
 ```bash
-git clone https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance.git
-cd WakeupNeo-mosip-inji-conformance
+git clone https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance.git \
+  "$HOME/WakeupNeo-mosip-inji-conformance"
+cd "$HOME/WakeupNeo-mosip-inji-conformance"
 ```
+
+If that folder already exists, use it instead of cloning over it. A downloaded
+ZIP also works for the persistent run below, but has no Git history, so `git pull`
+and the `git archive` clean-extraction example do not apply to it.
+
+**Existing Docker volumes:** a new clone or ZIP generates different development
+credentials. The Compose project name remains `inji-conformance-harness`, so it
+can still find the previous installation's volumes. Before starting services,
+reuse the matching ignored `.env`, keys and authentication configuration from
+that installation. See [checkout migration](#moving-a-checkout-with-existing-docker-volumes).
 
 Run setup **before the tests or deployment**. It generates development keys and
 the TLS certificate required by the Compose mount checks. Generated files are
 local configuration and must not be committed.
 
 ```bash
+python3 -m venv "$HOME/inji-conformance-venv"
+source "$HOME/inji-conformance-venv/bin/activate"
 python -m pip install -r runner/requirements-dev.txt
 python runner/setup.py
 ```
 
-Choose one live execution mode after environment preparation:
+For a manual walkthrough, complete [environment preparation](#prepare-the-environment-and-images),
+then follow [the persistent run steps](#run-both-components-and-inspect-reports).
+The fresh-data and component-only sections are alternatives, not additional steps.
+
+Choose exactly one live execution command after environment preparation:
 
 ```bash
 bash run-conformance.sh --component certify --insecure
@@ -173,9 +190,10 @@ separate empty-cache procedure.
 
 ## Prepare the environment and images
 
-Run inside Ubuntu/WSL from this repository. Keep the virtual environment outside the source tree:
+Run inside Ubuntu/WSL from the repository root. Keep the virtual environment outside the source tree:
 
 ```bash
+cd "$HOME/WakeupNeo-mosip-inji-conformance"
 umask 022
 python3 -m venv ~/inji-conformance-venv
 source ~/inji-conformance-venv/bin/activate
@@ -205,7 +223,7 @@ For a separate patched diagnostic, build its image with `python runner/build_nat
 
 ## Run both components with fresh data
 
-After committing or checking out the desired source revision, create a new source-only extraction for each run. Do not copy `.env`, generated keys or old reports into it:
+From a Git clone, after committing or checking out the desired source revision, create a new source-only extraction for each run. ZIP extractions should use the persistent workflow below. Do not copy `.env`, generated keys or old reports into it:
 
 ```bash
 SOURCE_ROOT="$PWD"
@@ -258,10 +276,12 @@ prepared virtual environment selects the installed Python dependencies; the
 exports select that interpreter and enable local hostname resolution.
 
 ```bash
-cd ~/WakeupNeo-mosip-inji-conformance
+cd "$HOME/WakeupNeo-mosip-inji-conformance"
 source ~/inji-conformance-venv/bin/activate
 export PYTHON="$(command -v python)"
 export CONFORMANCE_RESOLVE_LOCAL=true
+export VERIFY_UI_URL=https://host.docker.internal:8445/verify
+export VCI_AUTHORIZATION_SERVER=https://host.docker.internal:8446/auth/realms/course
 python runner/setup.py
 ```
 
@@ -269,8 +289,9 @@ python runner/setup.py
 
 Start the prepared Certify, Verify and storage profiles without rebuilding images,
 then check all containers.
-Confirm all ten services are running; investigate exited or restarting services
-before proceeding. The execution wrapper also waits for service readiness.
+Container status alone is not application readiness. Require all ten services
+to be running and the readiness command to exit 0 before proceeding. Database
+containers can be healthy even when application passwords do not match.
 
 ```bash
 docker compose --env-file docker/.env \
@@ -280,7 +301,12 @@ docker compose --env-file docker/.env \
 docker compose --env-file docker/.env \
   -f docker/docker-compose.yml \
   --profile certify --profile verify --profile storage ps -a
+
+python runner/wait_ready.py --combined --insecure --timeout 180
 ```
+
+If readiness fails, stop here and use [startup diagnostics](#startup-diagnostics).
+Do not run the report-ID command until an actual conformance execution finishes.
 
 ### 3. Execute with a separate report folder and log
 
@@ -356,11 +382,17 @@ print(f"http://localhost:8765/existing-certify/{run_id}/index.html")
 print(f"http://localhost:8765/existing-verify/{run_id}/index.html")
 PY
 
-cat "$REPORT_DIR/reporter-exit-statuses.json"
+if [ -f "$REPORT_DIR/reporter-exit-statuses.json" ]; then
+  cat "$REPORT_DIR/reporter-exit-statuses.json"
+else
+  printf 'No reporter output. Inspect the console log: %s\n' "$RUN_LOG"
+fi
 ```
 
 If the summary, reporter-status file or HTML reports are missing, investigate
-before continuing. Use the new run's IDs and results.
+before continuing. Use the new run's IDs and results. A missing summary means
+the reporting stage has not produced this execution's results; use
+[startup diagnostics](#startup-diagnostics) instead of opening old report URLs.
 
 ### 5. Serve and open the HTML reports
 
@@ -424,7 +456,7 @@ configured exemptions. You can also reuse the first terminal after stopping
 the report server:
 
 ```bash
-cd ~/WakeupNeo-mosip-inji-conformance
+cd "$HOME/WakeupNeo-mosip-inji-conformance"
 source ~/inji-conformance-venv/bin/activate
 cat config/expected-failures.json
 ```
@@ -463,6 +495,58 @@ docker compose --env-file docker/.env \
   -f docker/docker-compose.yml \
   --profile certify --profile verify --profile storage stop
 ```
+
+### Startup diagnostics
+
+If the summary or reporter-status file is missing, stay in the same terminal
+and inspect this execution's log and service errors before proceeding:
+
+```bash
+printf 'Report folder: %s\nConsole log: %s\n' "$REPORT_DIR" "$RUN_LOG"
+ls -la "$REPORT_DIR"
+tail -n 60 "$RUN_LOG"
+docker compose --env-file docker/.env -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage ps -a
+docker compose --env-file docker/.env -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage logs --tail 80 \
+  course-certify final-verify course-database final-database
+```
+
+`password authentication failed for user "postgres"` indicates that the generated
+application credentials do not match the reused database. Startup timeouts and
+Verify HTTP 503 can follow from that mismatch; they are not conformance outcomes.
+The self-signed TLS warnings from an explicit local `--insecure` run do not explain
+a PostgreSQL authentication failure. Inspect logs privately and redact secrets
+before sharing them. After fixing startup, repeat step 3 with a new report folder;
+keep the failed run's log rather than treating an old report as the new result.
+
+### Moving a checkout with existing Docker volumes
+
+Keep the previous checkout until the new one is working. Its generated state
+belongs with its persistent volumes. Back up the new checkout's generated state
+before restoring the matching files from the previous installation:
+
+- `docker/.env`
+- `docker/local/certify-keys/` and `docker/local/verify-keys/`
+- `docker/local/wallet-keys/` and `docker/local/public-wallet-keys/`
+- `docker/local/keycloak/`
+- `docker/nginx/certs/`
+
+These files are private runtime state, excluded by `.gitignore`; never commit them.
+Restore them as a consistent set, rather than changing only a database or keystore
+password. The PostgreSQL image does not change an existing database password when
+its `POSTGRES_PASSWORD` environment value changes. With the terminal prepared as
+in step 1, recreate the same project's containers so they load the restored
+environment; `docker compose restart` alone retains their previous environment:
+
+```bash
+docker compose --env-file docker/.env -f docker/docker-compose.yml \
+  --profile certify --profile verify --profile storage up -d --no-build --force-recreate
+python runner/wait_ready.py --combined --insecure --timeout 180
+```
+
+This preserves the volumes. No volume deletion or database-password reset is
+required for that recovery.
 
 ## Evidence access
 
