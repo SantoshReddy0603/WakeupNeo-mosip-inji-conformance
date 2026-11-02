@@ -29,7 +29,7 @@ and the `git archive` clean-extraction example do not apply to it.
 credentials. The Compose project name remains `inji-conformance-harness`, so it
 can still find the previous installation's volumes. Before starting services,
 reuse the matching ignored `.env`, keys and authentication configuration from
-that installation. See [checkout migration](#moving-a-checkout-with-existing-docker-volumes).
+that installation. See [checkout migration](#if-startup-fails-after-moving-the-folder).
 
 Run setup **before the tests or deployment**. It generates development keys and
 the TLS certificate required by the Compose mount checks. Generated files are
@@ -264,88 +264,48 @@ CA for other environments. PowerShell equivalents are available in `run-conforma
 
 ## Run both components and inspect reports
 
-Use this persistent workflow to run both components and keep the official suite
-and MinIO available while inspecting the results. Complete
-[environment preparation](#prepare-the-environment-and-images) first.
-The clean-run workflow above removes its owned deployment at completion.
+Use these commands in Ubuntu/WSL Bash for the prepared local folder
+`/home/santosh/WakeupNeo-mosip-inji-conformance`. Setup and matching development
+credentials must already be prepared. Do not mix `REPORT_DIR` from older commands
+with `DEMO_REPORTS` below. Keep Terminal 1 open throughout steps 1–5.
 
-### 1. Prepare the terminal
-
-Run in Ubuntu/WSL Bash. Adjust the checkout path if needed. Activating the
-prepared virtual environment selects the installed Python dependencies; the
-exports select that interpreter and enable local hostname resolution.
+### 1. Terminal 1: open the correct folder and show the stack
 
 ```bash
-cd "$HOME/WakeupNeo-mosip-inji-conformance"
-source ~/inji-conformance-venv/bin/activate
+cd /home/santosh/WakeupNeo-mosip-inji-conformance
+source /home/santosh/inji-conformance-venv/bin/activate
 export PYTHON="$(command -v python)"
 export CONFORMANCE_RESOLVE_LOCAL=true
-export VERIFY_UI_URL=https://host.docker.internal:8445/verify
-export VCI_AUTHORIZATION_SERVER=https://host.docker.internal:8446/auth/realms/course
-python runner/setup.py
-```
-
-### 2. Start and check services
-
-Start the prepared Certify, Verify and storage profiles without rebuilding images,
-then check all containers.
-Container status alone is not application readiness. Require all ten services
-to be running and the readiness command to exit 0 before proceeding. Database
-containers can be healthy even when application passwords do not match.
-
-```bash
-docker compose --env-file docker/.env \
-  -f docker/docker-compose.yml \
-  --profile certify --profile verify --profile storage up -d --no-build
 
 docker compose --env-file docker/.env \
   -f docker/docker-compose.yml \
-  --profile certify --profile verify --profile storage ps -a
-
-python runner/wait_ready.py --combined --insecure --timeout 180
+  --profile certify --profile verify --profile storage ps
 ```
 
-If readiness fails, stop here and use [startup diagnostics](#startup-diagnostics).
-Do not run the report-ID command until an actual conformance execution finishes.
+### 2. Create a fresh report folder and run
 
-### 3. Execute with a separate report folder and log
-
-A unique directory preserves each execution's reports. The combined wrapper
-creates and runs both official plans, generates native and consolidated reports,
-and uploads artifacts to MinIO. A fresh report directory does not reset existing
-database volumes.
-
-Copy the complete block so the conformance exit status is captured immediately
-after the pipeline. The saved `PIPESTATUS` array retains both the runner's status
-and the log writer's status when output is piped through `tee`. `--insecure` is for local self-signed TLS.
+Copy the entire block. Capture `PIPESTATUS[0]` immediately after the pipeline.
+Let the command finish before continuing.
 
 ```bash
-export REPORT_DIR="$(mktemp -d "$HOME/inji-reports-XXXXXXXX")"
-export RUN_LOG="${REPORT_DIR}.log"
-printf 'Report folder: %s\n' "$REPORT_DIR"
+export DEMO_REPORTS="$(mktemp -d "$HOME/inji-demo-reports-XXXXXXXX")"
+export DEMO_LOG="${DEMO_REPORTS}.log"
+printf 'Report folder: %s\n' "$DEMO_REPORTS"
 
 set +e
 bash run-full-stack-conformance.sh \
-  --insecure --parallel 2 --reports-dir "$REPORT_DIR" \
-  2>&1 | tee "$RUN_LOG"
-RUN_STATUSES=("${PIPESTATUS[@]}")
-RUN_EXIT=${RUN_STATUSES[0]}
-LOG_EXIT=${RUN_STATUSES[1]}
+  --insecure --parallel 2 --reports-dir "$DEMO_REPORTS" \
+  2>&1 | tee "$DEMO_LOG"
+RUN_EXIT=${PIPESTATUS[0]}
 printf 'Actual conformance exit: %s\n' "$RUN_EXIT"
-printf 'Log write exit: %s\n' "$LOG_EXIT"
-printf 'Console log: %s\n' "$RUN_LOG"
 ```
 
-A nonzero exit can indicate a rejected release gate or an operational failure.
-The recorded stock results produce exit 1 because the gate rejects the build.
-Do not assume that every exit 1 has that cause. The log writer should return 0.
-Inspect current reports and reporter/storage statuses before interpreting it.
-Missing reports, startup errors and storage failures require investigation.
+A failed release gate can return 1, but startup, reporting and storage errors also
+need investigation. If no summary is produced, stop here and inspect
+`tail -n 60 "$DEMO_LOG"`; do not use old report links. This shell stays out of
+`set -e` so an inspection error does not close the interactive terminal.
 
-### 4. Identify the run and its reports
-
-Use the current summary to obtain the run ID, official plan IDs and complete
-browser report URLs. Keep using this terminal so `REPORT_DIR` remains available.
+### 3. Print this run's ID, plan IDs and complete report links
 
 ```bash
 python - <<'PY'
@@ -353,200 +313,114 @@ import json
 import os
 from pathlib import Path
 
-folder = Path(os.environ["REPORT_DIR"])
+folder = Path(os.environ["DEMO_REPORTS"])
 summary = folder / "conformance-summary.json"
 if not summary.is_file():
-    raise SystemExit("No summary was produced. Inspect the console log before continuing.")
+    raise SystemExit("No summary was produced. Inspect DEMO_LOG before continuing.")
 report = json.loads(summary.read_text())
 run_id = report["run_id"]
-required = [folder / "extent-report.html", folder / "reporter-exit-statuses.json"]
-plans = {}
-for component in ("certify", "verify"):
-    plan_id = report.get("runs", {}).get(component, {}).get("summary", {}).get("plan_id")
-    if not plan_id:
-        raise SystemExit(f"No {component} plan ID. Inspect startup and runner errors.")
-    plans[component] = plan_id
-    required.append(folder / f"existing-{component}" / run_id / "index.html")
-missing = [str(path) for path in required if not path.is_file()]
-if missing:
-    raise SystemExit("Missing current reports: " + ", ".join(missing))
 
 print("\nRUN ID:", run_id)
 print("REPORT FOLDER:", folder)
-for component, plan_id in plans.items():
+for component in ("certify", "verify"):
+    plan_id = report.get("runs", {}).get(component, {}).get("summary", {}).get("plan_id")
+    if not plan_id:
+        raise SystemExit(f"No {component} plan ID. Inspect DEMO_LOG before continuing.")
     print(component.upper(), "PLAN ID:", plan_id)
+
+required = [folder / "extent-report.html", folder / "reporter-exit-statuses.json"]
+required += [folder / f"existing-{component}" / run_id / "index.html"
+             for component in ("certify", "verify")]
+if any(not path.is_file() for path in required):
+    raise SystemExit("Current reports are incomplete. Inspect DEMO_LOG before continuing.")
 
 print("\nREPORT LINKS:")
 print("http://localhost:8765/extent-report.html")
 print(f"http://localhost:8765/existing-certify/{run_id}/index.html")
 print(f"http://localhost:8765/existing-verify/{run_id}/index.html")
 PY
-
-if [ -f "$REPORT_DIR/reporter-exit-statuses.json" ]; then
-  cat "$REPORT_DIR/reporter-exit-statuses.json"
-else
-  printf 'No reporter output. Inspect the console log: %s\n' "$RUN_LOG"
-fi
 ```
 
-If the summary, reporter-status file or HTML reports are missing, investigate
-before continuing. Use the new run's IDs and results. A missing summary means
-the reporting stage has not produced this execution's results; use
-[startup diagnostics](#startup-diagnostics) instead of opening old report URLs.
+If the command succeeds, run:
 
-### 5. Serve and open the HTML reports
+```bash
+cat "$DEMO_REPORTS/reporter-exit-statuses.json"
+```
 
-Serve the report directory on loopback to open the native and combined reports
-in a browser. Port `8765` must be available. Stop any previous report server in
-its terminal with Ctrl+C before starting another.
+Copy the printed run ID and plan IDs. Paste the complete report URLs into the
+browser rather than typing an old run ID.
+
+### 4. Start the report server in Terminal 1
+
+If another server is already using port 8765, stop it with Ctrl+C in its terminal.
+Then run:
 
 ```bash
 python -m http.server 8765 --bind 127.0.0.1 \
-  --directory "$REPORT_DIR"
+  --directory "$DEMO_REPORTS"
 ```
 
-Leave this terminal running and open the URLs printed in step 4.
+Leave Terminal 1 running. Open these pages in order:
 
-| Report | Purpose |
+| Page | Action |
 |---|---|
-| Certify native report | Inspect issuer outcomes in the existing Certify API test rig |
-| Verify native report | Inspect verifier outcomes and unresolved REVIEW results |
-| Combined `extent-report.html` | Inspect consolidated outcomes and release gates |
+| `https://localhost:8443` | Select Test Plans and find both plan IDs printed in step 3 |
+| Certify URL printed in step 3 | Show passing and interrupted results |
+| Verify URL printed in step 3 | Show original REVIEW outcomes |
+| `http://localhost:8765/extent-report.html` | Show the combined report and failed gate |
+| `http://localhost:9001` | Open `automationtests` → `openid-conformance` → this run ID |
 
-Official interruptions and REVIEW results remain visible. TestNG maps them to
-failed assertions and adds a gate assertion, so its method counts can differ
-from the official module counts. Interpret the current run rather than assuming
-historical counts.
+For MinIO, read your local `docker/.env` privately: `AWS_ACCESS_KEY_ID` is the
+username and `AWS_SECRET_ACCESS_KEY` is the password. Do not show those values
+or raw credential contents in the recording. If the bucket was overridden, use
+its actual configured name. The storage read-back receipt is local at
+`$DEMO_REPORTS/artifact-storage-validation.json`.
 
-### 6. Inspect official plans and stored artifacts
+Official stock reference outcomes are Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED
+and Verify 4 PASSED / 6 REVIEW. Describe the actual new run if its counts differ.
+TestNG adds gate assertions, explaining its additional failed methods. REVIEW
+remains REVIEW; implementation CI being green does not qualify the product.
 
-Open the local interfaces while Docker services remain running:
-
-| Interface | What to inspect |
-|---|---|
-| [Official suite](https://localhost:8443) | Select **Test Plans** and find both plan IDs printed in step 4 |
-| [MinIO console](http://localhost:9001) | Open `automationtests` → `openid-conformance` → the run ID printed in step 4 |
-
-For local development, accept the generated certificate warning if prompted.
-Sign into MinIO with the generated local credentials in `docker/.env`:
-`AWS_ACCESS_KEY_ID` is the username and `AWS_SECRET_ACCESS_KEY` is the password.
-Read those two values privately before recording; do not display the file, keys
-or raw credentials. The credentials are preserved across runs unless explicitly
-changed; each execution gets a new run ID and artifact prefix. If `S3_BUCKET` was
-overridden, open that configured bucket instead of `automationtests`.
-
-The local `artifact-storage-validation.json` records the upload and read-back.
-It is not an object to look for in the MinIO console. To perform another read-only
-integrity check, stop the report server with Ctrl+C and run this in the same
-terminal, where `REPORT_DIR` and the virtual environment are still available:
+### 5. Terminal 2: show expected-failure configuration
 
 ```bash
-python runner/verify_storage.py "$REPORT_DIR" --env-file docker/.env \
-  --output "$REPORT_DIR/storage-readback.json"
-```
-
-This reads the current run's actual stored objects and writes a local receipt.
-No new official conformance test is started. Keep private keys and raw credential
-contents private.
-
-### 7. Inspect expected-failure configuration
-
-In another terminal, activate the prepared environment and inspect the
-configured exemptions. You can also reuse the first terminal after stopping
-the report server:
-
-```bash
-cd "$HOME/WakeupNeo-mosip-inji-conformance"
-source ~/inji-conformance-venv/bin/activate
+cd /home/santosh/WakeupNeo-mosip-inji-conformance
 cat config/expected-failures.json
 ```
 
-The submitted default is empty, so it applies no exemptions. Check the actual
-file if using a modified configuration.
+The submitted configuration is `{"expected_failures": {"certify": [], "verify": []}}`.
+It applies no exemptions. Terminal 1 continues serving the reports.
 
-### 8. Inspect implementation CI and optional regression checks
+### 6. Show implementation CI
 
-Open the repository's [Actions page](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions)
-and choose the run for the revision being shown. Recorded implementation CI
-[41447614435](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions/runs/41447614435)
-passed all five jobs at `f28d53004b20b5f88c911668152634f3389a10d9`.
-It is a separate execution from the local conformance run. Green implementation
-CI does not override stock interruptions, REVIEW outcomes or failed release gates.
+Open the [Actions page](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions)
+and select the exact commit being discussed. This is separate from the local run.
+Recorded CI [41468482875](https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance/actions/runs/41468482875)
+passed all five jobs at `951502c078008daf7af7037b9438b895266899f1`.
+No manual workflow dispatch is needed for this demonstration.
 
-These optional commands inspect workflow definitions and run labelled harness
-contract tests for exception/diff handling; the tests are not official evidence:
+### 7. Stop after inspection
 
-```bash
-cat .github/workflows/ci.yml
-cat .github/workflows/full-stack-conformance.yml
-python -m pytest tests/test_optional_features.py -q -k 'exception_file or expected_failure or diff_records'
-```
-
-No GitHub workflow is dispatched by these commands.
-
-### 9. Stop the report server and services
-
-Press Ctrl+C in the report-server terminal when finished. This stops only the
-HTTP server. To stop the persistent deployment without deleting its volumes,
-run from the same checkout:
+Press Ctrl+C in Terminal 1 to stop the report server. If you also want to stop
+this project's services without deleting volumes, run:
 
 ```bash
+cd /home/santosh/WakeupNeo-mosip-inji-conformance
 docker compose --env-file docker/.env \
   -f docker/docker-compose.yml \
   --profile certify --profile verify --profile storage stop
 ```
 
-### Startup diagnostics
+### If startup fails after moving the folder
 
-If the summary or reporter-status file is missing, stay in the same terminal
-and inspect this execution's log and service errors before proceeding:
-
-```bash
-printf 'Report folder: %s\nConsole log: %s\n' "$REPORT_DIR" "$RUN_LOG"
-ls -la "$REPORT_DIR"
-tail -n 60 "$RUN_LOG"
-docker compose --env-file docker/.env -f docker/docker-compose.yml \
-  --profile certify --profile verify --profile storage ps -a
-docker compose --env-file docker/.env -f docker/docker-compose.yml \
-  --profile certify --profile verify --profile storage logs --tail 80 \
-  course-certify final-verify course-database final-database
-```
-
-`password authentication failed for user "postgres"` indicates that the generated
-application credentials do not match the reused database. Startup timeouts and
-Verify HTTP 503 can follow from that mismatch; they are not conformance outcomes.
-The self-signed TLS warnings from an explicit local `--insecure` run do not explain
-a PostgreSQL authentication failure. Inspect logs privately and redact secrets
-before sharing them. After fixing startup, repeat step 3 with a new report folder;
-keep the failed run's log rather than treating an old report as the new result.
-
-### Moving a checkout with existing Docker volumes
-
-Keep the previous checkout until the new one is working. Its generated state
-belongs with its persistent volumes. Back up the new checkout's generated state
-before restoring the matching files from the previous installation:
-
-- `docker/.env`
-- `docker/local/certify-keys/` and `docker/local/verify-keys/`
-- `docker/local/wallet-keys/` and `docker/local/public-wallet-keys/`
-- `docker/local/keycloak/`
-- `docker/nginx/certs/`
-
-These files are private runtime state, excluded by `.gitignore`; never commit them.
-Restore them as a consistent set, rather than changing only a database or keystore
-password. The PostgreSQL image does not change an existing database password when
-its `POSTGRES_PASSWORD` environment value changes. With the terminal prepared as
-in step 1, recreate the same project's containers so they load the restored
-environment; `docker compose restart` alone retains their previous environment:
-
-```bash
-docker compose --env-file docker/.env -f docker/docker-compose.yml \
-  --profile certify --profile verify --profile storage up -d --no-build --force-recreate
-python runner/wait_ready.py --combined --insecure --timeout 180
-```
-
-This preserves the volumes. No volume deletion or database-password reset is
-required for that recovery.
+The fixed Compose project name can reuse the old installation's database volumes.
+A new clone or ZIP generates different secrets. Keep that deployment's matching
+`docker/.env`, `docker/local/` key/authentication files and `docker/nginx/certs/`
+together, with a private backup before replacing generated files. Never commit them.
+A PostgreSQL `password authentication failed` error is a startup problem, not a
+conformance result. Restoring matching state requires container recreation;
+`docker compose restart` retains the previous container environment. Preserve
+existing volumes and use [setup guidance](SETUP.md) before changing deployment state.
 
 ## Evidence access
 
