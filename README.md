@@ -288,20 +288,6 @@ mvn -f testrig/pom.xml test-compile
 - Course issuance and the verifier plan's PID fixture are independent plans; combined execution does not prove course-to-PID credential interoperability.
 - Unrelated complete master functional suites were not executed. Formal certification is not claimed.
 
-## Project team
-
-| Team member | Responsibilities |
-|---|---|
-| [Syamala Venkat Santosh Reddy](https://github.com/SantoshReddy0603) | Core orchestration, conformance runner, benchmark gating and integration architecture |
-| [Cheruku Sri Charan Reddy](https://github.com/sricharanreddycheruku) | TestNG/Extent integration, result mapping and reporting |
-| [Miyyapuram Sai Varun](https://github.com/Varun576253) | Docker infrastructure, GitHub Actions and deployment automation |
-| Kartheek Talluri | Regression tests, validation evidence and documentation |
-
-Sri Charan has accepted access to the private submission repository. Invitations
-for the other invited team accounts are awaiting acceptance. GitHub shows
-contributors from genuine commit history; repository access alone does not add
-a contributor entry.
-
 ## Operator flow and design
 
 The [operator guide](docs/USER_FLOWS.md) maps setup, execution and evidence review.
