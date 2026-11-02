@@ -16,8 +16,8 @@ Clone the private submission repository with an account that has accepted its
 invitation, then work from its root directory:
 
 ```bash
-git clone https://github.com/SantoshReddy0603/mosip-inji-conformance-submission.git
-cd mosip-inji-conformance-submission
+git clone https://github.com/SantoshReddy0603/WakeupNeo-mosip-inji-conformance.git
+cd WakeupNeo-mosip-inji-conformance
 ```
 
 Run setup **before the tests or deployment**. It generates development keys and
