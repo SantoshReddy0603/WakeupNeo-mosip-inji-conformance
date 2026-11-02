@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="290" viewBox="0 0 1120 290" role="img" aria-labelledby="title desc">
+  <title id="title">Operator flow for conformance execution and evidence review</title>
+  <desc id="desc">Prepare local dependencies and keys, select a component, execute official plans, then review original outcomes, reports and storage. Failures remain visible.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#52677d"/></marker></defs>
+  <rect width="1120" height="290" rx="16" fill="#f3f6fa"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#17324d">
+    <text x="560" y="35" font-size="22" font-weight="bold">One execution, traceable results</text>
+    <g fill="#fff" stroke="#9ab2c9" stroke-width="2">
+      <rect x="25" y="75" width="230" height="110" rx="10"/>
+      <rect x="305" y="75" width="230" height="110" rx="10"/>
+      <rect x="585" y="75" width="230" height="110" rx="10"/>
+      <rect x="865" y="75" width="230" height="110" rx="10"/>
+    </g>
+    <g font-size="19" font-weight="bold"><text x="140" y="108">Prepare</text><text x="420" y="108">Choose and run</text><text x="700" y="108">Official suite</text><text x="980" y="108">Review evidence</text></g>
+    <g font-size="15"><text x="140" y="140">Dependencies, setup, images</text><text x="140" y="164">Development keys stay local</text><text x="420" y="140">Certify / Verify / combined</text><text x="420" y="164">Fresh report directory</text><text x="700" y="140">Create, execute, poll, export</text><text x="700" y="164">Preserve original outcomes</text><text x="980" y="140">Native + combined reports</text><text x="980" y="164">Objects and local receipts</text></g>
+    <text x="560" y="235" font-size="17">Use matching run and plan IDs. REVIEW and interruptions keep the release gate failed.</text>
+    <text x="560" y="262" font-size="14">Operator flow diagram; not an implemented dashboard or execution screenshot.</text>
+  </g>
+  <g stroke="#52677d" stroke-width="2" marker-end="url(#arrow)"><path d="M260 130 H295"/><path d="M540 130 H575"/><path d="M820 130 H855"/></g>
+</svg>

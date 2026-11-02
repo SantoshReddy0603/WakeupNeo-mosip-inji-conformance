@@ -14,6 +14,7 @@ from badge_generator import BadgeGenerator
 from oidf_client import OIDFClient
 from local_network import configure
 from gate_policy import apply_component_gates
+from runner import module_key, TERMINAL
 
 
 def hashes(root):
@@ -39,12 +40,28 @@ def validate_and_copy(source, destination, components, expected_id, client, base
         if component == 'verify' and run['summary']['plan_name'] != 'oid4vp-1final-verifier-test-plan':
             raise ValueError('Unexpected verifier plan')
         plan = client.get_test_plan(run['summary']['plan_id'])
-        official_modules = {m['testModule'] for m in plan['modules']}
-        for module in run['modules']:
-            if module['module_name'] not in official_modules:
-                raise ValueError('Module missing from retained official plan')
+        official_modules = [module_key(m) for m in plan['modules']]
+        retained_modules = [module_key({'testModule': m['module_name'],
+                            'variant': m.get('variant', {})}) for m in run['modules']]
+        instance_ids = [m['test_id'] for m in run['modules']]
+        if (len(set(official_modules)) != len(official_modules)
+                or len(set(retained_modules)) != len(retained_modules)
+                or set(retained_modules) != set(official_modules)
+                or len(set(instance_ids)) != len(instance_ids)):
+            raise ValueError('Retained module/variant coverage or instance identity mismatch')
+        for module, key in zip(run['modules'], retained_modules):
+            if module['test_name'] != key:
+                raise ValueError('Retained module result key mismatch')
             info = client.get_test_status(module['test_id'])
-            if info.get('status') != 'FINISHED' or info.get('result') != module['status']:
+            variant = {**plan.get('variant', {}), **module.get('variant', {})}
+            if (info.get('planId') != run['summary']['plan_id']
+                    or info.get('testName') != module['module_name']
+                    or info.get('variant') != variant
+                    or info.get('testId') != module['test_id']):
+                raise ValueError('Official instance does not match retained plan/module/variant')
+            state = info.get('status')
+            outcome = info.get('result') if state == 'FINISHED' else state
+            if state not in TERMINAL or outcome != module['status']:
                 raise ValueError('Official result changed or is incomplete: ' + module['test_id'])
             if run['results'].get(module['test_name']) != module['status']:
                 raise ValueError('Retained result mapping differs from official outcome')
@@ -54,7 +71,8 @@ def validate_and_copy(source, destination, components, expected_id, client, base
             raise ValueError('Missing/extra retained module results')
         passed = sum(m['status'] in {'PASSED','WARNING'} for m in run['modules'])
         failed = sum(m['status'] not in {'PASSED','WARNING','SKIPPED'} for m in run['modules'])
-        expected_gate = bool(passed and not failed and not run['summary'].get('artifact_error'))
+        expected_gate = bool(passed and not failed and not run['summary'].get('artifact_error')
+                             and not any('evidence_error' in m for m in run['modules']))
         if run['summary']['is_gated_pass'] != expected_gate:
             raise ValueError('Component gate inconsistent with actual official outcomes')
     if report['consolidated']['gate_met'] and not all(

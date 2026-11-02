@@ -19,16 +19,16 @@ Test names below share prefix `oid4vci-1_0-issuer-`; patch paths share `docker/n
 
 | Test name | Status | Class | Evidence | Patch that fixes it | Action taken |
 |---|---|---|---|---|---|
-| `metadata-test-signed` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `B61Vqr31wC8p2Rk`: 200 OK, empty body | `signed-metadata.patch` | Retain stock failure |
-| `happy-flow` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `iqk1VhClUfgzhkl`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized extension field | `extensions.patch`, `dpop.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-additional-requests` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `0LUs3j7U97cH1vZ`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-multiple-clients` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `zoskf1s65ZJqWV6`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `happy-flow-skip-notification` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `H3hsOeWhUSaZn5x`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
-| `fail-invalid-nonce` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `QoyggTSnn6w5sAo`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
-| `fail-invalid-jwt-proof-signature` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `s8WWjo8wtU8MEpq`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch` | Retain stock failure |
-| `fail-unknown-credential-configuration` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `dJqxkp28p6TKPud`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `credential-errors.patch` | Retain stock failure |
-| `fail-unknown-credential-identifier` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `wZUaQwM0lQnFZDW`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized credential_identifier | `credential-errors.patch` | Retain stock failure |
-| `fail-on-access-token-in-query` | Stock INTERRUPTED / diagnostic PASSED | PRODUCT_GAP | `O2E2YHPFYOnxRY4`: 401 UNAUTHORIZED, {"error":"invalid_token","error_description":"invalid_token"} | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `metadata-test-signed` | INTERRUPTED / PASSED | PRODUCT_GAP | `B61Vqr31wC8p2Rk`: 200 OK, empty body | `signed-metadata.patch` | Retain stock failure |
+| `happy-flow` | INTERRUPTED / PASSED | PRODUCT_GAP | `iqk1VhClUfgzhkl`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized extension field | `extensions.patch`, `dpop.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-additional-requests` | INTERRUPTED / PASSED | PRODUCT_GAP | `0LUs3j7U97cH1vZ`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-multiple-clients` | INTERRUPTED / PASSED | PRODUCT_GAP | `zoskf1s65ZJqWV6`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `happy-flow-skip-notification` | INTERRUPTED / PASSED | PRODUCT_GAP | `H3hsOeWhUSaZn5x`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
+| `fail-invalid-nonce` | INTERRUPTED / PASSED | PRODUCT_GAP | `QoyggTSnn6w5sAo`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch` | Retain stock failure |
+| `fail-invalid-jwt-proof-signature` | INTERRUPTED / PASSED | PRODUCT_GAP | `s8WWjo8wtU8MEpq`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch` | Retain stock failure |
+| `fail-unknown-credential-configuration` | INTERRUPTED / PASSED | PRODUCT_GAP | `dJqxkp28p6TKPud`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch`, `credential-errors.patch` | Retain stock failure |
+| `fail-unknown-credential-identifier` | INTERRUPTED / PASSED | PRODUCT_GAP | `wZUaQwM0lQnFZDW`: 500 INTERNAL_SERVER_ERROR, unknown_error: unrecognized credential_identifier | `credential-errors.patch` | Retain stock failure |
+| `fail-on-access-token-in-query` | INTERRUPTED / PASSED | PRODUCT_GAP | `O2E2YHPFYOnxRY4`: 401 UNAUTHORIZED, `invalid_token` | `dpop.patch`, `extensions.patch`, `holder-binding.patch` | Retain stock failure |
 
 ## Per-test official log excerpts
 

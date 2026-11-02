@@ -1,133 +1,81 @@
 # Assignment requirement checklist
 
-The source baseline is main commit `7d80dc06e8d8745d01c8b82d6a08c8f3d32dc80b`,
-merged through PR #8. Post-merge CI run `40178792370` passed all five jobs,
-including 196 Python tests after setup. Hosted full-stack evidence remains
-scratch run `40165722639` at `9c8d94ad9da42ac458ea304192118266577469f9`;
-no new live conformance execution is claimed by this documentation update.
+Verified means the stated scope has evidence; it does not mean product conformance.
+Historical stock run S is `019bf015dcef47029010faa06a2cf788`; patched diagnostic
+run P is `d39d9f65b0f04db79eb3d25501c9f26c`. Their official export names and
+counts are recorded in [README results](README.md#recorded-stock-and-patched-results).
+The original run `141a3630f7874e98ae4964653f953899` remains preserved.
 
-Report, export and log filenames in this document identify private evidence, not files
-bundled in the repository. The repository includes only the evidence mapping in
-[evidence/README.md](evidence/README.md). Raw exports, private keys and generated configuration
-are excluded. Missing hosted raw-export bytes remain not verified.
+Report and compiler filenames below refer to the separate local evidence handoff.
+[The evidence index](evidence/README.md) gives their actual retained paths.
+They are not bundled with source. Drive upload and reviewer access are **not verified**.
 
-Verified means the stated scope has actual evidence; it does not mean the product conforms. Official stock run
-S = `019bf015dcef47029010faa06a2cf788`; diagnostic, patched build run P = `d39d9f65b0f04db79eb3d25501c9f26c`.
-Stock issuer export: `plan-UYoPyoeGriNRN-export.zip`; stock verifier export: `plan-fnLpdorj2jZAD-export.zip`;
-patched issuer export: `plan-yfOPDtRoNo2xZ-export.zip`; patched verifier export:
-`plan-Z4PgzIS2ImHJi-export.zip`. Original run `141a3630f7874e98ae4964653f953899` is preserved and not replaced
-by these comparisons.
-
-Local test outputs are retained under private evidence (not included in the repository) outside this
-source-only package. Preserved deployment/report/storage/compiler records are under private evidence (not
-included in the repository). Evidence filenames below refer to those directories, not invented runs.
-
-| ID | Requirement | Status and exact evidence | Unverified or external portion |
-|---|---|---|---|
-| M1 / D1 | One Compose file for suite, Certify, Verify and storage | verified: S and P, commands.json, deployment-state.json; ten services and five fresh owned volumes | verified: scratch hosted run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; ten services started |
-| M2 | Official REST create/configure/execute/poll/retrieve | verified: S/P official exports named above; actual component reports and conformance-summary.json | not verified: arbitrary other profiles |
-| M3 | OpenIDConformanceTest in both actual API rigs | verified: S/P reports/existing-certify and reports/existing-verify, reporter-exit-statuses.json on Java 21 | external pending: organizer acceptance of current upstream module locations and Java 21 |
-| M4 | Correct TestNG result mapping, Extent and strict gates | verified: S/P native/consolidated XML and HTML; triage-tests.xml plus actual JDK 11 seven-scenario output | not verified: any official REVIEW approval; no waiver added |
-| M5 | Combined cross-module reports | verified: S/P reports/extent-report.html, testng-results.xml and failed combined gate | not verified: course-to-PID interoperability, which combined execution does not establish |
-| M6 | One-command certify, verify and combined modes | verified: S/P full-stack combined commands.json; triage-tests.xml CLI checks and shell syntax outputs | not verified: fresh individual Certify live rerun in that validation or PowerShell end-to-end runtime |
-| G1 / D4 | CI/CD workflow implementation | verified: workflow-policy.log and actionlint.log, both exit 0 | See detail 1. |
-| G2 | Selective component and plan configuration | verified: triage-tests.xml runner contracts; S/P actual selected plans | not verified: other profiles, which were not substituted |
-| G3 | Expected-failure handling | verified: triage-tests.xml contract cases; empty config/expected-failures.json retained | not verified: real exemptions; none applied |
-| G4 | Cross-run regression diff | verified: triage-tests.xml diff contract cases | not verified: a new live regression scenario in that validation |
-| G5 | Setup, architecture and API documentation | verified: source-checks.json local link/AST checks and syntax outputs; S/P support documented routes | not verified: completely cold independent installation |
-| candidate CI | Parallel component execution | verified: S/P commands.json parallel 2 and both real plan exports | not verified: parallel modules inside one plan; not claimed |
-| D2 | Issuer and verifier 1.0 plan JSON templates | verified: S/P exports record exact templates/variants; verifier remains oid4vp-1final-verifier-test-plan | See detail 2. |
-| D3 | run-full-stack-conformance.sh | verified: S/P commands.json plus shell-full.log exit 0 | not verified: empty-cache execution |
-| D5a | Architecture explanation | verified: source-checks.json links and S/P observed service graph | not verified: hosted host-gateway; absent intentionally because internal DNS alias routes to ingress |
-| D5b | REST API automation explanation | verified: API_REFERENCE.md, S/P actual exports and triage-tests.xml client contracts | not verified: unused API routes |
-| D5c | Native component handoffs and evidence | verified: S/P official logs, native transaction IDs and captured screenshot exports | not verified: POST wallet_nonce or status-list coverage in these fixtures |
-| D5d | Self-certification procedure | verified: REVIEW_PROCESS.md source deliverable, source-checks.json | external pending: applicable official review, authorized signature/payment/submission/acceptance; not performed |
-| D5e | Troubleshooting | verified: docs/STOCK_CERTIFY_TRIAGE.md exact S/P export messages and source-checks.json | not verified: resolving product gaps through configuration; no such claim |
-| C1 | Java 11 standalone bridge | See detail 3. | external pending: upstream modules target 21; exact compiler failures and POM lines in docs/VALIDATION.md |
-| C2 | MinIO/S3 artifact lifecycle and integrity | verified: S/P artifact-storage-validation.json and independent storage-integrity.json, cleanup exit 0 | not verified: separate cloud S3 provider |
-| C3 | Stock release qualification | verified: S reports 2 PASSED, 10 INTERRUPTED, 3 SKIPPED; gate FAILED; all ten classified PRODUCT_GAP from exports | external pending: native product changes; patched P issuer PASS does not qualify stock |
-| C4 | Verifier qualification | verified: S/P report 4 PASSED, 6 REVIEW; gate FAILED | external pending: applicable official review; not verified: native POST and status-list interoperability |
-| C5 | Fully empty-cache machine | not verified: prepared exact command sequence in docs/VALIDATION.md only | external pending: explicit approval; destructive prune not executed |
-
-Local Python regression output `triage-tests.xml`: 196 passed, 31 deprecation warnings, exit 0. Shell and
-workflow syntax outputs exit 0; PowerShell parser output is recorded in `source-checks.json`. These checks
-validate harness behavior and source, not stock product conformance. The ten interruptions remain product
-findings; no stock patch, expected-failure exemption, mapping change or gate-policy change was made.
-
-Fresh local verifier execution is verified by run `0d9b58120a964f628a34dd0c658d6c8f`, export
-`plan-IpxODLyKkxZNN-export.zip`: 4 PASSED, 6 REVIEW, verifier gate FAILED. `verifier-coverage.json` records
-POST-named instance `E1FPVnumrtRlZHU` and happy-flow instance `oTZgMqIEscOyRW9`; actual native POST and
-status-list interoperability remain not verified.
-
-Sender-constraining inspection is verified by `a1-decision.json` (not included in the repository) and official
-selected-case plan `45vEXNrkMzWtm`, export `plan-45vEXNrkMzWtm-export.zip`: allowed dpop/mtls, no
-unconstrained Bearer; mTLS-labelled probe 2 PASSED, 4 FAILED, 1 INTERRUPTED. End-to-end mTLS binding remains
-not verified because issued tokens lacked cnf. No default/profile/gate change was made.
-
-Initial hosted validation attempt 40164823727: **not verified at that point**, superseded by the successful
-implementation retry below. Scratch run `40164823727` at commit `ce7a50e81cdea4081fa1061573e24c8d76094d68`
-passed authorization and built integrations on ubuntu-24.04, but image preparation failed before startup
-because empty inherited AWS variables overrode docker/.env. Zero official plans executed and zero artifacts
-uploaded; stack/reports/storage/cleanup and expected result counts remain not verified. See docs/VALIDATION.md
-and `run-state.json` (not included in the repository)/log ZIP. Two proposed diffs remain unapplied; no rerun
-or merge occurred.
+| Requirement | Verified scope and evidence | Remaining scope |
+|---|---|---|
+| One Compose file for suite, Certify, Verify and storage | verified: S and P, commands.json, deployment-state.json; ten services and five fresh owned volumes | verified: scratch hosted run 40165722639 at 9c8d94ad9da42ac458ea304192118266577469f9; ten services started |
+| Official REST create/configure/execute/poll/retrieve | verified: S/P official exports named above; actual component reports and conformance-summary.json | not verified: arbitrary other profiles |
+| OpenIDConformanceTest in both actual API rigs | verified: S/P reports/existing-certify and reports/existing-verify, reporter-exit-statuses.json on Java 21 | external pending: organizer acceptance of current upstream module locations and Java 21 |
+| Correct TestNG result mapping, Extent and strict gates | verified: S/P native/consolidated XML and HTML; triage-tests.xml plus actual JDK 11 seven-scenario output | not verified: any official REVIEW approval; no waiver added |
+| Combined cross-module reports | verified: S/P reports/extent-report.html, testng-results.xml and failed combined gate | not verified: course-to-PID interoperability, which combined execution does not establish |
+| One-command certify, verify and combined modes | verified: S/P full-stack combined commands.json; triage-tests.xml CLI checks and shell syntax outputs | not verified: fresh individual Certify live rerun in that validation or PowerShell end-to-end runtime |
+| CI/CD workflow implementation | verified: workflow-policy.log and actionlint.log, both exit 0 | Historical CI `40165694278`; hosted scratch `40165722639`. |
+| Selective component and plan configuration | verified: triage-tests.xml runner contracts; S/P actual selected plans | not verified: other profiles, which were not substituted |
+| Expected-failure handling | verified: triage-tests.xml contract cases; empty config/expected-failures.json retained | not verified: real exemptions; none applied |
+| Cross-run regression diff | verified: triage-tests.xml diff contract cases | not verified: a new live regression scenario in that validation |
+| Setup, architecture and API documentation | verified: source-checks.json local link/AST checks and syntax outputs; S/P support documented routes | not verified: completely cold independent installation |
+| Parallel component execution | verified: S/P commands.json parallel 2 and both real plan exports | not verified: parallel modules inside one plan; not claimed |
+| Issuer and verifier 1.0 plan JSON templates | verified: S/P exports record exact templates/variants; verifier remains oid4vp-1final-verifier-test-plan | Stable 1.0.x availability is external pending; dated inventory found none. |
+| run-full-stack-conformance.sh | verified: S/P commands.json plus shell-full.log exit 0 | not verified: empty-cache execution |
+| Architecture explanation | verified: source-checks.json links and S/P observed service graph | not verified: hosted host-gateway; absent intentionally because internal DNS alias routes to ingress |
+| REST API automation explanation | verified: API_REFERENCE.md, S/P actual exports and triage-tests.xml client contracts | not verified: unused API routes |
+| Native component handoffs and evidence | verified: S/P official logs, native transaction IDs and captured screenshot exports | not verified: POST wallet_nonce or status-list coverage in these fixtures |
+| Self-certification procedure | verified: REVIEW_PROCESS.md source deliverable, source-checks.json | external pending: applicable official review, authorized signature/payment/submission/acceptance; not performed |
+| Troubleshooting | verified: docs/STOCK_CERTIFY_TRIAGE.md exact S/P export messages and source-checks.json | not verified: resolving product gaps through configuration; no such claim |
+| Java 11 standalone bridge | verified: JDK 11 fresh compilation and seven scenarios; `jdk11-checks.json`. | external pending: upstream modules target 21; exact compiler failures and POM lines in docs/VALIDATION.md |
+| MinIO/S3 artifact lifecycle and integrity | verified: S/P artifact-storage-validation.json and independent storage-integrity.json, cleanup exit 0 | not verified: separate cloud S3 provider |
+| Stock release qualification | verified: S reports 2 PASSED, 10 INTERRUPTED, 3 SKIPPED; gate FAILED; all ten classified PRODUCT_GAP from exports | external pending: native product changes; patched P issuer PASS does not qualify stock |
+| Verifier qualification | verified: S/P report 4 PASSED, 6 REVIEW; gate FAILED | external pending: applicable official review; not verified: native POST and status-list interoperability |
+| Fully empty-cache machine | not verified: prepared exact command sequence in docs/VALIDATION.md only | external pending: explicit approval; destructive prune not executed |
 
 
-## Verified hosted validation scratch implementation run
+## Current source checks
 
-hosted validation is **verified** under the documented harness criteria: scratch run `40165722639`, candidate
-`9c8d94ad9da42ac458ea304192118266577469f9`, official run `2583bed425d64f5abb0c86993d402116`. All ten services
-started on ubuntu-24.04; issuer plan `vir0sD8It1IDI` and verifier plan `UZtgjxUuLpdPj` executed; Certify 2
-PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW match the reference. Native and
-consolidated reports were uploaded in two GitHub artifacts, storage verified 114 objects, and five owned
-volumes were removed with none remaining. Evidence: `assessment.json` (not included in the repository),
-ci-summary.json inside artifact-12587654719, reports/receipts inside artifact-12587788827, and original run
-log ZIP. Twenty-three downloaded report files matched storage hashes. Authorization job passed; gate job
-failed solely on the expected strict result rejection; all three reporters exit 1. These are actual FAILED
-conformance gates; no waiver was applied.
+Verified locally: `python runner/setup.py` followed by `python -m pytest tests -q`
+returned 213 passed. [The check receipt](evidence/local-checks.json) also records
+shell, PowerShell, workflow and Java 11 bridge checks. The original official runs
+remain unchanged. End-to-end validation of the new reporting fixes is **not verified**.
 
-Ordinary PR CI `40165694278` passed on the same candidate. The second hosted attempt is complete; no further
-retry, merge, release or scratch deletion occurred. Raw hosted official export bytes were verified in
-ephemeral MinIO but not retained as GitHub artifacts; later offline raw-export inspection is not verified. The
-observed hosted issuer image ID differs from the earlier local ID, so byte-identical release reproducibility
-is not verified. independent empty-cache validation independent empty-cache run, organizer acceptance of JDK
-21 and final submission materials remain pending. See docs/VALIDATION.md for per-criterion evidence and
-cleanup-log/state distinctions.
+## Hosted verification scope
 
-## Retained hosted validation evidence for repository integration
+Private scratch repository `SantoshReddy0603/inji-conformance-b2-scratch` ran
+`40165722639` at `9c8d94ad9da42ac458ea304192118266577469f9`. It was not an
+execution on the main repository. Official run `2583bed425d64f5abb0c86993d402116`
+matched S: Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED /
+6 REVIEW. Ten services started on ubuntu-24.04; reports were uploaded in artifacts
+`12587654719` and `12587788827`; 114 storage objects were verified and five owned
+volumes were removed with none remaining. Both product gates and the combined
+gate remained FAILED.
 
-hosted validation is verified only for private scratch repository
-`SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, commit
-`9c8d94ad9da42ac458ea304192118266577469f9`; it was not a main-repository run. The previously downloaded logs
-and both artifacts were copied into private private evidence (not included in the repository) and rechecked
-against their download SHA256 receipts and ZIP CRCs. `manifest.json` records their hashes and source run;
-`assessment.json` records the five verified hosted validation implementation criteria. This evidence folder is
-separate from the source repository and must accompany a controlled evidence handoff.
+Hosted reports and logs are retained locally. Raw hosted official export ZIPs were
+not retained as GitHub artifacts, so offline raw-export inspection is **not verified**.
+The observed hosted issuer image ID differs from the older local ID; byte-identical
+image reproducibility is **not verified**.
 
-| Retained file | Evidence |
-|---|---|
-| `run-40165722639-logs.zip` (not included in the repository) | Complete hosted workflow logs |
-| `artifact-12587654719.zip` (not included in the repository) | live-conformance-results: summary and report |
-| `artifact-12587788827.zip` (not included in the repository) | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
+## Local compatibility and remaining requirements
 
-The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these
-artifacts. Repository integration requires successful CI on the selected revision; independent empty-cache validation, further live runs and scratch
-deletion remain unperformed.
+Historical Python output `implementation-completion/triage-tests.xml` records
+196 passed, exit 0. JDK 11 records in `implementation-triage/jdk11-checks.json`
+and `jdk11-scenarios.log` verify fresh bridge compilation and seven scenarios.
+Both pinned upstream API modules require JDK 21. Their compiler failures and POM
+lines are documented in [validation limits](docs/VALIDATION.md).
 
-Final source comparison and evidence handoff audit: docs/VALIDATION.md and submission/EVIDENCE_INDEX.md record
-the documentation-only difference from hosted validation commit 9c8d94ad9da42ac458ea304192118266577469f9.
-Evidence handoff mapping: evidence/README.md; private audit: `evidence-audit.json` (not included in the
-repository). repository integration was verified by `merge-verification.json` (not included in the
-repository); independent empty-cache validation remains not verified.
+Verifier reproduction `0d9b58120a964f628a34dd0c658d6c8f`, export
+`plan-IpxODLyKkxZNN-export.zip`, again returned 4 PASSED / 6 REVIEW. Native POST
+and status-list interoperability remain **not verified**. Sender-constraining probe
+plan `45vEXNrkMzWtm` returned 2 PASSED / 4 FAILED / 1 INTERRUPTED; its unbound
+Bearer tokens do not establish conformant mTLS. Defaults and gates were not relaxed.
 
-## Evidence table details
-
-Detail 1: verified: ordinary CI 40165694278 and scratch hosted validation 40165722639; verified: Repository
-integration PR #7 merged at fd89d1f4d8e960e5ad3f0fdb7b2fb975f70d41be after CI 40177192785; conformance gate
-still FAILED
-
-Detail 2: external pending: upstream stable 1.0.x availability; registry-version-inventory.json from 24
-October 2026 lists no stable 1.0.x images
-
-Detail 3: verified: fresh-jdk11-validation.json and fresh-jdk11-testng.log; new
-jdk11-checks.json/jdk11-scenarios.log record the recorded local validation
+Independent empty-cache execution is **not verified**. Organizer acceptance of
+integrated Java 21, applicable official review and final submission materials are
+external pending. New source changes require their own local and CI validation;
+historical green checks must not be presented as checks on an untested revision.

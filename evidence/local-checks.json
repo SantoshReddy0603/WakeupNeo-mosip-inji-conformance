@@ -1,0 +1,59 @@
+{
+  "scope": "Local harness and reporting checks; not a new official conformance run",
+  "source_sha256": {
+    "runner/runner.py": "43dc95864f4cb65d657699f10fca24f6091e87468cbefe380e910eee7aa30024",
+    "runner/retained_run.py": "f54c0647ae63f641470a52bfa1f6a28b8a95e1b8f6e9c4511e8041f9b8fac0b5",
+    "tests/test_runner.py": "2174f70b2f00287d0539bd168a93036846d9348f1b1046548c0ef353c59de8fa",
+    "tests/test_retained_run.py": "f987733a0baeeb138ba15b39828592457d8aceb56b80be7ce4918dd88e6e003b"
+  },
+  "checks": [
+    {
+      "command": "python runner/setup.py",
+      "exit": 0
+    },
+    {
+      "command": "python -m pytest tests -q",
+      "exit": 0,
+      "passed": 213,
+      "warnings": 39
+    },
+    {
+      "command": "bash -n (all four shell files)",
+      "exit": 0
+    },
+    {
+      "command": "PowerShell Parser.ParseFile (root PowerShell entrypoints)",
+      "exit": 0
+    },
+    {
+      "command": "python runner/validate_workflows.py",
+      "exit": 0
+    },
+    {
+      "command": "actionlint -no-color",
+      "exit": 0
+    },
+    {
+      "command": "python -m ruff check runner integration tests --exclude runner/vendor --select F821,F822,F823",
+      "exit": 0
+    },
+    {
+      "command": "mvn -B -f testrig/pom.xml clean test-compile",
+      "java": "Temurin 11.0.32.1+1",
+      "exit": 0,
+      "class_major_version": 55
+    },
+    {
+      "command": "python tests/validate_bridge.py",
+      "java": "Temurin 11.0.32.1+1",
+      "exit": 0,
+      "scenarios": 7
+    }
+  ],
+  "not_verified": [
+    "Fresh live stock or verifier execution of these changes",
+    "Docker deployment in the current WSL distribution",
+    "Hosted CI for this candidate",
+    "Visual rendering of the new operator diagram"
+  ]
+}

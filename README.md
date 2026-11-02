@@ -12,6 +12,14 @@ the installed native API rigs and Chromium. The standalone bridge targets Java 1
 Follow [environment preparation](#prepare-the-environment-and-images) for image
 builds and browser installation before starting the services.
 
+Clone the private submission repository with an account that has accepted its
+invitation, then work from its root directory:
+
+```bash
+git clone https://github.com/SantoshReddy0603/mosip-inji-conformance-submission.git
+cd mosip-inji-conformance-submission
+```
+
 Run setup **before the tests or deployment**. It generates development keys and
 the TLS certificate required by the Compose mount checks. Generated files are
 local configuration and must not be committed.
@@ -35,7 +43,7 @@ Run the Python harness tests after setup:
 python -m pytest tests -q
 ```
 
-The stock release conformance gates fail by design when the recorded product
+The stock release conformance gates correctly fail when the recorded product
 outcomes recur: Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify
 4 PASSED / 6 REVIEW. The patched build is diagnostic only. Hosted full-stack
 validation ran in the scratch repository at commit
@@ -54,7 +62,7 @@ Secrets are generated locally by `runner/setup.py`; no real personal data is nee
 - Official REST API automation to configure plans, execute modules, poll outcomes and retrieve exports.
 - `OpenIDConformanceTest` integration in both existing api-testrigs, with TestNG and Extent reporting.
 - Certify-only, Verify-only and combined execution; independent component gates and consolidated results.
-- Real PostgreSQL-backed synthetic course issuance, native security fixes and genuine browser evidence capture.
+- Real PostgreSQL-backed synthetic course issuance and genuine browser evidence capture; native patches are isolated to the diagnostic build.
 - Artifact upload and byte-for-byte read-back, regression comparison, selective plans and parallel component execution.
 - Hosted CI plus an actual release-triggered full-stack workflow, with artifacts retained on benchmark failure.
 
@@ -136,7 +144,7 @@ Internet access is required for upstream source, images, Maven dependencies and 
 browser. No external issuer account, real personal records or GitHub token is needed for local synthetic
 issuance. The managed stack and networking were verified on GitHub-hosted ubuntu-24.04 in private scratch run `40165722639` at
 `9c8d94ad9da42ac458ea304192118266577469f9`; this does not establish arbitrary Linux distributions or the
-separate B4 empty-cache procedure.
+separate empty-cache procedure.
 
 ## Prepare the environment and images
 
@@ -237,16 +245,16 @@ keys and runtime evidence stay outside committed source.
 
 ## CI and validation
 
-The updated candidate passed [ordinary CI
+The recorded runtime candidate passed [ordinary CI
 40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278). Its
 private scratch run `40165722639`
-verified all five B2 implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services
+verified all five hosted implementation criteria at `9c8d94ad9da42ac458ea304192118266577469f9`: ten services
 started; both official plans executed; native/consolidated reports and two GitHub artifacts were retained; 114
 storage objects were verified; and five owned volumes were removed with none remaining. Official run
 `2583bed425d64f5abb0c86993d402116` reproduced stock Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4
-PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; B2
+PASSED / 6 REVIEW. The gate job is FAILED because those actual results reject the strict benchmark; Hosted
 implementation success is not stock conformance or certification. See [validation evidence and
-limits](docs/VALIDATION.md#hosted-validation-verified-scratch-retry--25-october-2026).
+limits](docs/VALIDATION.md#hosted-validation--25-october-2026).
 
 - Recorded hosted implementation checks passed all five jobs on their tested revision. Inspect the repository Actions tab for the exact revision you intend to run.
 - A recorded release-triggered full-stack run completed reporting, storage, artifact upload and cleanup; six REVIEW outcomes failed the strict gate. Historical evidence is retained separately.
@@ -276,19 +284,30 @@ mvn -f testrig/pom.xml test-compile
   status reference, so the recorded result does not establish status-list handling.
 - Fresh keys, volumes and source extraction were tested; a separate machine with completely empty Docker/Maven caches remains unverified.
 - Live execution requires explicit authorization. Environment reviewer enforcement
-  is **not verified** for the current public repository configuration.
+  is **not verified** for this repository configuration.
 - Course issuance and the verifier plan's PID fixture are independent plans; combined execution does not prove course-to-PID credential interoperability.
 - Unrelated complete master functional suites were not executed. Formal certification is not claimed.
 
-## Repository collaborators
+## Project team
 
-- [SantoshReddy (@SantoshReddy0603)](https://github.com/SantoshReddy0603)
-- [Cheruku Sri Charan Reddy (@sricharanreddycheruku)](https://github.com/sricharanreddycheruku)
-- [Varun576253](https://github.com/Varun576253)
-- [car-ui](https://github.com/car-ui)
+| Team member | Responsibilities |
+|---|---|
+| [Syamala Venkat Santosh Reddy](https://github.com/SantoshReddy0603) | Core orchestration, conformance runner, benchmark gating and integration architecture |
+| [Cheruku Sri Charan Reddy](https://github.com/sricharanreddycheruku) | TestNG/Extent integration, result mapping and reporting |
+| [Miyyapuram Sai Varun](https://github.com/Varun576253) | Docker infrastructure, GitHub Actions and deployment automation |
+| Kartheek Talluri | Regression tests, validation evidence and documentation |
 
-These accounts have repository access. Contribution attribution remains in the
-existing commit history; no contribution roles or authorship have been inferred.
+Sri Charan has accepted access to the private submission repository. Invitations
+for the other invited team accounts are awaiting acceptance. GitHub shows
+contributors from genuine commit history; repository access alone does not add
+a contributor entry.
+
+## Operator flow and design
+
+The [operator guide](docs/USER_FLOWS.md) maps setup, execution and evidence review.
+Its wireframe illustrates the existing report-navigation flow; it is not a separate dashboard.
+
+![Operator flow from setup to official results and retained reports](docs/images/operator-workflow.svg)
 
 ## Documentation
 

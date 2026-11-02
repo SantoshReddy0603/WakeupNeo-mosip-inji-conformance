@@ -167,9 +167,12 @@ class ConformanceRunner:
             result['status'] = raw if state == 'FINISHED' and raw in {'PASSED', 'FAILED', 'WARNING', 'REVIEW', 'SKIPPED'} else state if state in TERMINAL | {'TIMEOUT'} else 'ERROR'
             if result['status'] == 'FINISHED':
                 result['status'] = 'ERROR'
-            logs = self.client.get_test_log(test_id)
-            atomic_json(self.reports_dir / f'{test_id}-log.json', logs)
-            result['log_file'] = f'{test_id}-log.json'
+            try:
+                logs = self.client.get_test_log(test_id)
+                atomic_json(self.reports_dir / f'{test_id}-log.json', logs)
+                result['log_file'] = f'{test_id}-log.json'
+            except Exception as exc:
+                result['evidence_error'] = str(exc) or type(exc).__name__
         except Exception as exc:
             result['status'] = 'ERROR'
             result['error'] = str(exc)
@@ -207,11 +210,13 @@ class ConformanceRunner:
         classified = {r['test_name']: classify(r['status'], exceptions.get(r['test_name'])) for r in results}
         counts = {s: list(classified.values()).count(s) for s in {'PASSED', 'WARNING', 'SKIPPED', 'EXPECTED_FAILURE'}}
         failures = sum(v not in {'PASSED', 'WARNING', 'SKIPPED', 'EXPECTED_FAILURE'} for v in classified.values())
-        artifact_error = None
+        evidence_errors = [r['test_name'] + ': ' + r['evidence_error']
+                           for r in results if 'evidence_error' in r]
+        artifact_error = '; '.join(evidence_errors) or None
         try:
             self.client.export_plan_results(plan_id, str(self.reports_dir))
         except Exception as exc:
-            artifact_error = str(exc)
+            artifact_error = '; '.join(evidence_errors + [str(exc)])
         passed = counts['PASSED'] + counts['WARNING']
         # Skips alone do not qualify a release; missing official exports also reject it.
         gate = failures == 0 and passed > 0 and artifact_error is None

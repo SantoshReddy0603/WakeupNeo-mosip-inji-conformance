@@ -1,32 +1,43 @@
 # Validation evidence and limits
 
-The source baseline is main commit `7d80dc06e8d8745d01c8b82d6a08c8f3d32dc80b`,
-merged through PR #8. Post-merge CI run `40178792370` passed all five jobs,
-including 196 Python tests after setup. Hosted full-stack evidence remains
-scratch run `40165722639` at `9c8d94ad9da42ac458ea304192118266577469f9`;
-no new live conformance execution is claimed by this documentation update.
+Historical checks apply to the named revisions, not automatically to later changes.
+Post-merge CI `40178792370` passed five jobs, including 196 Python tests, at
+`7d80dc06e8d8745d01c8b82d6a08c8f3d32dc80b`. The original final source revision is
+`5795dbc97293322f466f0b8bcc58b852f0211b8b`.
 
-Report, export and log filenames in this document identify private evidence, not files
-bundled in the repository. The repository includes only the evidence mapping in
-[evidence/README.md](../evidence/README.md). Raw exports, private keys and generated configuration
-are excluded. Missing hosted raw-export bytes remain not verified.
+Reports and logs referenced here belong to the separate local evidence handoff.
+They are not bundled in this source repository. [The evidence index](../evidence/README.md)
+identifies their retained paths. Drive upload and reviewer access are **not verified**.
+Raw exports and generated keys remain excluded.
 
-> Current hosted validation status: **verified for scratch run 40165722639 at commit 9c8d94ad9da42ac458ea304192118266577469f9**. The strict conformance gate remains FAILED. Earlier pending/failure sections below describe historical attempts; see the verified retry section.
+## Local source checks
+
+[Local check receipt](../evidence/local-checks.json) records 213 passing Python
+checks after setup, shell/PowerShell/workflow syntax checks, a fresh Java 11
+bridge compilation and seven bridge scenarios. Source hashes identify the four
+changed implementation/test files covered by that receipt.
+
+Log retrieval failures preserve the observed official status and separately reject
+the gate for missing evidence. Retained validation requires complete module/variant
+coverage and matching official instance identity. These fixes were checked locally;
+a fresh live conformance run of these changes is **not verified**. Docker is not
+available in the current WSL distribution, and hosted CI for this candidate is
+**not verified**.
 
 ## Java compatibility
 
 The standalone bridge retains `maven.compiler.release=11` and compiler `<release>11</release>` in
-`testrig/pom.xml`. Preserved output `fresh-jdk11-validation.json` (not included in the repository) records
+`testrig/pom.xml`. Preserved output `fresh-jdk11-validation.json` records
 fresh compile exit 0; `fresh-jdk11-testng.log` records seven successful scenario checks (expected
 assertion-failure scenarios return 1). The 25 October local rerun also passed fresh compilation and all seven
-scenarios on Temurin 11.0.18: `jdk11-checks.json` (not included in the repository) and `jdk11-scenarios.log`,
+scenarios on Temurin 11.0.18: `jdk11-checks.json` and `jdk11-scenarios.log`,
 both checks exit 0.
 
 Upstream Certify pin `8fdf71656979a72fa8263766d4dec3cc25127b76`, `api-test/pom.xml:57`, and Verify pin
 `4c4289026968beb535d3dbdd500947152c43f708`, `api-test/pom.xml:79`, both set
 `<maven.compiler.target>21</maven.compiler.target>`. Their compiler configurations consume that property at
 lines 139 and 129 respectively. Actual JDK 11 compiler attempts failed with `Fatal error compiling: error:
-invalid target release: 21` (`jdk11-certify-real-metadata.log` (not included in the repository) and
+invalid target release: 21` (`jdk11-certify-real-metadata.log` and
 `jdk11-verify-real-metadata.log`, both exit 1). Upstream POMs were not modified; actual integrated reporting
 used Java 21 in stock run `019bf015dcef47029010faa06a2cf788` and diagnostic run
 `d39d9f65b0f04db79eb3d25501c9f26c`.
@@ -60,8 +71,7 @@ The selected suite's SD-JWT PID fixture has no credential status reference. The 
 result has `statusCheck: []`; cryptographic negative tests can short-circuit before status processing. There
 is no status-list-specific failure message or failing instance in this plan export to reproduce. Status-list
 interoperability is **not verified**; assigning a product defect from an empty status array would be
-unsupported. The local evidence inspection is recorded in `verifier-coverage.json` (not included in the
-repository).
+unsupported. The local evidence inspection is recorded in `verifier-coverage.json` outside the source package.
 
 Fresh local reproduction on 25 October: run `0d9b58120a964f628a34dd0c658d6c8f`, official export
 `plan-IpxODLyKkxZNN-export.zip`, again records 4 PASSED and 6 REVIEW with a failed verifier gate. POST-named
@@ -71,7 +81,7 @@ message above and none of the three POST conditions; its native transaction is
 `txn_76109d07-1936-4aa0-955d-40b476e70804`, again has no status reference and `statusCheck: []`. The
 observations reproduce the coverage gaps, not actual POST/status-list failures. The first local deployment
 attempt exited 1 before creating a plan because Docker was unavailable; the retry's stack and readiness exited
-0 (`commands.json` (not included in the repository) and `verify-d11d275d/commands.json`). Original runs and
+0 (`commands.json` and `verify-d11d275d/commands.json`). Original runs and
 screenshots were not altered.
 
 That reproduction completed with conformance command exit 1, native Verify reporter exit 1 and consolidated
@@ -82,52 +92,148 @@ cleanup exited 0 and removed all five owned volumes, leaving none
 `testng-results.xml` files, `commands.json` and `deployment-state.json`). No failure was hidden or converted
 to success.
 
-## Hosted Linux preparation: not verified
 
-No hosted workflow was dispatched for this candidate. Source inspection of
-`.github/workflows/full-stack-conformance.yml` shows `ubuntu-24.04` for authorization and as the default live
-runner; `INJI_USE_SELF_HOSTED_RUNNER=true` is an explicit override. The managed path uses normal Linux Docker,
-Python and Java commands, RUNNER_TEMP, git archive and relative paths, with no WSL commands or /mnt/c paths.
-This is source inspection, not a verified native Linux deployment.
+## Hosted validation — 25 October 2026
 
-`host-gateway` extra_hosts is **absent**, so that requested property cannot be confirmed.
-`docker/docker-compose.yml` instead assigns `host.docker.internal` to the shared TLS ingress on the internal
-Docker network, and the runner resolves that hostname to loopback for host-side clients. Docker-internal
-traffic goes directly to ingress; host listeners bind to loopback. Overriding that same hostname with
-host-gateway would redirect container calls away from the validated ingress alias to host ports which may not
-listen on the bridge address. No untested networking change was made merely to match that setting. Stock run
-`019bf015dcef47029010faa06a2cf788` verifies the current design on Docker Desktop, not native hosted Linux.
+Private scratch repository `SantoshReddy0603/inji-conformance-b2-scratch` ran
+`40165722639` at exact commit `9c8d94ad9da42ac458ea304192118266577469f9`.
+This was not a run on the main repository. Official run ID:
+`2583bed425d64f5abb0c86993d402116`.
 
-After separate approval, the managed hosted run would:
+| Implementation criterion | Outcome | Recorded evidence |
+|---|---|---|
+| Ten services start on ubuntu-24.04 | Verified | `run-state.json` and workflow startup logs |
+| Both official plans execute | Verified | Issuer `vir0sD8It1IDI`, verifier `UZtgjxUuLpdPj`, `ci-summary.json` |
+| Native and combined reports uploaded | Verified | Artifacts `12587654719` and `12587788827`, downloaded and CRC checked |
+| Storage verification and owned cleanup succeed | Verified | 114 objects verified; five owned volumes removed; zero remain |
+| Counts match the stock reference | Verified | Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED; Verify 4 PASSED / 6 REVIEW |
 
-1. Validate an authorized default-branch/manual or eligible release revision and its ancestry.
-2. Check out the exact harness SHA and pinned commons, Certify and Verify API rigs without persisted checkout credentials.
-3. Install Python 3.12, Java 21, checksum-verified Maven 3.8.7, Python dependencies and Chromium with OS dependencies.
-4. Build commons and compile both native reporting integrations and classpaths.
-5. Generate development keys/configuration, build the pinned suite and MinIO images, and pull stock product/dependency images; patched issuer build is excluded from the stock path.
-6. Extract git archive into RUNNER_TEMP and start ten services with five freshly owned volumes; configure synthetic local issuance and native handoffs.
-7. Execute the selected official issuer/verifier plans, retrieve exports/screenshots, run native and consolidated TestNG/Extent reporting, upload artifacts to local MinIO and verify read-back.
-8. Enforce the existing gates without exemptions, clean only owned resources, sanitize CI artifacts and upload them for seven-day retention, including on failure.
+The authorization job succeeded. The stock release-gate job failed at execution,
+because its actual official outcomes fail the strict benchmark. Image preparation,
+report upload and cleanup succeeded. Native reporter exit codes were Certify=1,
+Verify=1 and combined=1. Combined TestNG reports have 26 checks: 6 passed,
+17 failed and 3 skipped, including the extra gate assertion.
 
-Required dispatch settings would be `INJI_MANAGED_LOCAL_STACK=true`, no true self-hosted override,
-`component=combined`, `issuer_build=stock`, and the existing protected environment approval. Both gates may
-fail on the documented product/REVIEW outcomes; workflow success is not promised. Capacity, cold downloads and
-native Linux networking are **not verified**. No push, merge, publication, release, repository setting change
-or live workflow was performed in that validation.
+The retained handoff contains `b2-scratch/retry1/run-40165722639-logs.zip`,
+`artifact-12587654719.zip`, `artifact-12587788827.zip`, `assessment.json`
+and download receipts. Twenty-three downloaded reports matched storage hashes.
+The first cleanup removed five volumes; the second idempotent cleanup removed
+zero and left zero. The final state records the second call; log lines 16592
+and 16643 distinguish both calls.
+
+Hosted Certify image ID was
+`sha256:75170c3bb5ccb13869637e7450c16994f496104529bb4ce56f336d19475d1f46`.
+It differs from the older local image ID. Byte-identical image reproducibility
+is **not verified**. Hosted raw official export ZIPs were verified in ephemeral
+MinIO but not retained as GitHub artifacts. Offline reinspection of those raw
+bytes is **not verified**; reports and logs must not be described as raw exports.
+
+The earlier attempt, run `40164823727` at
+`ce7a50e81cdea4081fa1061573e24c8d76094d68`, stopped before stack startup:
+empty inherited AWS variables overrode generated configuration. No official plan
+executed. The correction removed job-level AWS credentials, loaded nonempty
+credentials only in external mode, and retained sanitized reports on gate failure.
+The successful run above includes that correction. It does not establish product
+conformance, official review approval or certification.
+
+## Hosted workflow operation
+
+Source: `.github/workflows/full-stack-conformance.yml`. Its default-branch guard is:
+
+```text
+(github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) ||
+(github.event_name == 'release' && github.event.action == 'published' && !github.event.release.draft && !github.event.release.prerelease)
+```
+
+Pushes and merges do not trigger this live workflow. A permitted manual dispatch
+or eligible published release must also pass immutable revision and ancestry checks.
+Authorization uses ubuntu-24.04; execution defaults to ubuntu-24.04 unless
+`INJI_USE_SELF_HOSTED_RUNNER=true`. No WSL or Windows paths are required.
+
+`host-gateway` extra_hosts is absent. Compose assigns `host.docker.internal` to
+its internal TLS ingress; host-side resolution uses loopback. This routing was
+verified by scratch run `40165722639`. Arbitrary Linux distributions remain
+outside that verification scope.
+
+A managed stock run uses `INJI_MANAGED_LOCAL_STACK=true`, `component=combined`,
+`issuer_build=stock` and no true self-hosted override. It needs no copied issuer
+or storage secrets: setup generates development values. The live job declares the `inji-conformance` environment. Configure its reviewer
+protection separately; enforcement on the new repository is **not verified**.
+Repository authorization and workflow policy still apply.
+
+The workflow will:
+
+1. Validate the event/revision and check out pinned source and API rigs.
+2. Install Python 3.12, Java 21, Maven 3.8.7 and Chromium dependencies.
+3. Compile the native reporting integrations; generate development configuration.
+4. Build the suite and MinIO, pull stock images, and extract a clean source tree.
+5. Start ten services with five owned volumes and run both official plans.
+6. Retrieve evidence, produce native/combined reports and verify MinIO read-back.
+7. Enforce the strict gates, clean owned resources and upload sanitized artifacts
+   for seven days, including when the benchmark fails.
+
+Remote execution is a separate operation. No new dispatch, release or destructive
+cleanup is performed by following these documentation checks. The 180-minute
+workflow timeout is a limit, not a promised duration. Resource limits, dependency
+downloads and account artifact-storage quota can prevent completion.
+
+External deployment inputs are mapped as follows. The two AWS credential rows are
+loaded only by the external-mode credential step, not exported at job scope:
+
+| Environment name | Workflow source |
+|---|---|
+| `ISSUER_BUILD` | `${{ github.event_name == 'workflow_dispatch' && inputs.issuer_build \|\| 'stock' }}` |
+| `OIDF_URL` | `${{ vars.OIDF_URL }}` |
+| `CERTIFY_ISSUER_URL` | `${{ vars.CERTIFY_ISSUER_URL }}` |
+| `VERIFY_API_URL` | `${{ vars.VERIFY_API_URL }}` |
+| `VERIFY_UI_URL` | `${{ vars.VERIFY_UI_URL }}` |
+| `VERIFY_SDK_VERSION` | `${{ vars.VERIFY_SDK_VERSION }}` |
+| `S3_ENDPOINT` | `${{ vars.S3_ENDPOINT }}` |
+| `S3_BUCKET` | `${{ vars.S3_BUCKET \|\| 'automationtests' }}` |
+| `AWS_REGION` | `${{ vars.AWS_REGION \|\| 'us-east-1' }}` |
+| `AWS_ACCESS_KEY_ID` | Nonempty `${{ secrets.AWS_ACCESS_KEY_ID }}` loaded into `GITHUB_ENV` only in external mode |
+| `AWS_SECRET_ACCESS_KEY` | Nonempty `${{ secrets.AWS_SECRET_ACCESS_KEY }}` loaded into `GITHUB_ENV` only in external mode |
+| `CA_BUNDLE` | `${{ vars.CA_BUNDLE }}` |
+| `OIDF_TOKEN` | `${{ secrets.OIDF_TOKEN }}` |
+| `CERTIFY_PLAN_CONFIG` | `${{ vars.CERTIFY_PLAN_CONFIG }}` |
+| `VERIFY_PLAN_CONFIG` | `${{ vars.VERIFY_PLAN_CONFIG }}` |
+| `VERIFY_REQUEST_FILE` | `${{ vars.VERIFY_REQUEST_FILE }}` |
+| `ISSUER_BROWSER_STEPS_FILE` | `${{ vars.ISSUER_BROWSER_STEPS_FILE }}` |
+| `VCI_CLIENT_ID` | `${{ vars.VCI_CLIENT_ID }}` |
+| `VCI_CLIENT2_ID` | `${{ vars.VCI_CLIENT2_ID }}` |
+| `VCI_AUTHORIZATION_SERVER` | `${{ vars.VCI_AUTHORIZATION_SERVER }}` |
+| `VCI_WALLET_JWKS_FILE` | `${{ vars.VCI_WALLET_JWKS_FILE }}` |
+| `VCI_WALLET2_JWKS_FILE` | `${{ vars.VCI_WALLET2_JWKS_FILE }}` |
+| `VCI_CLIENT_SECRET` | `${{ secrets.VCI_CLIENT_SECRET }}` |
+| `VCI_SCOPE` | `${{ vars.VCI_SCOPE }}` |
+| `VCI_CREDENTIAL_FORMAT` | `${{ vars.VCI_CREDENTIAL_FORMAT }}` |
+| `VCI_CREDENTIAL_CONFIGURATION_ID` | `${{ vars.VCI_CREDENTIAL_CONFIGURATION_ID }}` |
+| `VCI_CLIENT_AUTH_TYPE` | `${{ vars.VCI_CLIENT_AUTH_TYPE }}` |
+| `VCI_SENDER_CONSTRAIN` | `${{ vars.VCI_SENDER_CONSTRAIN }}` |
+| `ISSUER_LOGIN_USERNAME` | `${{ secrets.ISSUER_LOGIN_USERNAME }}` |
+| `ISSUER_LOGIN_PASSWORD` | `${{ secrets.ISSUER_LOGIN_PASSWORD }}` |
+
+VCI_SENDER_CONSTRAIN is explicitly mapped from vars in external mode. Managed mode exports its locally
+validated selection in run-clean-conformance.sh, together with VCI_CLIENT_ID, VCI_CLIENT2_ID,
+VCI_WALLET_JWKS_FILE, VCI_WALLET2_JWKS_FILE, VCI_AUTHORIZATION_SERVER, VCI_SCOPE,
+VCI_CREDENTIAL_CONFIGURATION_ID, VCI_CREDENTIAL_FORMAT and VCI_CLIENT_AUTH_TYPE. Managed mode intentionally
+does not inherit unrelated external issuer secrets. Configure no stock expected-failure waiver or
+patched-image override.
+
 
 ## Empty-cache Linux run: prepare only, not verified
 
 Run only after approval, on a disposable dedicated Ubuntu 24.04 machine with Docker Engine/Compose, Git,
 Python 3.12/venv and JDK 21 installed. The prune removes unused Docker resources on that machine; never use it
 on a shared development host. A fresh machine also needs an empty Maven cache and the approved candidate
-available as a commit; the currently unpublished working tree is not included in an existing remote HEAD.
+available as a commit; uncommitted working-tree changes are not included in a Git archive.
 
 ```bash
 set -euo pipefail
 docker system prune --all --volumes --force
-REVISION='<approved full commit SHA containing this candidate>'
+REVISION='<full commit SHA selected for validation>'
 ROOT_DIR="$(mktemp -d "$HOME/inji-cold-XXXXXXXX")"
-git clone https://github.com/SantoshReddy0603/mosip-inji-conformance.git "$ROOT_DIR/repository"
+git clone https://github.com/SantoshReddy0603/mosip-inji-conformance-submission.git "$ROOT_DIR/repository"
 git -C "$ROOT_DIR/repository" checkout --detach "$REVISION"
 test "$(git -C "$ROOT_DIR/repository" rev-parse HEAD)" = "$REVISION"
 mkdir "$ROOT_DIR/build" "$ROOT_DIR/run"
@@ -164,301 +270,3 @@ exit "$RUN_EXIT"
 This sequence is prepared, not executed. Exit 1 must be diagnosed from official results and reporting/storage
 receipts; it must not be converted to success. The clean wrapper handles owned deployment cleanup. A private
 repository may require interactive Git authentication; no token is needed in chat.
-
-
-## Hosted inputs and gated action commands
-
-candidate CI implementation CI run `40163129216` on candidate `6f1e31b5ffe60740ab9db6bc1ffa5463708e0c0f`
-exposed a native keymanager patch-application failure before Maven tests (`hosted-keymanager-failure.log` (not
-included in the repository)). LF normalization had changed CRLF context required by the pinned upstream
-CertificateUtility.java. The original audited patch bytes were restored exactly, with a targeted -text
-attribute preventing Git renormalization; all shell files remain LF. Strict git apply --check fails for
-normalized bytes and succeeds for the restored original (`patch-line-ending-reproduction.json` (not included
-in the repository)). The actual pinned native build then passed, exit 0 (`build-provenance.json` (not included
-in the repository) and test-results). No native logic or stock issuer behavior changed. Updated hosted CI must
-be verified separately.
-
-Readiness is source-verified by `.github/workflows/full-stack-conformance.yml`, not verified by a new hosted
-full-stack execution. Its authorization job uses ubuntu-24.04 and its live job defaults to ubuntu-24.04 unless
-INJI_USE_SELF_HOSTED_RUNNER=true. No WSL command, Windows drive path or /mnt/c path occurs in the workflow.
-Results are sanitized by runner/ci_artifacts.py and uploaded with actions/upload-artifact under
-live-conformance-results on success or failure, with seven-day retention. Source/flags and local syntax checks
-are recorded in `runbook-checks.json` (not included in the repository) and static-checks.json.
-
-For managed stock execution, set INJI_MANAGED_LOCAL_STACK=true and keep INJI_USE_SELF_HOSTED_RUNNER unset or
-false. The clean wrapper generates development issuer/storage/login keys and credentials and exports its
-native client IDs, JWKS file paths, scope, configuration ID, authorization-server URL, private_key_jwt and the
-selected sender-constraining default. No external issuer account or chat-provided secret is required. Nonempty
-version defaults come from docker/.env; unknown SDK versions are rejected. The external deployment mode
-instead needs reachable endpoint URLs, the real registered issuer clients and browser steps, available files
-named by configuration paths, trusted CA material and writable S3 credentials. OIDF_TOKEN is needed only for
-an authenticated suite; VCI_CLIENT_SECRET only for a client authentication method using it. File-path
-variables must point to real files available on that runner; setting a path string does not provision a file.
-
-The exact job environment mapping is:
-
-| Environment name | Workflow source |
-|---|---|
-| `ISSUER_BUILD` | `${{ github.event_name == 'workflow_dispatch' && inputs.issuer_build \|\| 'stock' }}` |
-| `OIDF_URL` | `${{ vars.OIDF_URL }}` |
-| `CERTIFY_ISSUER_URL` | `${{ vars.CERTIFY_ISSUER_URL }}` |
-| `VERIFY_API_URL` | `${{ vars.VERIFY_API_URL }}` |
-| `VERIFY_UI_URL` | `${{ vars.VERIFY_UI_URL }}` |
-| `VERIFY_SDK_VERSION` | `${{ vars.VERIFY_SDK_VERSION }}` |
-| `S3_ENDPOINT` | `${{ vars.S3_ENDPOINT }}` |
-| `S3_BUCKET` | `${{ vars.S3_BUCKET \|\| 'automationtests' }}` |
-| `AWS_REGION` | `${{ vars.AWS_REGION \|\| 'us-east-1' }}` |
-| `AWS_ACCESS_KEY_ID` | `${{ secrets.AWS_ACCESS_KEY_ID }}` |
-| `AWS_SECRET_ACCESS_KEY` | `${{ secrets.AWS_SECRET_ACCESS_KEY }}` |
-| `CA_BUNDLE` | `${{ vars.CA_BUNDLE }}` |
-| `OIDF_TOKEN` | `${{ secrets.OIDF_TOKEN }}` |
-| `CERTIFY_PLAN_CONFIG` | `${{ vars.CERTIFY_PLAN_CONFIG }}` |
-| `VERIFY_PLAN_CONFIG` | `${{ vars.VERIFY_PLAN_CONFIG }}` |
-| `VERIFY_REQUEST_FILE` | `${{ vars.VERIFY_REQUEST_FILE }}` |
-| `ISSUER_BROWSER_STEPS_FILE` | `${{ vars.ISSUER_BROWSER_STEPS_FILE }}` |
-| `VCI_CLIENT_ID` | `${{ vars.VCI_CLIENT_ID }}` |
-| `VCI_CLIENT2_ID` | `${{ vars.VCI_CLIENT2_ID }}` |
-| `VCI_AUTHORIZATION_SERVER` | `${{ vars.VCI_AUTHORIZATION_SERVER }}` |
-| `VCI_WALLET_JWKS_FILE` | `${{ vars.VCI_WALLET_JWKS_FILE }}` |
-| `VCI_WALLET2_JWKS_FILE` | `${{ vars.VCI_WALLET2_JWKS_FILE }}` |
-| `VCI_CLIENT_SECRET` | `${{ secrets.VCI_CLIENT_SECRET }}` |
-| `VCI_SCOPE` | `${{ vars.VCI_SCOPE }}` |
-| `VCI_CREDENTIAL_FORMAT` | `${{ vars.VCI_CREDENTIAL_FORMAT }}` |
-| `VCI_CREDENTIAL_CONFIGURATION_ID` | `${{ vars.VCI_CREDENTIAL_CONFIGURATION_ID }}` |
-| `VCI_CLIENT_AUTH_TYPE` | `${{ vars.VCI_CLIENT_AUTH_TYPE }}` |
-| `VCI_SENDER_CONSTRAIN` | `${{ vars.VCI_SENDER_CONSTRAIN }}` |
-| `ISSUER_LOGIN_USERNAME` | `${{ secrets.ISSUER_LOGIN_USERNAME }}` |
-| `ISSUER_LOGIN_PASSWORD` | `${{ secrets.ISSUER_LOGIN_PASSWORD }}` |
-
-VCI_SENDER_CONSTRAIN is explicitly mapped from vars in external mode. Managed mode exports its locally
-validated selection in run-clean-conformance.sh, together with VCI_CLIENT_ID, VCI_CLIENT2_ID,
-VCI_WALLET_JWKS_FILE, VCI_WALLET2_JWKS_FILE, VCI_AUTHORIZATION_SERVER, VCI_SCOPE,
-VCI_CREDENTIAL_CONFIGURATION_ID, VCI_CREDENTIAL_FORMAT and VCI_CLIENT_AUTH_TYPE. Managed mode intentionally
-does not inherit unrelated external issuer secrets. Configure no stock expected-failure waiver or
-patched-image override.
-
-candidate CI was explicitly authorized in this conversation after the local scope was clarified: publish only
-a candidate branch and draft PR, which triggers ordinary hosted CI. No main-branch push, merge, release or
-managed workflow was included. Equivalent commands after the exact source is tested are:
-
-```bash
-git switch -c fix/stock-validation-closeout
-git add -A
-git commit -m "Complete stock validation and submission drafts"
-git push -u origin fix/stock-validation-closeout
-gh pr create --draft --base main --head fix/stock-validation-closeout --title "Complete stock validation and submission drafts" --body-file /path/to/reviewed-pr-body.md
-gh pr checks --watch
-```
-
-The actual execution may use the connected GitHub API instead of gh; GitHub CLI installation/authentication is
-not verified. Estimated candidate CI time is 15–45 minutes, not verified: repository/workflow write
-permission, dependency downloads, stale base or hosted checks can fail. No fixed duration is promised. Use an
-immutable tested candidate SHA when evaluating checks.
-
-hosted validation remains subject to explicit authorization. After authorization and a legally runnable default-branch candidate, the equivalent commands would be:
-
-```bash
-gh workflow run full-stack-conformance.yml --repo SantoshReddy0603/mosip-inji-conformance --ref main -f component=combined -f issuer_build=stock
-gh run list --repo SantoshReddy0603/mosip-inji-conformance --workflow full-stack-conformance.yml --limit 5
-gh run watch ACTUAL_RUN_ID --repo SantoshReddy0603/mosip-inji-conformance --exit-status
-```
-
-Estimated hosted validation time is 30–180 minutes, not verified; timeout is 180 minutes in the workflow. Cold
-image/Maven/browser downloads, disk/memory capacity, native Linux ingress, environment approval and actual
-stock/REVIEW gate failures can prevent success. The existing workflow is restricted to default-branch dispatch
-or eligible published releases and validates ancestry. Therefore it cannot test the unmerged candidate branch
-as requested before repository integration. Do not publish a release, merge early or weaken that authorization
-to bypass this circular dependency. A separately authorized design decision is needed before candidate Hosted
-validation can run.
-
-repository integration remains subject to explicit authorization and blocked unless both candidate CI and hosted validation genuinely pass. If that condition is met, the equivalent guarded command is:
-
-```bash
-gh pr merge ACTUAL_PR_NUMBER --repo SantoshReddy0603/mosip-inji-conformance --squash --match-head-commit ACTUAL_TESTED_CANDIDATE_SHA --delete-branch
-```
-
-Estimated merge time is 1–5 minutes, not verified; protected-branch requirements, a changed head, conflicts or
-a failed live gate must stop it. Failed stock and REVIEW gates do not establish product conformance. Hosted
-execution is assessed against its five recorded implementation criteria. No merge is authorized by candidate
-CI.
-
-independent empty-cache validation remains subject to explicit authorization: use the exact empty-cache
-sequence above only after naming and approving a disposable clean machine. Estimated time is 1–3 hours, not
-verified; prune removes unused Docker resources, downloads may fail and hardware capacity may be insufficient.
-No docker system prune command was executed. The prepared source revision placeholder must be replaced by the
-actual approved candidate commit; remote main currently need not contain this unpublished candidate.
-
-
-## hosted validation scratch hosted attempt — not verified
-
-On 25 October 2026, one approved workflow_dispatch ran in private scratch repository
-`SantoshReddy0603/inji-conformance-b2-scratch`, default branch main, exact unmerged PR #7 commit
-`ce7a50e81cdea4081fa1061573e24c8d76094d68`. Run
-[40164823727](https://github.com/SantoshReddy0603/inji-conformance-private evidence (not included in the
-repository)) used component=combined and issuer_build=stock. Scratch configuration contained only
-INJI_MANAGED_LOCAL_STACK=true, an inji-conformance environment allowing main, and zero repository secrets; no
-main-repository secrets/settings/policy were copied or changed. Main PR #7 remains unmerged. Evidence:
-`configuration.json` (not included in the repository), dispatch-receipt.json and run-state.json.
-
-The authorize-revision job PASSED. The Stock release conformance gate job used a GitHub-hosted ubuntu-24.04
-runner and built the native reporting integrations, but FAILED in Prepare pinned development images when
-absent. Its exact fatal message was `error while interpolating services.minio.environment.MINIO_ROOT_USER:
-required variable AWS_ACCESS_KEY_ID is missing a value: Run runner/setup.py` (image preparation log lines
-58–63, exit 1). Classification: WORKFLOW_BUG. Empty job-level AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
-environment values override generated nonempty docker/.env values during direct Compose commands. The isolated
-runner already handles owned configuration, but this earlier workflow step does not. Dependency/plugin
-warnings in the integration log are not the fatal cause: those integration builds finished successfully.
-
-The stack was not started: ten-service startup is not verified. Issuer/verifier official plan execution and
-expected stock 2 PASSED / 10 INTERRUPTED / 3 SKIPPED and Verify 4 PASSED / 6 REVIEW are not verified on hosted
-Linux. No new official counts or plan IDs exist; local historical counts must not be substituted. Reports,
-Extent/TestNG output, MinIO read-back and owned-volume cleanup are not verified. The cleanup step returned
-success without an isolated-state file, so it was a no-op and does not establish cleanup of a started stack.
-No conformance summary existed; restricted export and artifact upload consequently failed. GitHub lists zero
-artifacts. This is an implementation startup failure, not the expected strict conformance-gate rejection.
-
-The complete workflow log ZIP was downloaded and CRC checked: `run-40164823727-logs.zip` (not included in the
-repository), SHA256 `381c1e65bfb9af798dd6ca119d8cde98efced9351ae11067c03fa6c20cbeac9c`. Artifacts were
-requested but none exist; none were fabricated. Structured job/step timestamps and conclusions are in
-run-state.json. Only one dispatch was made, with zero reruns.
-
-Proposed minimal startup correction, not applied: unset the two inherited AWS variables immediately after
-setup.py in the managed image-preparation step so Compose consumes generated docker/.env. Diff:
-`proposed-startup-fix.diff` (not included in the repository). A separate proposed evidence-retention step,
-also not applied, uploads native/consolidated HTML/XML reports and storage/cleanup receipts needed to judge
-hosted validation; the existing restricted-summary-only upload does not retain those deliverables. Diff:
-`proposed-report-retention.diff` (not included in the repository). It excludes raw credential exports, private
-keys and generated .env. Both preserve the default-branch guard, selected stock path, result mapping, strict
-gates and read-only workflow permissions. Approval is required before applying either diff, publishing an
-updated candidate or making the first rerun; at most two reruns are permitted. No workflow code was modified
-in this attempt.
-
-The scratch repository is preserved pending the repository retention decision. repository integration merge,
-independent empty-cache validation independent empty-cache validation, organizer acceptance of Java 21, final
-video/pitch and submission approval remain pending. No release was published. The expected failed conformance
-gate will be acceptable evidence for hosted validation only if every requested
-execution/report/storage/cleanup criterion is actually verified in a later approved run.
-
-
-## Approved hosted validation retry preparation
-
-The reviewed implementation includes both proposed fixes, publication to PR #7 and exactly one scratch retry,
-requiring a cross-step AWS audit. The final correction removes AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY from
-job env entirely; an external-mode-only step validates nonempty secret inputs and writes them to GITHUB_ENV.
-Managed image preparation, execution and cleanup therefore inherit no empty workflow-exported AWS credential
-variables. Image preparation reads generated docker/.env directly; isolated_stack.py merges owned .env for
-execution/cleanup, and run-clean-conformance.sh loads generated storage credentials before reporting. The
-original single-step unset proposal is superseded. The approved report-retention action preserves
-native/consolidated HTML/XML reports and storage/cleanup receipts without raw key/config exports. Exact diff
-and validation: `final-workflow.diff` (not included in the repository) and local-checks.json.
-Workflow/actionlint and shell checks passed; guards, permissions, timeout, stock behavior, REVIEW handling and
-gates are unchanged. Retry outcome is not verified until its actual run completes. No further retry or scratch
-deletion is authorized.
-
-
-## hosted validation verified scratch retry — 25 October 2026
-
-All five documented hosted execution criteria are verified in private scratch repository
-[SantoshReddy0603/inji-conformance-b2-scratch](https://github.com/SantoshReddy0603/inji-conformance-b2-scratch),
-default branch main, exact unmerged PR #7 candidate `9c8d94ad9da42ac458ea304192118266577469f9`. Hosted [run
-40165722639](https://github.com/SantoshReddy0603/inji-conformance-private evidence (not included in the
-repository)) was the second hosted attempt. Ordinary PR CI also passed for that candidate
-([40165694278](https://github.com/SantoshReddy0603/mosip-inji-conformance/actions/runs/40165694278)). No
-merge, release, main-repository setting/policy change, copied secret, further retry or scratch deletion
-occurred.
-
-| hosted validation success criterion | Result | Evidence |
-|---|---|---|
-| Ten-service stack starts on ubuntu-24.04 | PASS | run-state.json hosted runner labels; execution log has Started for all ten services; isolated-stack-state.json records ten images and five owned volumes |
-| Official issuer and selected verifier plans execute | PASS | issuer plan vir0sD8It1IDI; verifier plan UZtgjxUuLpdPj; official run 2583bed425d64f5abb0c86993d402116; runner REST calls and module outcomes in logs and ci-summary.json |
-| Native/consolidated reports and storage evidence produced/uploaded | PASS | managed-reporting-evidence artifact 12587788827 and live-conformance-results artifact 12587654719; both downloaded and CRC checked |
-| Storage verification and owned cleanup succeed | PASS | artifact-storage-validation.json verifies 114 objects; execution log reports all five owned volumes removed with zero remaining; cleanup step success |
-| Expected stock and verifier counts match local reference | PASS | ci-summary.json: Certify 2 PASSED / 10 INTERRUPTED / 3 SKIPPED; Verify 4 PASSED / 6 REVIEW |
-
-Evidence paths in this section are under private private evidence (not included in the repository) Structured
-assessment: assessment.json. Download manifests: download-receipts.json. Full logs: run-40165722639-logs.zip,
-SHA256 `b1d256636d9b1b27afc2f8cce6ccb580955e747189c9b46074820f23948d6ff2`. Restricted results artifact
-12587654719 contains ci-summary.json and ci-report.html. Reporting artifact 12587788827 contains both real
-API-rig reports, consolidated extent-report.html/testng-results.xml, reporter exit codes, storage receipt and
-final owned deployment state. Twenty-three downloaded report files matched their recorded storage SHA256 and
-byte counts.
-
-Per-job results: authorize-revision SUCCESS; Stock release conformance gate FAILURE. The sole failed step was
-Execute and gate live plans, exit 1, supported by actual nonpassing official outcomes; native/consolidated
-reporter exits were certify=1, verify=1, combined=1. Image preparation, restricted summary export, both
-artifact uploads and the explicit cleanup step succeeded. Combined official counts are 6 PASSED, 10
-INTERRUPTED, 6 REVIEW and 3 SKIPPED. Both product gates and the combined release gate remain FAILED. TestNG
-includes its extra gate assertion: combined 26 checks / 6 passed / 17 failed / 3 skipped; native Certify 16 /
-2 / 11 / 3; native Verify 11 / 4 / 7 / 0. hosted validation verification is implementation validation under
-the documented criteria, not stock conformance, REVIEW approval or certification.
-
-The execution wrapper's first cleanup log records removal of five volumes. The workflow's second idempotent
-cleanup records zero removed/zero remaining and overwrites the final state file's removed list. Therefore the
-final state alone proves absence, while original log lines 16592 and 16643 prove both cleanup calls; no
-evidence was edited to hide that distinction. No deployment/data leak was inferred from the overwritten list.
-
-Stock image reference was injistack/inji-certify-with-plugins:1.0.0-alpha.1, observed image ID
-`sha256:75170c3bb5ccb13869637e7450c16994f496104529bb4ce56f336d19475d1f46`. This differs from the earlier local
-image ID; claim scope is this recorded hosted image, not byte-identical release reproducibility. Actual
-official export ZIPs were uploaded to ephemeral MinIO and verified by storage receipt/logs
-(plan-vir0sD8It1IDI-export.zip and plan-UZtgjxUuLpdPj-export.zip). Their raw bytes were not retained as GitHub
-artifacts, so offline reinspection of those raw export ZIPs is not verified; original local exports remain
-preserved separately. This does not imply that raw credentials/private keys were published.
-
-Applied code change remains only .github/workflows/full-stack-conformance.yml: job-level AWS credential
-exports removed; external-mode-only nonempty credential loader added; managed reporting artifact upload added.
-Authorization guard, immutable revision/ancestry checks, stock path, REVIEW mapping, strict gates, permissions
-and 180-minute timeout were preserved. Final diff: final-workflow.diff; local policy/actionlint/loader checks:
-local-checks.json; full Python regression: python-tests.xml, 196 passed / 31 warnings / exit 0. No shell
-source changed and all .sh files remain LF.
-
-The scratch repository remains private and retained for the repository retention decision. Further retry
-requires fresh approval. The historical retry preceded repository integration; later integration receipts are listed below;
-the documented hosted validation harness success does not convert the conformance gate into PASS. Independent
-empty-cache validation separate clean-machine validation, the organizer's Java 21 answer and final
-submission/demo materials remain external pending or not verified as described in the checklist.
-
-## Retained hosted validation evidence for repository integration
-
-hosted validation is verified only for private scratch repository
-`SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, commit
-`9c8d94ad9da42ac458ea304192118266577469f9`; it was not a main-repository run. The previously downloaded logs
-and both artifacts were copied into private private evidence (not included in the repository) and rechecked
-against their download SHA256 receipts and ZIP CRCs. `manifest.json` records their hashes and source run;
-`assessment.json` records the five verified hosted validation implementation criteria. This evidence folder is
-separate from the source repository and must accompany a controlled evidence handoff.
-
-| Retained file | Evidence |
-|---|---|
-| `run-40165722639-logs.zip` (not included in the repository) | Complete hosted workflow logs |
-| `artifact-12587654719.zip` (not included in the repository) | live-conformance-results: summary and report |
-| `artifact-12587788827.zip` (not included in the repository) | managed-reporting-evidence: native/consolidated reports, storage and cleanup receipts |
-
-The strict conformance gates remain FAILED; raw hosted official export ZIP bytes were not retained in these
-artifacts. Repository integration requires successful CI on the selected revision; independent empty-cache validation, further live runs and scratch
-deletion remain unperformed.
-
-## hosted validation coverage of the final code
-
-Scratch repository `SantoshReddy0603/inji-conformance-b2-scratch`, run `40165722639`, tested commit
-`9c8d94ad9da42ac458ea304192118266577469f9`. Final PR #7 head `8ef076aa3eec784dee8c32a97cd9a9bd5eb01355`
-differs only in the documentation files listed below: all are DOCS_ONLY, with no runtime or workflow changes.
-Command: `git diff 9c8d94ad9da42ac458ea304192118266577469f9..8ef076aa3eec784dee8c32a97cd9a9bd5eb01355 --stat`;
-output: 8 files changed, 94 insertions(+), 15 deletions(-).
-
-- `CI_CD_SETUP.md`
-- `README.md`
-- `REQUIREMENTS_STATUS.md`
-- `SETUP.md`
-- `docs/VALIDATION.md`
-- `submission/DEMO_SCRIPT.md`
-- `submission/EVIDENCE_INDEX.md`
-- `submission/LIMITATIONS.md`
-
-Original repository main was confirmed at PR #7 merge commit `fd89d1f4d8e960e5ad3f0fdb7b2fb975f70d41be`. All
-five pre-merge CI jobs passed on the exact final head in run `40177192785`. The project ZIP SHA256
-`5182d5ad87cc0e46e96cdd7b0604294ec3c13f4ebab814ba69add528d7b14091` differs from main only in
-docs/VALIDATION.md, REQUIREMENTS_STATUS.md and submission/EVIDENCE_INDEX.md; the ZIP copies predate the newer
-retained-evidence records on main and were not used to overwrite them. This follow-up changes documentation
-only and does not constitute another live hosted validation run. Source comparison output: private
-`source-comparison.json` (not included in the repository).

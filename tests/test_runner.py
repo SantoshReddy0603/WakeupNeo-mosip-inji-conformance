@@ -395,3 +395,21 @@ def test_non_image_cannot_be_uploaded_as_screenshot(api, tmp_path):
     with pytest.raises(ValueError, match='actual PNG or JPEG'):
         OIDFClient(api['url']).upload_test_image('test-1', 'placeholder-1', image)
     assert not api['calls']
+
+
+@pytest.mark.parametrize('status', ['PASSED', 'REVIEW', 'INTERRUPTED', 'TIMEOUT'])
+@pytest.mark.parametrize('error', [RuntimeError('log download unavailable'), TimeoutError()])
+def test_log_failure_preserves_official_outcome_and_rejects_gate(api, tmp_path, status, error):
+    client = OIDFClient(api['url'])
+    client.poll_test_completion = lambda *args, **kwargs: {
+        'status':'FINISHED' if status in {'PASSED','REVIEW'} else status, 'result':status}
+    def unavailable_log(_):
+        raise error
+    client.get_test_log = unavailable_log
+    result = ConformanceRunner(client,tmp_path).run_plan('certify',template(tmp_path),{},[])
+    assert all(m['status'] == status for m in result['modules'])
+    assert all(m['evidence_error'] == (str(error) or type(error).__name__) for m in result['modules'])
+    assert set(result['results'].values()) == {status}
+    assert result['summary']['is_gated_pass'] is False
+    assert (str(error) or type(error).__name__) in result['summary']['artifact_error']
+    client.close()
